@@ -6,10 +6,10 @@ import Cell from "../Cell/Cell";
 export type TCanvasState = boolean[];
 
 const Canvas = (props: {
-  canvasState: TCanvasState;
-  setCanvasState: Dispatch<SetStateAction<TCanvasState>>;
+  canvas: TCanvasState;
+  setCanvas: Dispatch<SetStateAction<TCanvasState>>;
 }) => {
-  const { canvasState, setCanvasState } = props;
+  const { canvas, setCanvas } = props;
 
   return (
     <>
@@ -24,14 +24,14 @@ const Canvas = (props: {
           borderStyle: "solid",
         }}
       >
-        {canvasState.map((isFilled, index) => (
+        {canvas.map((isFilled, index) => (
           <Cell
             filled={isFilled}
             toggleCell={() => {
-              setCanvasState((oldCanvasState: TCanvasState) => {
-                const newCanvasState = [...oldCanvasState];
-                newCanvasState[index] = !newCanvasState[index];
-                return newCanvasState;
+              setCanvas((oldCanvas: TCanvasState) => {
+                const newCanvas = [...oldCanvas];
+                newCanvas[index] = !newCanvas[index];
+                return newCanvas;
               });
             }}
           />
