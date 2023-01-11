@@ -30,7 +30,7 @@ const Canvas = (props: {
             toggleCell={() => {
               setCanvas((oldCanvas: TCanvasState) => {
                 const newCanvas = [...oldCanvas];
-                newCanvas[index] = !newCanvas[index];
+                newCanvas[index] = !oldCanvas[index];
                 return newCanvas;
               });
             }}
