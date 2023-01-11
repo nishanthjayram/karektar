@@ -16,7 +16,7 @@ const Cell = (props: { filled: boolean; toggleCell: () => void }) => {
         boxSizing: "border-box",
       }}
       onClick={toggleCell}
-    ></div>
+    />
   );
 };
 
