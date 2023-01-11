@@ -4,15 +4,15 @@ import "./App.css";
 
 const App = (props: { canvas_size: number }) => {
   const { canvas_size } = props;
-  const startCanvasState = new Array(canvas_size ** 2).fill(false); // Initial canvas state (empty)
+  const startCanvas = new Array(canvas_size ** 2).fill(false); // Initial canvas state (empty)
 
-  const [canvasState, setCanvasState] = useState(startCanvasState);
+  const [canvas, setCanvas] = useState(startCanvas);
 
   return (
     <>
       <h1>Karektar</h1>
       <div className="App">
-        <Canvas canvasState={canvasState} setCanvasState={setCanvasState} />
+        <Canvas canvas={canvas} setCanvas={setCanvas} />
       </div>
     </>
   );
