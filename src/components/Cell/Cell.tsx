@@ -1,8 +1,6 @@
 const FILLED_COLOR = "black";
 const EMPTY_COLOR = "white";
 
-// I'm not sure how the css import is workingm you might need o read he vite docs
-
 const Cell = (props: { filled: boolean; toggleCell: () => void }) => {
   const { filled, toggleCell } = props;
 
