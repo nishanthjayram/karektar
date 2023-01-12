@@ -4,9 +4,11 @@ import "./App.css";
 
 const App = (props: { canvasSize: number }) => {
   const { canvasSize } = props;
-  const startCanvas = new Array(canvasSize ** 2).fill(false); // Initial canvas state (empty)
 
-  const [canvas, setCanvas] = useState(startCanvas);
+  // Initial canvas state (empty)
+  const [canvas, setCanvas] = useState(() =>
+    new Array(canvasSize ** 2).fill(false)
+  );
 
   return (
     <>
