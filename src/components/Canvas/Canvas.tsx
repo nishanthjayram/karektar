@@ -1,5 +1,6 @@
 // A canvas for drawing individual glyphs.
 
+import styles from "./Canvas.module.scss";
 import { Dispatch, SetStateAction } from "react";
 import Cell from "../Cell/Cell";
 
@@ -13,17 +14,7 @@ const Canvas = (props: {
 
   return (
     <>
-      <div
-        style={{
-          width: "400px",
-          height: "400px",
-          display: "flex",
-          flexFlow: "row wrap",
-          borderColor: "black",
-          borderWidth: "1px",
-          borderStyle: "solid",
-        }}
-      >
+      <div className={styles.canvas}>
         {canvas.map((isFilled, index) => (
           <Cell
             filled={isFilled}
