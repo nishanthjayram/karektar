@@ -1,0 +1,32 @@
+$empty-color: #efefef;
+$filled-color: #2b2b2b;
+$hover-color: #95bedd;
+
+.cell {
+  width: 50px;
+  height: 50px;
+  border-color: black;
+  border-width: 1px;
+  border-style: solid;
+  box-sizing: border-box;
+
+  &:hover {
+    background-color: $hover-color;
+  }
+}
+
+.empty {
+  background-color: $empty-color;
+
+  &:active {
+    background-color: $filled-color;
+  }
+}
+
+.filled {
+  background-color: $filled-color;
+
+  &:active {
+    background: $empty-color;
+  }
+}
