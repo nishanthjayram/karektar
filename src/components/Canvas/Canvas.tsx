@@ -1,7 +1,7 @@
 // A canvas for drawing individual glyphs.
 
 import styles from "./Canvas.module.scss";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import Cell from "../Cell/Cell";
 
 export type TCanvasState = boolean[];
@@ -11,10 +11,16 @@ const Canvas = (props: {
   setCanvas: Dispatch<SetStateAction<TCanvasState>>;
 }) => {
   const { canvas, setCanvas } = props;
+  const [mouseDownFlag, setMouseDownFlag] = useState(false);
 
   return (
     <>
-      <div className={styles.canvas}>
+      <div
+        className={styles.canvas}
+        onMouseDown={() => setMouseDownFlag(true)}
+        onMouseUp={() => setMouseDownFlag(false)}
+        onMouseLeave={() => setMouseDownFlag(false)}
+      >
         {canvas.map((isFilled, index) => (
           <Cell
             filled={isFilled}
@@ -25,6 +31,7 @@ const Canvas = (props: {
                 return newCanvas;
               });
             }}
+            mouseDownFlag={mouseDownFlag}
           />
         ))}
       </div>
