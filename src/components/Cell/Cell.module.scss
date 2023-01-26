@@ -19,15 +19,16 @@ $hover-color: #95bedd;
 .empty {
   background-color: $empty-color;
 
-  &:active {
-    background-color: $filled-color;
-  }
+  // TODO: Fix active behavior so it does not interfere with drag-to-draw mechanism.
+  // &:active {
+  //   background-color: $filled-color;
+  // }
 }
 
 .filled {
   background-color: $filled-color;
 
-  &:active {
-    background: $empty-color;
-  }
+  // &:active {
+  //   background: $empty-color;
+  // }
 }
