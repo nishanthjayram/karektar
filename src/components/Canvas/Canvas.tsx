@@ -12,13 +12,12 @@ const Canvas = (props: {
 }) => {
   const { canvas, setCanvas } = props;
   const [mouseDownFlag, setMouseDownFlag] = useState(false);
+  const [drawFlag, setDrawFlag] = useState(true);
 
   return (
     <>
       <div
         className={styles.canvas}
-        onMouseDown={() => setMouseDownFlag(true)}
-        onMouseUp={() => setMouseDownFlag(false)}
         onMouseLeave={() => setMouseDownFlag(false)}
       >
         {canvas.map((isFilled, index) => (
@@ -32,6 +31,9 @@ const Canvas = (props: {
               });
             }}
             mouseDownFlag={mouseDownFlag}
+            setMouseDownFlag={setMouseDownFlag}
+            drawFlag={drawFlag}
+            setDrawFlag={setDrawFlag}
           />
         ))}
       </div>
