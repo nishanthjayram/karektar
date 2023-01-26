@@ -10,25 +10,15 @@ $hover-color: #95bedd;
   border-style: solid;
   box-sizing: border-box;
 
-  // TODO: Fix hover behavior so it does not interfere with drag-to-draw mechanism.
-  // &:hover {
-  //   background-color: $hover-color;
-  // }
+  &:hover {
+    background-color: $hover-color;
+  }
 }
 
 .empty {
   background-color: $empty-color;
-
-  // TODO: Fix active behavior so it does not interfere with drag-to-draw mechanism.
-  // &:active {
-  //   background-color: $filled-color;
-  // }
 }
 
 .filled {
   background-color: $filled-color;
-
-  // &:active {
-  //   background: $empty-color;
-  // }
 }
