@@ -6,11 +6,13 @@ import Cell from "../Cell/Cell";
 
 export type TCanvasState = boolean[];
 
-const Canvas = (props: {
+const Canvas = ({
+  canvas,
+  setCanvas,
+}: {
   canvas: TCanvasState;
   setCanvas: Dispatch<SetStateAction<TCanvasState>>;
 }) => {
-  const { canvas, setCanvas } = props;
   const [mouseDownFlag, setMouseDownFlag] = useState(false);
   const [drawFlag, setDrawFlag] = useState(true);
 
