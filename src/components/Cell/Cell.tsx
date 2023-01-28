@@ -44,7 +44,7 @@ const Cell = ({
         setDrawFlag(true);
       }}
       onMouseMove={(e) => {
-        if (mouseDownFlag && drawFlag != filled && !alreadyToggledFlag) {
+        if (mouseDownFlag && drawFlag !== filled && !alreadyToggledFlag) {
           updateCell();
         }
       }}
