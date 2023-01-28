@@ -2,7 +2,14 @@ import styles from "./Cell.module.scss";
 import classnames from "classnames";
 import { Dispatch, SetStateAction, useState } from "react";
 
-const Cell = (props: {
+const Cell = ({
+  filled,
+  toggleCell,
+  mouseDownFlag,
+  setMouseDownFlag,
+  drawFlag,
+  setDrawFlag,
+}: {
   filled: boolean;
   toggleCell: () => void;
   mouseDownFlag: boolean;
@@ -10,14 +17,6 @@ const Cell = (props: {
   drawFlag: boolean;
   setDrawFlag: Dispatch<SetStateAction<boolean>>;
 }) => {
-  const {
-    filled,
-    toggleCell,
-    mouseDownFlag,
-    setMouseDownFlag,
-    drawFlag,
-    setDrawFlag,
-  } = props;
   const [alreadyToggledFlag, setAlreadyToggledFlag] = useState(false);
 
   if (!mouseDownFlag && alreadyToggledFlag) setAlreadyToggledFlag(false);
