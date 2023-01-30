@@ -24,6 +24,7 @@ const Canvas = ({
       >
         {canvas.map((isFilled, index) => (
           <Cell
+            key={index}
             filled={isFilled}
             toggleCell={() => {
               setCanvas((oldCanvas: TCanvasState) => {
