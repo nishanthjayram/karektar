@@ -20,6 +20,9 @@ const Canvas = ({
     <>
       <div
         className={styles.canvas}
+        onMouseOver={(e) => {
+          if (e.buttons === 1) setMouseDownFlag(true);
+        }}
         onMouseLeave={() => setMouseDownFlag(false)}
       >
         {canvas.map((isFilled, index) => (
