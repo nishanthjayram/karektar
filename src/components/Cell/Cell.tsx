@@ -34,7 +34,7 @@ const Cell = ({
         styles.cell
       )}
       onMouseDown={(e) => {
-        if (e.button != 0) return;
+        if (e.button !== 0) return;
         setMouseDownFlag(true);
         setDrawFlag(!filled);
         updateCell();
