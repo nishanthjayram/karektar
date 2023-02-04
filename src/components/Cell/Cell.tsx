@@ -1,8 +1,30 @@
 import styles from "./Cell.module.scss";
 import classnames from "classnames";
+import { Dispatch, SetStateAction, useState } from "react";
 
-const Cell = (props: { filled: boolean; toggleCell: () => void }) => {
-  const { filled, toggleCell } = props;
+const Cell = ({
+  filled,
+  toggleCell,
+  mouseDownFlag,
+  setMouseDownFlag,
+  drawFlag,
+  setDrawFlag,
+}: {
+  filled: boolean;
+  toggleCell: () => void;
+  mouseDownFlag: boolean;
+  setMouseDownFlag: Dispatch<SetStateAction<boolean>>;
+  drawFlag: boolean;
+  setDrawFlag: Dispatch<SetStateAction<boolean>>;
+}) => {
+  const [alreadyToggledFlag, setAlreadyToggledFlag] = useState(false);
+
+  if (!mouseDownFlag && alreadyToggledFlag) setAlreadyToggledFlag(false);
+
+  const updateCell = () => {
+    toggleCell();
+    setAlreadyToggledFlag(true);
+  };
 
   return (
     <div
@@ -11,7 +33,21 @@ const Cell = (props: { filled: boolean; toggleCell: () => void }) => {
         filled && styles.filled,
         styles.cell
       )}
-      onClick={toggleCell}
+      onMouseDown={(e) => {
+        if (e.button !== 0) return;
+        setMouseDownFlag(true);
+        setDrawFlag(!filled);
+        updateCell();
+      }}
+      onMouseUp={() => {
+        setMouseDownFlag(false);
+        setDrawFlag(true);
+      }}
+      onMouseMove={(e) => {
+        if (mouseDownFlag && drawFlag !== filled && !alreadyToggledFlag) {
+          updateCell();
+        }
+      }}
     />
   );
 };
