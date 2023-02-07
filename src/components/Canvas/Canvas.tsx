@@ -9,9 +9,13 @@ export type TCanvasState = boolean[];
 const Canvas = ({
   canvas,
   setCanvas,
+  activeGlyph,
+  toggleGlyph,
 }: {
   canvas: TCanvasState;
   setCanvas: Dispatch<SetStateAction<TCanvasState>>;
+  activeGlyph: string;
+  toggleGlyph: () => void;
 }) => {
   const [mouseDownFlag, setMouseDownFlag] = useState(false);
   const [drawFlag, setDrawFlag] = useState(true);
@@ -36,6 +40,7 @@ const Canvas = ({
                 return newCanvas;
               });
             }}
+            toggleGlyph={toggleGlyph}
             mouseDownFlag={mouseDownFlag}
             setMouseDownFlag={setMouseDownFlag}
             drawFlag={drawFlag}
