@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 const Cell = ({
   filled,
   toggleCell,
+  toggleGlyph,
   mouseDownFlag,
   setMouseDownFlag,
   drawFlag,
@@ -12,6 +13,7 @@ const Cell = ({
 }: {
   filled: boolean;
   toggleCell: () => void;
+  toggleGlyph: () => void;
   mouseDownFlag: boolean;
   setMouseDownFlag: Dispatch<SetStateAction<boolean>>;
   drawFlag: boolean;
@@ -42,6 +44,7 @@ const Cell = ({
       onMouseUp={() => {
         setMouseDownFlag(false);
         setDrawFlag(true);
+        toggleGlyph();
       }}
       onMouseMove={(e) => {
         if (mouseDownFlag && drawFlag !== filled && !alreadyToggledFlag) {
