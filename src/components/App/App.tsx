@@ -20,11 +20,12 @@ const App = ({ canvasSize }: { canvasSize: number }) => {
   useEffect(() => {
     setGlyphSet((oldGlyphSet) => {
       const newGlyphSet = new Map<string, boolean[]>();
-      symbolSet.forEach((symbol) => {
-        !oldGlyphSet.has(symbol)
-          ? newGlyphSet.set(symbol, new Array(canvasSize ** 2).fill(false))
-          : newGlyphSet.set(symbol, oldGlyphSet.get(symbol)!);
-      });
+      symbolSet.forEach((symbol) =>
+        newGlyphSet.set(
+          symbol,
+          oldGlyphSet.get(symbol) ?? new Array(canvasSize ** 2).fill(false)
+        )
+      );
       return newGlyphSet;
     });
   }, [symbolSet.length]);
