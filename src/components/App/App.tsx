@@ -61,11 +61,7 @@ const App = ({ canvasSize }: { canvasSize: number }) => {
           setGlyphSet={setGlyphSet}
           activeGlyph={activeGlyph}
         />
-        <GlyphSet
-          glyphSet={glyphSet}
-          activeGlyph={activeGlyph}
-          setActiveGlyph={setActiveGlyph}
-        />
+        <GlyphSet glyphSet={glyphSet} setActiveGlyph={setActiveGlyph} />
       </div>
     </>
   );
