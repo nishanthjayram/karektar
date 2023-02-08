@@ -6,14 +6,14 @@ import {
 } from "../../constants/regex";
 import Canvas from "../Canvas/Canvas";
 import GlyphSet from "../GlyphSet/GlyphSet";
-import "./App.css";
+import styles from "./App.module.scss";
+
+const DEFAULT_PROMPT = "sphinx of black quartz, judge my vow";
 
 const App = ({ canvasSize }: { canvasSize: number }) => {
-  const [inputText, setInputText] = useState("");
-  const [query, setQuery] = useState("");
+  const [inputText, setInputText] = useState(DEFAULT_PROMPT);
+  const [query, setQuery] = useState(DEFAULT_PROMPT);
   const [glyphSet, setGlyphSet] = useState(() => new Map<string, boolean[]>());
-  const [canvas, setCanvas] = useState(new Array<boolean>());
-
   const symbolSet = useMemo(() => getUniqueCharacters(query), [query.length]);
   const [activeGlyph, setActiveGlyph] = useState(symbolSet[0]);
 
@@ -21,11 +21,9 @@ const App = ({ canvasSize }: { canvasSize: number }) => {
     setGlyphSet((oldGlyphSet) => {
       const newGlyphSet = new Map<string, boolean[]>();
       symbolSet.forEach((symbol) => {
-        if (!oldGlyphSet.has(symbol)) {
-          newGlyphSet.set(symbol, new Array(canvasSize ** 2).fill(false));
-        } else {
-          newGlyphSet.set(symbol, oldGlyphSet.get(symbol)!);
-        }
+        !oldGlyphSet.has(symbol)
+          ? newGlyphSet.set(symbol, new Array(canvasSize ** 2).fill(false))
+          : newGlyphSet.set(symbol, oldGlyphSet.get(symbol)!);
       });
       return newGlyphSet;
     });
@@ -35,43 +33,35 @@ const App = ({ canvasSize }: { canvasSize: number }) => {
     <>
       <h1>Karektar</h1>
       <div>
-        <label htmlFor="queryField">Enter prompt: </label>
-        <input
-          type="text"
+        <textarea
           id="queryField"
           name="queryField"
           value={inputText}
+          placeholder={"Enter prompt"}
           onChange={(e) => setInputText(e.target.value)}
+          className={styles.input}
         />
-        <button onClick={() => setQuery(inputText)}>Submit</button>
-        <button
-          onClick={() => {
-            setInputText("");
-            setQuery("");
-            setCanvas([]!);
-          }}
-        >
-          Clear
-        </button>
+        <div className={styles.buttonRow}>
+          <button onClick={() => setQuery(inputText)}>Submit</button>
+          <button
+            onClick={() => {
+              setInputText("");
+              setQuery("");
+            }}
+          >
+            Clear
+          </button>
+        </div>
       </div>
       <br />
       <div className="App">
         <Canvas
-          canvas={canvas}
-          setCanvas={setCanvas}
+          glyphSet={glyphSet}
+          setGlyphSet={setGlyphSet}
           activeGlyph={activeGlyph}
-          toggleGlyph={() => {
-            setGlyphSet((oldGlyphSet) => {
-              const newGlyphSet = new Map(oldGlyphSet);
-              newGlyphSet.set(activeGlyph, canvas);
-              return newGlyphSet;
-            });
-          }}
         />
         <GlyphSet
           glyphSet={glyphSet}
-          canvas={canvas}
-          setCanvas={setCanvas}
           activeGlyph={activeGlyph}
           setActiveGlyph={setActiveGlyph}
         />
