@@ -4,25 +4,18 @@ import Glyph from "../Glyph/Glyph";
 
 const GlyphSet = ({
   glyphSet,
-  canvas,
-  setCanvas,
-  activeGlyph,
   setActiveGlyph,
 }: {
   glyphSet: Map<string, boolean[]>;
-  canvas: boolean[];
-  setCanvas: Dispatch<SetStateAction<boolean[]>>;
-  activeGlyph: string;
   setActiveGlyph: Dispatch<SetStateAction<string>>;
 }) => {
   return (
     <div className={styles.glyphSet}>
-      {[...glyphSet.keys()].map((symbol, index) => (
+      {[...glyphSet.entries()].map(([symbol, glyphCanvas]) => (
         <Glyph
-          key={index}
+          key={symbol}
           glyph={symbol}
-          glyphCanvas={symbol == activeGlyph ? canvas : glyphSet.get(symbol)!}
-          setCanvas={setCanvas}
+          glyphCanvas={glyphCanvas}
           setActiveGlyph={setActiveGlyph}
         />
       ))}
