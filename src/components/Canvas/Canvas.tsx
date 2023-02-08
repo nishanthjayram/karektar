@@ -4,52 +4,55 @@ import styles from "./Canvas.module.scss";
 import { Dispatch, SetStateAction, useState } from "react";
 import Cell from "../Cell/Cell";
 
-export type TCanvasState = boolean[];
+export type TCanvasState = boolean[] | undefined;
 
 const Canvas = ({
-  canvas,
-  setCanvas,
+  glyphSet,
+  setGlyphSet,
   activeGlyph,
-  toggleGlyph,
 }: {
-  canvas: TCanvasState;
-  setCanvas: Dispatch<SetStateAction<TCanvasState>>;
+  glyphSet: Map<string, boolean[]>;
+  setGlyphSet: Dispatch<SetStateAction<Map<string, boolean[]>>>;
   activeGlyph: string;
-  toggleGlyph: () => void;
 }) => {
   const [mouseDownFlag, setMouseDownFlag] = useState(false);
   const [drawFlag, setDrawFlag] = useState(true);
 
-  return (
-    <>
-      <div
-        className={styles.canvas}
-        onMouseOver={(e) => {
-          if (e.buttons === 1) setMouseDownFlag(true);
-        }}
-        onMouseLeave={() => setMouseDownFlag(false)}
-      >
-        {canvas.map((isFilled, index) => (
-          <Cell
-            key={index}
-            filled={isFilled}
-            toggleCell={() => {
-              setCanvas((oldCanvas: TCanvasState) => {
-                const newCanvas = [...oldCanvas];
-                newCanvas[index] = !oldCanvas[index];
-                return newCanvas;
-              });
-            }}
-            toggleGlyph={toggleGlyph}
-            mouseDownFlag={mouseDownFlag}
-            setMouseDownFlag={setMouseDownFlag}
-            drawFlag={drawFlag}
-            setDrawFlag={setDrawFlag}
-          />
-        ))}
-      </div>
-    </>
-  );
+  const canvas = glyphSet.get(activeGlyph);
+
+  if (canvas)
+    return (
+      <>
+        <div
+          className={styles.canvas}
+          onMouseOver={(e) => {
+            if (e.buttons === 1) setMouseDownFlag(true);
+          }}
+          onMouseLeave={() => setMouseDownFlag(false)}
+        >
+          {canvas.map((isFilled, index) => (
+            <Cell
+              key={index}
+              filled={isFilled}
+              toggleCell={() => {
+                setGlyphSet((oldGlyphSet) => {
+                  const newGlyphSet = new Map(oldGlyphSet);
+                  const newCanvas = [...canvas];
+                  newCanvas[index] = !canvas[index];
+                  newGlyphSet.set(activeGlyph, newCanvas);
+                  return newGlyphSet;
+                });
+              }}
+              mouseDownFlag={mouseDownFlag}
+              setMouseDownFlag={setMouseDownFlag}
+              drawFlag={drawFlag}
+              setDrawFlag={setDrawFlag}
+            />
+          ))}
+        </div>
+      </>
+    );
+  else return <div />;
 };
 
 export default Canvas;
