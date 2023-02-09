@@ -1,10 +1,14 @@
 .canvas {
-  width: 400px;
-  height: 400px;
+  width: 416px;
+  height: 416px;
   display: flex;
   flex-flow: row wrap;
-  border-color: black;
-  border-width: 1px;
-  border-style: solid;
   user-select: none;
+}
+
+.emptyCanvas {
+  width: 416px;
+  height: 416px;
+  border: 2px black solid;
+  box-sizing: border-box;
 }
