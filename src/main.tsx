@@ -5,6 +5,6 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <App canvasSize={8} />
+    <App canvasSize={16} />
   </React.StrictMode>
 );
