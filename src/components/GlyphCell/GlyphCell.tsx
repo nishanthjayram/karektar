@@ -1,7 +1,13 @@
 import styles from "./GlyphCell.module.scss";
 import classnames from "classnames";
 
-const GlyphCell = ({ filled }: { filled: boolean }) => {
+const GlyphCell = ({
+  canvasSize,
+  filled,
+}: {
+  canvasSize: number;
+  filled: boolean;
+}) => {
   return (
     <div
       className={classnames(
@@ -9,6 +15,10 @@ const GlyphCell = ({ filled }: { filled: boolean }) => {
         filled && styles.filled,
         styles.cell
       )}
+      style={{
+        width: `${48 / canvasSize}px`,
+        height: `${48 / canvasSize}px`,
+      }}
     />
   );
 };
