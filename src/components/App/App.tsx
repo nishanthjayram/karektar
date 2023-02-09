@@ -15,7 +15,7 @@ const App = ({ canvasSize }: { canvasSize: number }) => {
   const [query, setQuery] = useState(DEFAULT_PROMPT);
   const [glyphSet, setGlyphSet] = useState(() => new Map<string, boolean[]>());
   const symbolSet = useMemo(() => getUniqueCharacters(query), [query.length]);
-  const [activeGlyph, setActiveGlyph] = useState(symbolSet[0]);
+  const [activeGlyph, setActiveGlyph] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setGlyphSet((oldGlyphSet) => {
@@ -31,7 +31,7 @@ const App = ({ canvasSize }: { canvasSize: number }) => {
   }, [symbolSet.length]);
 
   return (
-    <>
+    <div>
       <h1>Karektar</h1>
       <div>
         <textarea
@@ -55,15 +55,24 @@ const App = ({ canvasSize }: { canvasSize: number }) => {
         </div>
       </div>
       <br />
-      <div className="App">
+
+      <div className={styles.appRow}>
         <Canvas
+          canvasSize={canvasSize}
           glyphSet={glyphSet}
           setGlyphSet={setGlyphSet}
           activeGlyph={activeGlyph}
         />
-        <GlyphSet glyphSet={glyphSet} setActiveGlyph={setActiveGlyph} />
+        <div className={styles.glyph}>
+          <GlyphSet
+            canvasSize={canvasSize}
+            glyphSet={glyphSet}
+            activeGlyph={activeGlyph}
+            setActiveGlyph={setActiveGlyph}
+          />
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
