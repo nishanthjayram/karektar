@@ -3,6 +3,7 @@ import classnames from "classnames";
 import { Dispatch, SetStateAction, useState } from "react";
 
 const Cell = ({
+  canvasSize,
   filled,
   toggleCell,
   mouseDownFlag,
@@ -10,6 +11,7 @@ const Cell = ({
   drawFlag,
   setDrawFlag,
 }: {
+  canvasSize: number;
   filled: boolean;
   toggleCell: () => void;
   mouseDownFlag: boolean;
@@ -25,7 +27,6 @@ const Cell = ({
     toggleCell();
     setAlreadyToggledFlag(true);
   };
-
   return (
     <div
       className={classnames(
@@ -33,6 +34,10 @@ const Cell = ({
         filled && styles.filled,
         styles.cell
       )}
+      style={{
+        width: `${400 / canvasSize}px`,
+        height: `${400 / canvasSize}px`,
+      }}
       onMouseDown={(e) => {
         if (e.button !== 0) return;
         setMouseDownFlag(true);
