@@ -1,6 +1,6 @@
-import styles from "./GlyphSet.module.scss";
 import { Dispatch, SetStateAction } from "react";
 import Glyph from "../Glyph/Glyph";
+import styles from "./GlyphSet.module.scss";
 
 const GlyphSet = ({
   canvasSize,
@@ -21,7 +21,7 @@ const GlyphSet = ({
           canvasSize={canvasSize}
           glyph={symbol}
           glyphCanvas={glyphCanvas}
-          activeGlyph={activeGlyph}
+          active={activeGlyph === symbol}
           setActiveGlyph={setActiveGlyph}
         />
       ))}
