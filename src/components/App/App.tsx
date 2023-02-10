@@ -1,21 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  DEFAULT_PROMPT,
   RX_LETTERS,
   RX_NUMBERS,
   RX_NON_ALPHANUMERIC,
-} from "../../constants/regex";
+} from "../../constants";
 import Canvas from "../Canvas/Canvas";
 import GlyphSet from "../GlyphSet/GlyphSet";
 import styles from "./App.module.scss";
-
-const DEFAULT_PROMPT = "sphinx of black quartz, judge my vow";
 
 const App = ({ canvasSize }: { canvasSize: number }) => {
   const [inputText, setInputText] = useState(DEFAULT_PROMPT);
   const [query, setQuery] = useState(DEFAULT_PROMPT);
   const [glyphSet, setGlyphSet] = useState(() => new Map<string, boolean[]>());
   const symbolSet = useMemo(() => getUniqueCharacters(query), [query.length]);
-  const [activeGlyph, setActiveGlyph] = useState<string | undefined>(undefined);
+  const [activeGlyph, setActiveGlyph] = useState<string | undefined>(
+    symbolSet[0]
+  );
 
   useEffect(() => {
     setGlyphSet((oldGlyphSet) => {
@@ -43,19 +44,21 @@ const App = ({ canvasSize }: { canvasSize: number }) => {
           className={styles.input}
         />
         <div className={styles.buttonRow}>
-          <button onClick={() => setQuery(inputText)}>Submit</button>
+          <button onClick={() => setQuery(inputText)} className={styles.button}>
+            Submit
+          </button>
           <button
             onClick={() => {
               setInputText("");
               setQuery("");
             }}
+            className={styles.button}
           >
             Clear
           </button>
         </div>
       </div>
       <br />
-
       <div className={styles.appRow}>
         <Canvas
           canvasSize={canvasSize}
