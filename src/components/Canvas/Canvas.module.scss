@@ -6,9 +6,26 @@
   user-select: none;
 }
 
-.emptyCanvas {
-  width: 416px;
-  height: 416px;
-  border: 2px black solid;
-  box-sizing: border-box;
+.header {
+  background-color: black;
+  color: #efefef;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  height: 32px;
+  & .text {
+    padding: 8px;
+    line-height: 100%;
+    border-right: 1px #efefef solid;
+  }
+}
+
+.trash {
+  fill: #efefef;
+  display: inline-block;
+  transform: scale(0.5);
+  margin: 0;
+  &:hover {
+    background-color: orange;
+  }
 }

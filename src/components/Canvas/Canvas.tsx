@@ -1,10 +1,8 @@
 // A canvas for drawing individual glyphs.
-
-import styles from "./Canvas.module.scss";
 import { Dispatch, SetStateAction, useState } from "react";
+import { ReactComponent as Delete } from "../../assets/delete.svg";
 import Cell from "../Cell/Cell";
-
-export type TCanvasState = boolean[] | undefined;
+import styles from "./Canvas.module.scss";
 
 const Canvas = ({
   canvasSize,
@@ -24,7 +22,23 @@ const Canvas = ({
 
   if (canvas)
     return (
-      <>
+      <div>
+        <div className={styles.header}>
+          <div className={styles.text}>{activeGlyph}</div>
+          <Delete
+            className={styles.trash}
+            onClick={() =>
+              setGlyphSet((oldGlyphSet) => {
+                const newGlyphSet = new Map(oldGlyphSet);
+                const newCanvas = new Array(canvasSize ** 2).fill(false);
+                if (activeGlyph) {
+                  newGlyphSet.set(activeGlyph, newCanvas);
+                }
+                return newGlyphSet;
+              })
+            }
+          />
+        </div>
         <div
           className={styles.canvas}
           onMouseOver={(e) => {
@@ -55,9 +69,9 @@ const Canvas = ({
             />
           ))}
         </div>
-      </>
+      </div>
     );
-  return <div className={styles.emptyCanvas} />;
+  return <div />;
 };
 
 export default Canvas;
