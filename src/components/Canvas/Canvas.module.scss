@@ -14,18 +14,20 @@
   align-items: center;
   height: 32px;
   & .text {
-    padding: 8px;
-    line-height: 100%;
-    border-right: 1px #efefef solid;
+    min-width: 20px;
+    padding: 0 10px;
+    text-align: center;
   }
-}
-
-.trash {
-  fill: #efefef;
-  display: inline-block;
-  transform: scale(0.5);
-  margin: 0;
-  &:hover {
-    background-color: orange;
+  & .separator {
+    border-right: 1px #ffa500 solid;
+    height: 32px;
+  }
+  & .deleteIcon {
+    margin-left: auto;
+    fill: #efefef;
+    transform: scale(0.5);
+    &:hover {
+      background-color: orange;
+    }
   }
 }

@@ -25,8 +25,9 @@ const Canvas = ({
       <div>
         <div className={styles.header}>
           <div className={styles.text}>{activeGlyph}</div>
+          <div className={styles.separator} />
           <Delete
-            className={styles.trash}
+            className={styles.deleteIcon}
             onClick={() =>
               setGlyphSet((oldGlyphSet) => {
                 const newGlyphSet = new Map(oldGlyphSet);
