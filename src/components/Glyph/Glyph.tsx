@@ -10,19 +10,22 @@ const Glyph = ({
   canvasSize,
   glyph,
   glyphCanvas,
-  activeGlyph,
+  active,
   setActiveGlyph,
 }: {
   canvasSize: number;
   glyph: string;
   glyphCanvas: boolean[];
-  activeGlyph: string | undefined;
+  active: boolean;
   setActiveGlyph: Dispatch<SetStateAction<string | undefined>>;
 }) => {
   return (
-    <div className={styles.glyph}>
-      <div className={styles.symbol}>{glyph}</div>
-      <div className={styles.canvas} onClick={() => setActiveGlyph(glyph)}>
+    <div className={styles.glyph} onClick={() => setActiveGlyph(glyph)}>
+      <div className={classnames(active && styles.activeSymbol, styles.symbol)}>
+        {glyph}
+      </div>
+
+      <div className={styles.canvas}>
         {glyphCanvas.map((isFilled, index) => (
           <GlyphCell key={index} canvasSize={canvasSize} filled={isFilled} />
         ))}
@@ -31,8 +34,9 @@ const Glyph = ({
   );
 };
 
-export default memo(Glyph, (prevProps, nextProps) =>
-  prevProps.glyphCanvas.every(
-    (value, index) => value === nextProps.glyphCanvas[index]
-  )
+export default memo(
+  Glyph,
+  (prevProps, nextProps) =>
+    prevProps.active === nextProps.active &&
+    prevProps.glyphCanvas === nextProps.glyphCanvas
 );
