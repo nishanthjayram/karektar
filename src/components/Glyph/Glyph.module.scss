@@ -1,5 +1,6 @@
 .glyph {
-  padding: 5px;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .symbol {
@@ -7,10 +8,14 @@
   height: 20px;
   display: flex;
   flex-flow: row wrap;
-  background: black;
   font-size: 12px;
   justify-content: center;
   color: white;
+  background-color: black;
+}
+
+.activeSymbol {
+  background-color: orange;
 }
 
 .canvas {
