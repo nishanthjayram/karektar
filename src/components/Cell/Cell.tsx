@@ -1,6 +1,6 @@
-import styles from "./Cell.module.scss";
-import classnames from "classnames";
-import { Dispatch, SetStateAction, useState } from "react";
+import classnames from "classnames"
+import { Dispatch, SetStateAction, useState } from "react"
+import styles from "./Cell.module.scss"
 
 const Cell = ({
   filled,
@@ -10,21 +10,23 @@ const Cell = ({
   drawFlag,
   setDrawFlag,
 }: {
-  filled: boolean;
-  toggleCell: () => void;
-  mouseDownFlag: boolean;
-  setMouseDownFlag: Dispatch<SetStateAction<boolean>>;
-  drawFlag: boolean;
-  setDrawFlag: Dispatch<SetStateAction<boolean>>;
+  filled: boolean
+  toggleCell: () => void
+  mouseDownFlag: boolean
+  setMouseDownFlag: Dispatch<SetStateAction<boolean>>
+  drawFlag: boolean
+  setDrawFlag: Dispatch<SetStateAction<boolean>>
 }) => {
-  const [alreadyToggledFlag, setAlreadyToggledFlag] = useState(false);
+  const [alreadyToggledFlag, setAlreadyToggledFlag] = useState(false)
 
-  if (!mouseDownFlag && alreadyToggledFlag) setAlreadyToggledFlag(false);
+  if (!mouseDownFlag && alreadyToggledFlag) {
+setAlreadyToggledFlag(false)
+}
 
   const updateCell = () => {
-    toggleCell();
-    setAlreadyToggledFlag(true);
-  };
+    toggleCell()
+    setAlreadyToggledFlag(true)
+  }
 
   return (
     <div
@@ -34,22 +36,24 @@ const Cell = ({
         styles.cell
       )}
       onMouseDown={(e) => {
-        if (e.button !== 0) return;
-        setMouseDownFlag(true);
-        setDrawFlag(!filled);
-        updateCell();
+        if (e.button !== 0) {
+return
+}
+        setMouseDownFlag(true)
+        setDrawFlag(!filled)
+        updateCell()
       }}
       onMouseUp={() => {
-        setMouseDownFlag(false);
-        setDrawFlag(true);
+        setMouseDownFlag(false)
+        setDrawFlag(true)
       }}
       onMouseMove={(e) => {
         if (mouseDownFlag && drawFlag !== filled && !alreadyToggledFlag) {
-          updateCell();
+          updateCell()
         }
       }}
     />
-  );
-};
+  )
+}
 
-export default Cell;
+export default Cell

@@ -1,14 +1,14 @@
-import Canvas from "./components/Canvas/Canvas";
-import { useState } from "react";
-import "./App.css";
+import { useState } from "react"
+import Canvas from "./components/Canvas/Canvas"
+import "./App.css"
 
 const App = (props: { canvasSize: number }) => {
-  const { canvasSize } = props;
+  const { canvasSize } = props
 
   // Initial canvas state (empty)
   const [canvas, setCanvas] = useState(() =>
     new Array(canvasSize ** 2).fill(false)
-  );
+  )
 
   return (
     <>
@@ -17,7 +17,7 @@ const App = (props: { canvasSize: number }) => {
         <Canvas canvas={canvas} setCanvas={setCanvas} />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default App;
+export default App

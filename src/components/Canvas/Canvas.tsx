@@ -1,27 +1,29 @@
 // A canvas for drawing individual glyphs.
 
-import styles from "./Canvas.module.scss";
-import { Dispatch, SetStateAction, useState } from "react";
-import Cell from "../Cell/Cell";
+import { Dispatch, SetStateAction, useState } from "react"
+import styles from "./Canvas.module.scss"
+import Cell from "../Cell/Cell"
 
-export type TCanvasState = boolean[];
+export type TCanvasState = boolean[]
 
 const Canvas = ({
   canvas,
   setCanvas,
 }: {
-  canvas: TCanvasState;
-  setCanvas: Dispatch<SetStateAction<TCanvasState>>;
+  canvas: TCanvasState
+  setCanvas: Dispatch<SetStateAction<TCanvasState>>
 }) => {
-  const [mouseDownFlag, setMouseDownFlag] = useState(false);
-  const [drawFlag, setDrawFlag] = useState(true);
+  const [mouseDownFlag, setMouseDownFlag] = useState(false)
+  const [drawFlag, setDrawFlag] = useState(true)
 
   return (
     <>
       <div
         className={styles.canvas}
         onMouseOver={(e) => {
-          if (e.buttons === 1) setMouseDownFlag(true);
+          if (e.buttons === 1) {
+setMouseDownFlag(true)
+}
         }}
         onMouseLeave={() => setMouseDownFlag(false)}
       >
@@ -31,10 +33,10 @@ const Canvas = ({
             filled={isFilled}
             toggleCell={() => {
               setCanvas((oldCanvas: TCanvasState) => {
-                const newCanvas = [...oldCanvas];
-                newCanvas[index] = !oldCanvas[index];
-                return newCanvas;
-              });
+                const newCanvas = [...oldCanvas]
+                newCanvas[index] = !oldCanvas[index]
+                return newCanvas
+              })
             }}
             mouseDownFlag={mouseDownFlag}
             setMouseDownFlag={setMouseDownFlag}
@@ -44,7 +46,7 @@ const Canvas = ({
         ))}
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Canvas;
+export default Canvas
