@@ -1,0 +1,255 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "prettier"
+  ],
+  "overrides": [],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "plugins": [
+    "react",
+    "react-hooks",
+    "@typescript-eslint",
+    "etc",
+    "import",
+    "prettier"
+  ],
+  "rules": {
+    "@typescript-eslint/ban-types": [
+      "error",
+      {
+        "types": {
+          "String": {
+            "message": "Use string instead",
+            "fixWith": "string"
+          },
+          "Boolean": {
+            "message": "Use boolean instead",
+            "fixWith": "boolean"
+          },
+          "Number": {
+            "message": "Use number instead",
+            "fixWith": "number"
+          },
+          "Symbol": {
+            "message": "Use symbol instead",
+            "fixWith": "symbol"
+          },
+          "BigInt": {
+            "message": "Use bigint instead",
+            "fixWith": "bigint"
+          },
+          "Function": {
+            "message": "The `Function` type accepts any function-like value. It provides no type safety when calling the function, which can be a common source of bugs."
+          }
+        },
+        "extendDefaults": false
+      }
+    ],
+    "@typescript-eslint/dot-notation": "off",
+    "@typescript-eslint/member-delimiter-style": [
+      "error",
+      {
+        "multiline": {
+          "delimiter": "none",
+          "requireLast": true
+        },
+        "singleline": {
+          "delimiter": "semi",
+          "requireLast": false
+        }
+      }
+    ],
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "default",
+        "format": ["camelCase"]
+      },
+      {
+        "selector": ["objectLiteralProperty"],
+        "format": ["UPPER_CASE", "camelCase", "PascalCase", "snake_case"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": ["memberLike"],
+        "format": ["UPPER_CASE", "camelCase", "PascalCase"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": ["classProperty"],
+        "format": ["UPPER_CASE", "camelCase"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": ["variable", "parameter"],
+        "format": ["UPPER_CASE", "camelCase", "PascalCase"],
+        "leadingUnderscore": "allow"
+      },
+      {
+        "selector": ["typeLike"],
+        "format": ["PascalCase", "UPPER_CASE"]
+      },
+      {
+        "selector": ["function"],
+        "format": ["PascalCase", "camelCase"]
+      },
+      {
+        "selector": [
+          "classProperty",
+          "objectLiteralProperty",
+          "typeProperty",
+          "classMethod",
+          "objectLiteralMethod",
+          "typeMethod",
+          "accessor",
+          "enumMember"
+        ],
+        "format": null,
+        "modifiers": ["requiresQuotes"]
+      },
+      // We exclude identifiers with names starting with `__UNSAFE_` so that they may
+      // be used without breaking linting.
+      {
+        "selector": ["variable", "parameter", "memberLike", "objectLiteralProperty"],
+        "format": null,
+        "filter": {
+          "regex": "^__UNSAFE_",
+          "match": true
+        }
+      }
+    ],
+    "@typescript-eslint/no-empty-function": "error",
+    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/no-redeclare": ["error"],
+    "@typescript-eslint/no-shadow": [
+      "error",
+      {
+        "hoist": "all"
+      }
+    ],
+    "@typescript-eslint/no-unused-expressions": [
+      "error",
+      {
+        "allowShortCircuit": true,
+        "allowTernary": true
+      }
+    ],
+    "@typescript-eslint/semi": ["error", "never"],
+    "@typescript-eslint/type-annotation-spacing": "error",
+    "brace-style": ["error", "1tbs"],
+    "comma-dangle": "off",
+    "curly": "error",
+    "default-case": "error",
+    "dot-notation": "off",
+    "eol-last": "off",
+    "eqeqeq": ["error", "smart"],
+    "guard-for-in": "error",
+    "id-match": "error",
+    "import/order": [
+      "warn",
+      {
+        "alphabetize": {"order": "asc", "caseInsensitive": true},
+        "pathGroups": [
+          {
+            "pattern": "~/**",
+            "group": "internal",
+            "position": "after"
+          }
+        ],
+        "groups": ["builtin", "external", "internal", ["parent", "sibling"]]
+      }
+    ],
+    "no-bitwise": "error",
+    "no-caller": "error",
+    "no-cond-assign": ["error", "always"],
+    "no-console": [
+      "off",
+      {
+        "allow": [
+          "warn",
+          "dir",
+          "timeLog",
+          "assert",
+          "clear",
+          "count",
+          "countReset",
+          "group",
+          "groupEnd",
+          "table",
+          "dirxml",
+          "groupCollapsed",
+          "Console",
+          "profile",
+          "profileEnd",
+          "timeStamp",
+          "context"
+        ]
+      }
+    ],
+    "no-debugger": "error",
+    "no-empty": [
+      "error",
+      {
+        "allowEmptyCatch": true
+      }
+    ],
+    // no-empty-function is turned off because we are using the
+    // incompatible rule provided by @typescript-eslint/no-empty-function
+    "no-empty-function": "off",
+    "no-eval": "error",
+    "no-multiple-empty-lines": "error",
+    "no-new-wrappers": "error",
+    "no-trailing-spaces": "off",
+    "no-unused-labels": "error",
+    "radix": "error",
+    "react/display-name": "off",
+    "react/jsx-boolean-value": "off",
+    "react/jsx-curly-brace-presence": ["error", "never"],
+    "react/jsx-curly-spacing": "off",
+    "react/jsx-equals-spacing": ["error", "never"],
+    "react/jsx-key": "error",
+    "react/no-children-prop": "off",
+    "react/no-danger": "error",
+    "react/no-unescaped-entities": "off",
+    "react/prop-types": "off",
+    "react/jsx-no-bind": "off",
+    "react/jsx-wrap-multilines": "off",
+    "react/self-closing-comp": "error",
+    "semi": ["error", "never"],
+    "sort-imports": [
+      "warn",
+      {
+        "ignoreCase": true,
+        "ignoreDeclarationSort": true
+      }
+    ],
+    "spaced-comment": [
+      "error",
+      "always",
+      {
+        "markers": ["/"]
+      }
+    ],
+    "no-fallthrough": ["error", {"allowEmptyCase": true}],
+    "etc/no-implicit-any-catch": ["error", {"allowExplicitAny": false}],
+    "react/react-in-jsx-scope": "off"
+  }
+}
