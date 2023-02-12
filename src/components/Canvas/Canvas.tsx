@@ -1,8 +1,8 @@
 // A canvas for drawing individual glyphs.
 
-import styles from "./Canvas.module.scss";
-import { Dispatch, SetStateAction, useState } from "react";
-import Cell from "../Cell/Cell";
+import {Dispatch, SetStateAction, useState} from 'react'
+import styles from './Canvas.module.scss'
+import Cell from '../Cell/Cell'
 
 export type TCanvasState = boolean[] | undefined;
 
@@ -15,8 +15,8 @@ const Canvas = ({
   setGlyphSet: Dispatch<SetStateAction<Map<string, boolean[]>>>;
   activeGlyph: string;
 }) => {
-  const [mouseDownFlag, setMouseDownFlag] = useState(false);
-  const [drawFlag, setDrawFlag] = useState(true);
+  const [mouseDownFlag, setMouseDownFlag] = useState(false)
+  const [drawFlag, setDrawFlag] = useState(true)
 
   const canvas = glyphSet.get(activeGlyph);
 
@@ -55,4 +55,4 @@ const Canvas = ({
   else return <div />;
 };
 
-export default Canvas;
+export default Canvas
