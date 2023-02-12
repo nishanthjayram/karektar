@@ -1,6 +1,6 @@
-import classnames from "classnames"
-import { Dispatch, SetStateAction, useState } from "react"
-import styles from "./Cell.module.scss"
+import classnames from 'classnames'
+import {Dispatch, SetStateAction, useState} from 'react'
+import styles from './Cell.module.scss'
 
 const Cell = ({
   filled,
@@ -20,8 +20,8 @@ const Cell = ({
   const [alreadyToggledFlag, setAlreadyToggledFlag] = useState(false)
 
   if (!mouseDownFlag && alreadyToggledFlag) {
-setAlreadyToggledFlag(false)
-}
+    setAlreadyToggledFlag(false)
+  }
 
   const updateCell = () => {
     toggleCell()
@@ -33,12 +33,12 @@ setAlreadyToggledFlag(false)
       className={classnames(
         !filled && styles.empty,
         filled && styles.filled,
-        styles.cell
+        styles.cell,
       )}
-      onMouseDown={(e) => {
+      onMouseDown={e => {
         if (e.button !== 0) {
-return
-}
+          return
+        }
         setMouseDownFlag(true)
         setDrawFlag(!filled)
         updateCell()
@@ -47,7 +47,7 @@ return
         setMouseDownFlag(false)
         setDrawFlag(true)
       }}
-      onMouseMove={(e) => {
+      onMouseMove={e => {
         if (mouseDownFlag && drawFlag !== filled && !alreadyToggledFlag) {
           updateCell()
         }

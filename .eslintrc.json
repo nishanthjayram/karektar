@@ -7,7 +7,8 @@
     "eslint:recommended",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
   ],
   "overrides": [],
   "parser": "@typescript-eslint/parser",
@@ -21,7 +22,14 @@
       "version": "detect"
     }
   },
-  "plugins": ["react", "react-hooks", "@typescript-eslint", "etc", "import"],
+  "plugins": [
+    "react",
+    "react-hooks",
+    "@typescript-eslint",
+    "etc",
+    "import",
+    "prettier"
+  ],
   "rules": {
     "@typescript-eslint/ban-types": [
       "error",

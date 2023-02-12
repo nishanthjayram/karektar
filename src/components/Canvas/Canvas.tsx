@@ -1,8 +1,8 @@
 // A canvas for drawing individual glyphs.
 
-import { Dispatch, SetStateAction, useState } from "react"
-import styles from "./Canvas.module.scss"
-import Cell from "../Cell/Cell"
+import {Dispatch, SetStateAction, useState} from 'react'
+import styles from './Canvas.module.scss'
+import Cell from '../Cell/Cell'
 
 export type TCanvasState = boolean[]
 
@@ -20,10 +20,10 @@ const Canvas = ({
     <>
       <div
         className={styles.canvas}
-        onMouseOver={(e) => {
+        onMouseOver={e => {
           if (e.buttons === 1) {
-setMouseDownFlag(true)
-}
+            setMouseDownFlag(true)
+          }
         }}
         onMouseLeave={() => setMouseDownFlag(false)}
       >
