@@ -8,6 +8,7 @@
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "prettier"
   ],
   "overrides": [],
@@ -127,12 +128,7 @@
       // We exclude identifiers with names starting with `__UNSAFE_` so that they may
       // be used without breaking linting.
       {
-        "selector": [
-          "variable",
-          "parameter",
-          "memberLike",
-          "objectLiteralProperty"
-        ],
+        "selector": ["variable", "parameter", "memberLike", "objectLiteralProperty"],
         "format": null,
         "filter": {
           "regex": "^__UNSAFE_",
@@ -170,7 +166,7 @@
     "import/order": [
       "warn",
       {
-        "alphabetize": { "order": "asc", "caseInsensitive": true },
+        "alphabetize": {"order": "asc", "caseInsensitive": true},
         "pathGroups": [
           {
             "pattern": "~/**",
@@ -252,8 +248,8 @@
         "markers": ["/"]
       }
     ],
-    "no-fallthrough": ["error", { "allowEmptyCase": true }],
-    "etc/no-implicit-any-catch": ["error", { "allowExplicitAny": false }],
+    "no-fallthrough": ["error", {"allowEmptyCase": true}],
+    "etc/no-implicit-any-catch": ["error", {"allowExplicitAny": false}],
     "react/react-in-jsx-scope": "off"
   }
 }

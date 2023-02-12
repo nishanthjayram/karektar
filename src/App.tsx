@@ -6,7 +6,9 @@ const App = (props: {canvasSize: number}) => {
   const {canvasSize} = props
 
   // Initial canvas state (empty)
-  const [canvas, setCanvas] = useState(() => new Array(canvasSize ** 2).fill(false))
+  const [canvas, setCanvas] = useState(() =>
+    new Array<boolean>(canvasSize ** 2).fill(false),
+  )
 
   return (
     <>
