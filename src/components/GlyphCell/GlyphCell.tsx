@@ -1,16 +1,16 @@
-import styles from "./GlyphCell.module.scss";
-import classnames from "classnames";
+import classnames from 'classnames'
+import styles from './GlyphCell.module.scss'
 
-const GlyphCell = ({ filled }: { filled: boolean }) => {
+const GlyphCell = ({filled}: {filled: boolean}) => {
   return (
     <div
       className={classnames(
         !filled && styles.empty,
         filled && styles.filled,
-        styles.cell
+        styles.cell,
       )}
     />
-  );
-};
+  )
+}
 
-export default GlyphCell;
+export default GlyphCell

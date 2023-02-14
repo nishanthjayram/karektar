@@ -1,13 +1,13 @@
-import styles from "./GlyphSet.module.scss";
-import { Dispatch, SetStateAction } from "react";
-import Glyph from "../Glyph/Glyph";
+import {Dispatch, SetStateAction} from 'react'
+import styles from './GlyphSet.module.scss'
+import Glyph from '../Glyph/Glyph'
 
 const GlyphSet = ({
   glyphSet,
   setActiveGlyph,
 }: {
-  glyphSet: Map<string, boolean[]>;
-  setActiveGlyph: Dispatch<SetStateAction<string>>;
+  glyphSet: Map<string, boolean[]>
+  setActiveGlyph: Dispatch<SetStateAction<string>>
 }) => {
   return (
     <div className={styles.glyphSet}>
@@ -20,7 +20,7 @@ const GlyphSet = ({
         />
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default GlyphSet;
+export default GlyphSet

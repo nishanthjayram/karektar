@@ -1,17 +1,17 @@
-import { Dispatch, SetStateAction } from "react";
-import GlyphCell from "../GlyphCell/GlyphCell";
-import styles from "./Glyph.module.scss";
+import {Dispatch, SetStateAction} from 'react'
+import styles from './Glyph.module.scss'
+import GlyphCell from '../GlyphCell/GlyphCell'
 
-export type TGlyphState = boolean[];
+export type TGlyphState = boolean[]
 
 const Glyph = ({
   glyph,
   glyphCanvas,
   setActiveGlyph,
 }: {
-  glyph: string;
-  glyphCanvas: boolean[];
-  setActiveGlyph: Dispatch<SetStateAction<string>>;
+  glyph: string
+  glyphCanvas: boolean[]
+  setActiveGlyph: Dispatch<SetStateAction<string>>
 }) => {
   return (
     <div className={styles.glyph}>
@@ -22,7 +22,7 @@ const Glyph = ({
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Glyph;
+export default Glyph

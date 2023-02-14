@@ -1,34 +1,30 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  RX_LETTERS,
-  RX_NUMBERS,
-  RX_NON_ALPHANUMERIC,
-} from "../../constants/regex";
-import Canvas from "../Canvas/Canvas";
-import GlyphSet from "../GlyphSet/GlyphSet";
-import styles from "./App.module.scss";
+import {useEffect, useMemo, useState} from 'react'
+import styles from './App.module.scss'
+import {RX_LETTERS, RX_NON_ALPHANUMERIC, RX_NUMBERS} from '../../constants/regex'
+import Canvas from '../Canvas/Canvas'
+import GlyphSet from '../GlyphSet/GlyphSet'
 
-const DEFAULT_PROMPT = "sphinx of black quartz, judge my vow";
+const DEFAULT_PROMPT = 'sphinx of black quartz, judge my vow'
 
-const App = ({ canvasSize }: { canvasSize: number }) => {
-  const [inputText, setInputText] = useState(DEFAULT_PROMPT);
-  const [query, setQuery] = useState(DEFAULT_PROMPT);
-  const [glyphSet, setGlyphSet] = useState(() => new Map<string, boolean[]>());
-  const symbolSet = useMemo(() => getUniqueCharacters(query), [query.length]);
-  const [activeGlyph, setActiveGlyph] = useState(symbolSet[0]);
+const App = ({canvasSize}: {canvasSize: number}) => {
+  const [inputText, setInputText] = useState(DEFAULT_PROMPT)
+  const [query, setQuery] = useState(DEFAULT_PROMPT)
+  const [glyphSet, setGlyphSet] = useState(() => new Map<string, boolean[]>())
+  const symbolSet = useMemo(() => getUniqueCharacters(query), [query])
+  const [activeGlyph, setActiveGlyph] = useState(symbolSet[0])
 
   useEffect(() => {
-    setGlyphSet((oldGlyphSet) => {
-      const newGlyphSet = new Map<string, boolean[]>();
-      symbolSet.forEach((symbol) =>
+    setGlyphSet(oldGlyphSet => {
+      const newGlyphSet = new Map<string, boolean[]>()
+      symbolSet.forEach(symbol =>
         newGlyphSet.set(
           symbol,
-          oldGlyphSet.get(symbol) ?? new Array(canvasSize ** 2).fill(false)
-        )
-      );
-      return newGlyphSet;
-    });
-  }, [symbolSet.length]);
+          oldGlyphSet.get(symbol) ?? new Array<boolean>(canvasSize ** 2).fill(false),
+        ),
+      )
+      return newGlyphSet
+    })
+  }, [canvasSize, symbolSet])
 
   return (
     <>
@@ -38,16 +34,16 @@ const App = ({ canvasSize }: { canvasSize: number }) => {
           id="queryField"
           name="queryField"
           value={inputText}
-          placeholder={"Enter prompt"}
-          onChange={(e) => setInputText(e.target.value)}
+          placeholder="Enter prompt"
+          onChange={e => setInputText(e.target.value)}
           className={styles.input}
         />
         <div className={styles.buttonRow}>
           <button onClick={() => setQuery(inputText)}>Submit</button>
           <button
             onClick={() => {
-              setInputText("");
-              setQuery("");
+              setInputText('')
+              setQuery('')
             }}
           >
             Clear
@@ -64,19 +60,19 @@ const App = ({ canvasSize }: { canvasSize: number }) => {
         <GlyphSet glyphSet={glyphSet} setActiveGlyph={setActiveGlyph} />
       </div>
     </>
-  );
-};
+  )
+}
 
 const getUniqueCharacters = (input: string) => {
-  const uniqueCharacters = [...new Set<string>(input)];
+  const uniqueCharacters = [...new Set<string>(input)]
 
-  const letters = uniqueCharacters.flatMap((c) => c.match(RX_LETTERS) ?? []);
-  const numbers = uniqueCharacters.flatMap((c) => c.match(RX_NUMBERS) ?? []);
+  const letters = uniqueCharacters.flatMap(c => c.match(RX_LETTERS) ?? [])
+  const numbers = uniqueCharacters.flatMap(c => c.match(RX_NUMBERS) ?? [])
   const nonAlphaNum = uniqueCharacters.flatMap(
-    (c) => c.match(RX_NON_ALPHANUMERIC) ?? []
-  );
+    c => c.match(RX_NON_ALPHANUMERIC) ?? [],
+  )
 
-  return [letters, numbers, nonAlphaNum].flatMap((c) => c.sort());
-};
+  return [letters, numbers, nonAlphaNum].flatMap(c => c.sort())
+}
 
-export default App;
+export default App
