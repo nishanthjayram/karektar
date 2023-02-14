@@ -1,8 +1,9 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+:root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .logo {
@@ -38,4 +39,29 @@
 
 .read-the-docs {
   color: #888;
+}
+
+.buttons {
+  height: 20px;
+  margin-right: 8px;
+}
+
+.buttonRow {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.input {
+  border-radius: 4px;
+  outline: none;
+  border: none;
+  padding: 6px;
+  width: 400px;
+  height: 60px;
+  max-width: 400px;
+  min-width: 400px;
 }
