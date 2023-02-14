@@ -1,10 +1,10 @@
-import { Dispatch, SetStateAction, useState, useMemo } from "react";
-import { ReactComponent as Previous } from "../../assets/previous.svg";
-import { ReactComponent as Next } from "../../assets/next.svg";
-import { PAGE_LENGTH } from "../../constants";
-import Glyph from "../Glyph/Glyph";
-import styles from "./GlyphSet.module.scss";
-import classnames from "classnames";
+import classnames from 'classnames'
+import {Dispatch, SetStateAction, useState} from 'react'
+import styles from './GlyphSet.module.scss'
+import {ReactComponent as Next} from '../../assets/next.svg'
+import {ReactComponent as Previous} from '../../assets/previous.svg'
+import {PAGE_LENGTH} from '../../constants'
+import Glyph from '../Glyph/Glyph'
 
 const GlyphSet = ({
   canvasSize,
@@ -12,14 +12,14 @@ const GlyphSet = ({
   activeGlyph,
   setActiveGlyph,
 }: {
-  canvasSize: number;
-  glyphSet: Map<string, boolean[]>;
-  activeGlyph: string | undefined;
-  setActiveGlyph: Dispatch<SetStateAction<string | undefined>>;
+  canvasSize: number
+  glyphSet: Map<string, boolean[]>
+  activeGlyph: string | undefined
+  setActiveGlyph: Dispatch<SetStateAction<string | undefined>>
 }) => {
-  const [page, setPage] = useState(0);
-  const minPage = 0;
-  const maxPage = Math.floor(glyphSet.size / PAGE_LENGTH);
+  const [page, setPage] = useState(0)
+  const minPage = 0
+  const maxPage = Math.floor(glyphSet.size / PAGE_LENGTH)
 
   return (
     <div className={styles.glyphSet}>
@@ -29,19 +29,23 @@ const GlyphSet = ({
           <Previous
             className={classnames(
               page === minPage && styles.navButtonDisabled,
-              styles.navButton
+              styles.navButton,
             )}
             onClick={() => {
-              if (page > minPage) setPage(page - 1);
+              if (page > minPage) {
+                setPage(page - 1)
+              }
             }}
           />
           <Next
             className={classnames(
               page === maxPage && styles.navButtonDisabled,
-              styles.navButton
+              styles.navButton,
             )}
             onClick={() => {
-              if (page < maxPage) setPage(page + 1);
+              if (page < maxPage) {
+                setPage(page + 1)
+              }
             }}
           />
         </div>
@@ -61,7 +65,7 @@ const GlyphSet = ({
           ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default GlyphSet;
+export default GlyphSet

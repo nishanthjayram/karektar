@@ -1,8 +1,8 @@
 // A canvas for drawing individual glyphs.
-import { Dispatch, SetStateAction, useState } from "react";
-import { ReactComponent as Delete } from "../../assets/delete.svg";
-import Cell from "../Cell/Cell";
-import styles from "./Canvas.module.scss";
+import {Dispatch, SetStateAction, useState} from 'react'
+import styles from './Canvas.module.scss'
+import {ReactComponent as Delete} from '../../assets/delete.svg'
+import Cell from '../Cell/Cell'
 
 const Canvas = ({
   canvasSize,
@@ -10,17 +10,17 @@ const Canvas = ({
   setGlyphSet,
   activeGlyph,
 }: {
-  canvasSize: number;
-  glyphSet: Map<string, boolean[]>;
-  setGlyphSet: Dispatch<SetStateAction<Map<string, boolean[]>>>;
-  activeGlyph: string | undefined;
+  canvasSize: number
+  glyphSet: Map<string, boolean[]>
+  setGlyphSet: Dispatch<SetStateAction<Map<string, boolean[]>>>
+  activeGlyph: string | undefined
 }) => {
-  const [mouseDownFlag, setMouseDownFlag] = useState(false);
-  const [drawFlag, setDrawFlag] = useState(true);
+  const [mouseDownFlag, setMouseDownFlag] = useState(false)
+  const [drawFlag, setDrawFlag] = useState(true)
 
-  const canvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined;
+  const canvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
 
-  if (canvas)
+  if (canvas) {
     return (
       <div>
         <div className={styles.header}>
@@ -29,21 +29,23 @@ const Canvas = ({
           <Delete
             className={styles.deleteIcon}
             onClick={() =>
-              setGlyphSet((oldGlyphSet) => {
-                const newGlyphSet = new Map(oldGlyphSet);
-                const newCanvas = new Array(canvasSize ** 2).fill(false);
+              setGlyphSet(oldGlyphSet => {
+                const newGlyphSet = new Map(oldGlyphSet)
+                const newCanvas = new Array<boolean>(canvasSize ** 2).fill(false)
                 if (activeGlyph) {
-                  newGlyphSet.set(activeGlyph, newCanvas);
+                  newGlyphSet.set(activeGlyph, newCanvas)
                 }
-                return newGlyphSet;
+                return newGlyphSet
               })
             }
           />
         </div>
         <div
           className={styles.canvas}
-          onMouseOver={(e) => {
-            if (e.buttons === 1) setMouseDownFlag(true);
+          onMouseOver={e => {
+            if (e.buttons === 1) {
+              setMouseDownFlag(true)
+            }
           }}
           onMouseLeave={() => setMouseDownFlag(false)}
         >
@@ -53,15 +55,15 @@ const Canvas = ({
               canvasSize={canvasSize}
               filled={isFilled}
               toggleCell={() => {
-                setGlyphSet((oldGlyphSet) => {
-                  const newGlyphSet = new Map(oldGlyphSet);
-                  const newCanvas = [...canvas];
-                  newCanvas[index] = !canvas[index];
+                setGlyphSet(oldGlyphSet => {
+                  const newGlyphSet = new Map(oldGlyphSet)
+                  const newCanvas = [...canvas]
+                  newCanvas[index] = !canvas[index]
                   if (activeGlyph) {
-                    newGlyphSet.set(activeGlyph, newCanvas);
+                    newGlyphSet.set(activeGlyph, newCanvas)
                   }
-                  return newGlyphSet;
-                });
+                  return newGlyphSet
+                })
               }}
               mouseDownFlag={mouseDownFlag}
               setMouseDownFlag={setMouseDownFlag}
@@ -71,8 +73,9 @@ const Canvas = ({
           ))}
         </div>
       </div>
-    );
-  return <div />;
-};
+    )
+  }
+  return <div />
+}
 
-export default Canvas;
+export default Canvas

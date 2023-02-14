@@ -1,10 +1,10 @@
-import { memo } from "react";
-import { Dispatch, SetStateAction } from "react";
-import GlyphCell from "../GlyphCell/GlyphCell";
-import classnames from "classnames";
-import styles from "./Glyph.module.scss";
+import classnames from 'classnames'
+import {memo} from 'react'
+import {Dispatch, SetStateAction} from 'react'
+import styles from './Glyph.module.scss'
+import GlyphCell from '../GlyphCell/GlyphCell'
 
-export type TGlyphState = boolean[];
+export type TGlyphState = boolean[]
 
 const Glyph = ({
   canvasSize,
@@ -13,11 +13,11 @@ const Glyph = ({
   active,
   setActiveGlyph,
 }: {
-  canvasSize: number;
-  glyph: string;
-  glyphCanvas: boolean[];
-  active: boolean;
-  setActiveGlyph: Dispatch<SetStateAction<string | undefined>>;
+  canvasSize: number
+  glyph: string
+  glyphCanvas: boolean[]
+  active: boolean
+  setActiveGlyph: Dispatch<SetStateAction<string | undefined>>
 }) => {
   return (
     <div className={styles.glyph} onClick={() => setActiveGlyph(glyph)}>
@@ -31,12 +31,12 @@ const Glyph = ({
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
 export default memo(
   Glyph,
   (prevProps, nextProps) =>
     prevProps.active === nextProps.active &&
-    prevProps.glyphCanvas === nextProps.glyphCanvas
-);
+    prevProps.glyphCanvas === nextProps.glyphCanvas,
+)

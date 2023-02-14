@@ -1,6 +1,6 @@
-import styles from "./Cell.module.scss";
-import classnames from "classnames";
-import { Dispatch, SetStateAction, useState } from "react";
+import classnames from 'classnames'
+import {Dispatch, SetStateAction, useState} from 'react'
+import styles from './Cell.module.scss'
 
 const Cell = ({
   canvasSize,
@@ -11,50 +11,54 @@ const Cell = ({
   drawFlag,
   setDrawFlag,
 }: {
-  canvasSize: number;
-  filled: boolean;
-  toggleCell: () => void;
-  mouseDownFlag: boolean;
-  setMouseDownFlag: Dispatch<SetStateAction<boolean>>;
-  drawFlag: boolean;
-  setDrawFlag: Dispatch<SetStateAction<boolean>>;
+  canvasSize: number
+  filled: boolean
+  toggleCell: () => void
+  mouseDownFlag: boolean
+  setMouseDownFlag: Dispatch<SetStateAction<boolean>>
+  drawFlag: boolean
+  setDrawFlag: Dispatch<SetStateAction<boolean>>
 }) => {
-  const [alreadyToggledFlag, setAlreadyToggledFlag] = useState(false);
+  const [alreadyToggledFlag, setAlreadyToggledFlag] = useState(false)
 
-  if (!mouseDownFlag && alreadyToggledFlag) setAlreadyToggledFlag(false);
+  if (!mouseDownFlag && alreadyToggledFlag) {
+    setAlreadyToggledFlag(false)
+  }
 
   const updateCell = () => {
-    toggleCell();
-    setAlreadyToggledFlag(true);
-  };
+    toggleCell()
+    setAlreadyToggledFlag(true)
+  }
   return (
     <div
       className={classnames(
         !filled && styles.empty,
         filled && styles.filled,
-        styles.cell
+        styles.cell,
       )}
       style={{
         width: `${400 / canvasSize}px`,
         height: `${400 / canvasSize}px`,
       }}
-      onMouseDown={(e) => {
-        if (e.button !== 0) return;
-        setMouseDownFlag(true);
-        setDrawFlag(!filled);
-        updateCell();
+      onMouseDown={e => {
+        if (e.button !== 0) {
+          return
+        }
+        setMouseDownFlag(true)
+        setDrawFlag(!filled)
+        updateCell()
       }}
       onMouseUp={() => {
-        setMouseDownFlag(false);
-        setDrawFlag(true);
+        setMouseDownFlag(false)
+        setDrawFlag(true)
       }}
-      onMouseMove={(e) => {
+      onMouseMove={() => {
         if (mouseDownFlag && drawFlag !== filled && !alreadyToggledFlag) {
-          updateCell();
+          updateCell()
         }
       }}
     />
-  );
-};
+  )
+}
 
-export default Cell;
+export default Cell
