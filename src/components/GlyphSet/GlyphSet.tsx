@@ -19,7 +19,7 @@ const GlyphSet = ({
 }) => {
   const [page, setPage] = useState(0)
   const minPage = 0
-  const maxPage = Math.floor(glyphSet.size / PAGE_LENGTH)
+  const maxPage = Math.ceil(glyphSet.size / PAGE_LENGTH) - 1
 
   return (
     <div className={styles.glyphSet}>
