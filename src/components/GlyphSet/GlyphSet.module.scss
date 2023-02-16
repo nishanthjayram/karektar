@@ -1,7 +1,43 @@
 .glyphSet {
-  width: 400px;
   display: flex;
-  flex-flow: row wrap;
-  border: none;
-  user-select: none;
+  flex-flow: column nowrap;
+
+  & .navBar {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    height: 32px;
+
+    & .page {
+      font-size: 16px;
+    }
+
+    & .navControls {
+      justify-content: space-between;
+      margin: 0px 0px;
+      width: 50px;
+      display: flex;
+
+      & .navButton {
+        fill: #000000;
+        &:hover {
+          fill: #ffa500;
+        }
+      }
+
+      & .navButtonDisabled {
+        fill: #b7b5b5;
+        pointer-events: none;
+      }
+    }
+  }
+
+  & .gallery {
+    display: grid;
+    grid-gap: 12px;
+    grid-template-columns: repeat(6, 1fr);
+    border: none;
+    user-select: none;
+  }
 }

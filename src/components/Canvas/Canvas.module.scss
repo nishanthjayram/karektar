@@ -1,10 +1,33 @@
 .canvas {
-  width: 400px;
-  height: 400px;
+  width: 416px;
+  height: 416px;
   display: flex;
   flex-flow: row wrap;
-  border-color: black;
-  border-width: 1px;
-  border-style: solid;
   user-select: none;
+}
+
+.header {
+  background-color: black;
+  color: #efefef;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  height: 32px;
+  & .text {
+    min-width: 20px;
+    padding: 0 10px;
+    text-align: center;
+  }
+  & .separator {
+    border-right: 1px #ffa500 solid;
+    height: 32px;
+  }
+  & .deleteIcon {
+    margin-left: auto;
+    fill: #efefef;
+    transform: scale(0.5);
+    &:hover {
+      background-color: orange;
+    }
+  }
 }
