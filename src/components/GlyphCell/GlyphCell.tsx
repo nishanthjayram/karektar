@@ -1,7 +1,7 @@
 import classnames from 'classnames'
 import styles from './GlyphCell.module.scss'
 
-const GlyphCell = ({canvasSize, filled}: {canvasSize: number; filled: boolean}) => {
+const GlyphCell = ({bitmapSize, filled}: {bitmapSize: number; filled: boolean}) => {
   return (
     <div
       className={classnames(
@@ -10,8 +10,8 @@ const GlyphCell = ({canvasSize, filled}: {canvasSize: number; filled: boolean}) 
         styles.cell,
       )}
       style={{
-        width: `${48 / canvasSize}px`,
-        height: `${48 / canvasSize}px`,
+        width: `${48 / bitmapSize}px`,
+        height: `${48 / bitmapSize}px`,
       }}
     />
   )

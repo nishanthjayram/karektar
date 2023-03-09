@@ -7,12 +7,12 @@ import {PAGE_LENGTH} from '../../constants'
 import Glyph from '../Glyph/Glyph'
 
 const GlyphSet = ({
-  canvasSize,
+  bitmapSize,
   glyphSet,
   activeGlyph,
   setActiveGlyph,
 }: {
-  canvasSize: number
+  bitmapSize: number
   glyphSet: Map<string, boolean[]>
   activeGlyph: string | undefined
   setActiveGlyph: Dispatch<SetStateAction<string | undefined>>
@@ -56,7 +56,7 @@ const GlyphSet = ({
           .map(([symbol, glyphCanvas]) => (
             <Glyph
               key={symbol}
-              canvasSize={canvasSize}
+              bitmapSize={bitmapSize}
               glyph={symbol}
               glyphCanvas={glyphCanvas}
               active={activeGlyph === symbol}

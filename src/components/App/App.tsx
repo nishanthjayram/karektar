@@ -9,7 +9,7 @@ import {
 import Canvas from '../Canvas/Canvas'
 import GlyphSet from '../GlyphSet/GlyphSet'
 
-const App = ({canvasSize}: {canvasSize: number}) => {
+const App = ({bitmapSize}: {bitmapSize: number}) => {
   const [inputText, setInputText] = useState(DEFAULT_PROMPT)
   const [query, setQuery] = useState(DEFAULT_PROMPT)
   const [glyphSet, setGlyphSet] = useState(() => new Map<string, boolean[]>())
@@ -22,12 +22,12 @@ const App = ({canvasSize}: {canvasSize: number}) => {
       symbolSet.forEach(symbol =>
         newGlyphSet.set(
           symbol,
-          oldGlyphSet.get(symbol) ?? new Array<boolean>(canvasSize ** 2).fill(false),
+          oldGlyphSet.get(symbol) ?? new Array<boolean>(bitmapSize ** 2).fill(false),
         ),
       )
       return newGlyphSet
     })
-  }, [canvasSize, symbolSet])
+  }, [bitmapSize, symbolSet])
 
   return (
     <div>
@@ -59,14 +59,14 @@ const App = ({canvasSize}: {canvasSize: number}) => {
       <br />
       <div className={styles.appRow}>
         <Canvas
-          canvasSize={canvasSize}
+          bitmapSize={bitmapSize}
           glyphSet={glyphSet}
           setGlyphSet={setGlyphSet}
           activeGlyph={activeGlyph}
         />
         <div className={styles.glyph}>
           <GlyphSet
-            canvasSize={canvasSize}
+            bitmapSize={bitmapSize}
             glyphSet={glyphSet}
             activeGlyph={activeGlyph}
             setActiveGlyph={setActiveGlyph}

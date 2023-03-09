@@ -5,19 +5,19 @@ import {ReactComponent as Delete} from '../../assets/delete.svg'
 import {CANVAS_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
 
 const Canvas = ({
-  canvasSize,
+  bitmapSize,
   glyphSet,
   setGlyphSet,
   activeGlyph,
 }: {
-  canvasSize: number
+  bitmapSize: number
   glyphSet: Map<string, boolean[]>
   setGlyphSet: Dispatch<SetStateAction<Map<string, boolean[]>>>
   activeGlyph: string | undefined
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
-  const p = CANVAS_SIZE / canvasSize
+  const p = CANVAS_SIZE / bitmapSize
 
   const [mouseDownFlag, setMouseDownFlag] = useState(false)
   const [drawFlag, setDrawFlag] = useState(true)
@@ -30,13 +30,13 @@ const Canvas = ({
     ctx.strokeStyle = '#ffffff'
     ctx.beginPath()
     glyphCanvas.forEach((filled: boolean, idx: number) => {
-      const [x, y] = [idx % canvasSize, Math.floor(idx / canvasSize)]
+      const [x, y] = [idx % bitmapSize, Math.floor(idx / bitmapSize)]
       ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
       ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
       ctx.strokeRect(x * p + 1, y * p + 1, p - 1, p - 1)
     })
     ctx.closePath()
-  }, [canvasSize, glyphCanvas, p])
+  }, [bitmapSize, glyphCanvas, p])
 
   const getMousePos = (
     canvas: HTMLCanvasElement,
@@ -46,7 +46,7 @@ const Canvas = ({
     const x = Math.floor((evt.clientX - rect.left) / p)
     const y = Math.floor((evt.clientY - rect.top) / p)
     return (
-      ((x + canvasSize) % canvasSize) + (y + (canvasSize % canvasSize)) * canvasSize
+      ((x + bitmapSize) % bitmapSize) + (y + (bitmapSize % bitmapSize)) * bitmapSize
     )
   }
 
@@ -96,7 +96,7 @@ const Canvas = ({
           onClick={() =>
             setGlyphSet(oldGlyphSet => {
               const newGlyphSet = new Map(oldGlyphSet)
-              const newGlyphCanvas = new Array<boolean>(canvasSize ** 2).fill(false)
+              const newGlyphCanvas = new Array<boolean>(bitmapSize ** 2).fill(false)
               if (activeGlyph) {
                 newGlyphSet.set(activeGlyph, newGlyphCanvas)
               }

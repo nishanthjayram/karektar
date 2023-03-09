@@ -7,13 +7,13 @@ import GlyphCell from '../GlyphCell/GlyphCell'
 export type TGlyphState = boolean[]
 
 const Glyph = ({
-  canvasSize,
+  bitmapSize,
   glyph,
   glyphCanvas,
   active,
   setActiveGlyph,
 }: {
-  canvasSize: number
+  bitmapSize: number
   glyph: string
   glyphCanvas: boolean[]
   active: boolean
@@ -27,7 +27,7 @@ const Glyph = ({
 
       <div className={styles.canvas}>
         {glyphCanvas.map((isFilled, index) => (
-          <GlyphCell key={index} canvasSize={canvasSize} filled={isFilled} />
+          <GlyphCell key={index} bitmapSize={bitmapSize} filled={isFilled} />
         ))}
       </div>
     </div>

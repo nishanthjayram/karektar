@@ -3,7 +3,7 @@ import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Cell.module.scss'
 
 const Cell = ({
-  canvasSize,
+  bitmapSize,
   filled,
   toggleCell,
   mouseDownFlag,
@@ -11,7 +11,7 @@ const Cell = ({
   drawFlag,
   setDrawFlag,
 }: {
-  canvasSize: number
+  bitmapSize: number
   filled: boolean
   toggleCell: () => void
   mouseDownFlag: boolean
@@ -37,8 +37,8 @@ const Cell = ({
         styles.cell,
       )}
       style={{
-        width: `${400 / canvasSize}px`,
-        height: `${400 / canvasSize}px`,
+        width: `${400 / bitmapSize}px`,
+        height: `${400 / bitmapSize}px`,
       }}
       onMouseDown={e => {
         if (e.button !== 0) {
