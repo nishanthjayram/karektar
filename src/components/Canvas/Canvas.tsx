@@ -19,8 +19,8 @@ const Canvas = ({
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
   const p = CANVAS_SIZE / bitmapSize
 
-  const [mouseDownFlag, setMouseDownFlag] = useState(false)
   const [drawFlag, setDrawFlag] = useState(true)
+  const [captureFlag, setCaptureFlag] = useState(false)
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext('2d')
@@ -65,21 +65,21 @@ const Canvas = ({
     })
   }
 
-  const handleMouse = (evt: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+  const handlePointer = (evt: React.PointerEvent<HTMLCanvasElement>) => {
     if (!canvasRef.current || !glyphCanvas) {
       return
     }
 
     const idx = getMousePos(canvasRef.current, evt)
-    if (evt.type === 'mousedown' && evt.buttons === 1) {
-      setMouseDownFlag(true)
+    if (evt.type === 'gotpointercapture') {
+      setCaptureFlag(true)
+    } else if (evt.type === 'lostpointercapture') {
+      setCaptureFlag(false)
+    } else if (evt.type === 'pointerdown' && evt.buttons === 1) {
+      evt.currentTarget.setPointerCapture(evt.pointerId) // TODO: Check if using target property is required here.
       setDrawFlag(!glyphCanvas[idx])
       updateCell(idx, !glyphCanvas[idx])
-    } else if (evt.type === 'mouseup' || evt.type === 'mouseleave') {
-      setMouseDownFlag(false)
-    } else if (evt.type === 'mouseover' && evt.buttons === 1) {
-      setMouseDownFlag(true)
-    } else if (evt.type === 'mousemove' && mouseDownFlag) {
+    } else if (evt.type === 'pointermove' && captureFlag) {
       updateCell(idx, drawFlag)
     } else {
       return
@@ -110,11 +110,10 @@ const Canvas = ({
         className={styles.canvas}
         width={CANVAS_SIZE}
         height={CANVAS_SIZE}
-        onMouseDown={evt => handleMouse(evt)}
-        onMouseUp={evt => handleMouse(evt)}
-        onMouseMove={evt => handleMouse(evt)}
-        onMouseOver={evt => handleMouse(evt)}
-        onMouseLeave={evt => handleMouse(evt)}
+        onGotPointerCapture={evt => handlePointer(evt)}
+        onLostPointerCapture={evt => handlePointer(evt)}
+        onPointerDown={evt => handlePointer(evt)}
+        onPointerMove={evt => handlePointer(evt)}
       />
     </div>
   )
