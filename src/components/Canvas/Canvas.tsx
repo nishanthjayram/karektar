@@ -22,27 +22,54 @@ const Canvas = ({
   const [drawFlag, setDrawFlag] = useState(true)
   const [captureFlag, setCaptureFlag] = useState(false)
 
-  useEffect(() => {
+  const drawCanvas = () => {
     const ctx = canvasRef.current?.getContext('2d')
-    if (!glyphCanvas || !ctx) {
+    if (!ctx) {
       return
     }
     ctx.strokeStyle = '#ffffff'
     ctx.beginPath()
+    for (let i = 1; i < bitmapSize; i++) {
+      ctx.moveTo(i * p + 0.5, 1)
+      ctx.lineTo(i * p + 0.5, CANVAS_SIZE)
+      ctx.moveTo(1, i * p + 0.5)
+      ctx.lineTo(CANVAS_SIZE, i * p + 0.5)
+    }
+    ctx.closePath()
+    ctx.stroke()
+  }
+
+  const updateCanvas = () => {
+    const ctx = canvasRef.current?.getContext('2d')
+    if (!ctx || !glyphCanvas) {
+      return
+    }
     glyphCanvas.forEach((filled: boolean, idx: number) => {
       const [x, y] = [idx % bitmapSize, Math.floor(idx / bitmapSize)]
       ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
       ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
-      ctx.strokeRect(x * p + 1, y * p + 1, p - 1, p - 1)
     })
     ctx.closePath()
-  }, [bitmapSize, glyphCanvas, p])
+  }
+
+  useEffect(drawCanvas, [bitmapSize, p])
+  useEffect(updateCanvas, [bitmapSize, glyphCanvas, p])
 
   const getMousePos = (
     canvas: HTMLCanvasElement,
     evt: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
   ) => {
     const rect = canvas.getBoundingClientRect()
+
+    if (
+      evt.clientX < rect.left ||
+      evt.clientX > rect.right ||
+      evt.clientY < rect.top ||
+      evt.clientY > rect.bottom
+    ) {
+      return null
+    }
+
     const x = Math.floor((evt.clientX - rect.left) / p)
     const y = Math.floor((evt.clientY - rect.top) / p)
     return (
@@ -65,25 +92,31 @@ const Canvas = ({
     })
   }
 
-  const handlePointer = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!canvasRef.current || !glyphCanvas) {
+  const handlePointerDown = (evt: React.PointerEvent<HTMLCanvasElement>) => {
+    if (evt.buttons !== 1 || !canvasRef.current || !glyphCanvas) {
       return
     }
 
     const idx = getMousePos(canvasRef.current, evt)
-    if (evt.type === 'gotpointercapture') {
-      setCaptureFlag(true)
-    } else if (evt.type === 'lostpointercapture') {
-      setCaptureFlag(false)
-    } else if (evt.type === 'pointerdown' && evt.buttons === 1) {
-      evt.currentTarget.setPointerCapture(evt.pointerId) // TODO: Check if using target property is required here.
-      setDrawFlag(!glyphCanvas[idx])
-      updateCell(idx, !glyphCanvas[idx])
-    } else if (evt.type === 'pointermove' && captureFlag) {
-      updateCell(idx, drawFlag)
-    } else {
+    if (idx === null) {
       return
     }
+
+    evt.currentTarget.setPointerCapture(evt.pointerId)
+    setDrawFlag(!glyphCanvas[idx])
+    updateCell(idx, !glyphCanvas[idx])
+  }
+  const handlePointerMove = (evt: React.PointerEvent<HTMLCanvasElement>) => {
+    if (evt.buttons !== 1 || !canvasRef.current || !glyphCanvas) {
+      return
+    }
+
+    const idx = getMousePos(canvasRef.current, evt)
+    if (idx === null || !captureFlag) {
+      return
+    }
+
+    updateCell(idx, drawFlag)
   }
 
   return (
@@ -105,16 +138,18 @@ const Canvas = ({
           }
         />
       </div>
-      <canvas
-        ref={canvasRef}
-        className={styles.canvas}
-        width={CANVAS_SIZE}
-        height={CANVAS_SIZE}
-        onGotPointerCapture={evt => handlePointer(evt)}
-        onLostPointerCapture={evt => handlePointer(evt)}
-        onPointerDown={evt => handlePointer(evt)}
-        onPointerMove={evt => handlePointer(evt)}
-      />
+      <div className={styles.editor}>
+        <canvas
+          ref={canvasRef}
+          className={styles.canvas}
+          width={CANVAS_SIZE}
+          height={CANVAS_SIZE}
+          onGotPointerCapture={() => setCaptureFlag(true)}
+          onLostPointerCapture={() => setCaptureFlag(false)}
+          onPointerDown={evt => handlePointerDown(evt)}
+          onPointerMove={evt => handlePointerMove(evt)}
+        />
+      </div>
     </div>
   )
 }
