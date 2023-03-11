@@ -2,7 +2,7 @@
 import {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {ReactComponent as Delete} from '../../assets/delete.svg'
-import {CANVAS_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
+import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
 
 const Canvas = ({
   bitmapSize,
@@ -17,7 +17,7 @@ const Canvas = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
-  const p = CANVAS_SIZE / bitmapSize
+  const p = EDITOR_SIZE / bitmapSize
 
   const [drawFlag, setDrawFlag] = useState(true)
   const [captureFlag, setCaptureFlag] = useState(false)
@@ -31,9 +31,9 @@ const Canvas = ({
     ctx.beginPath()
     for (let i = 1; i < bitmapSize; i++) {
       ctx.moveTo(i * p + 0.5, 1)
-      ctx.lineTo(i * p + 0.5, CANVAS_SIZE)
+      ctx.lineTo(i * p + 0.5, EDITOR_SIZE)
       ctx.moveTo(1, i * p + 0.5)
-      ctx.lineTo(CANVAS_SIZE, i * p + 0.5)
+      ctx.lineTo(EDITOR_SIZE, i * p + 0.5)
     }
     ctx.closePath()
     ctx.stroke()
@@ -121,7 +121,7 @@ const Canvas = ({
 
   return (
     <div>
-      <div className={styles.header}>
+      <div className={styles.header} style={{width: EDITOR_SIZE}}>
         <div className={styles.text}>{activeGlyph}</div>
         <div className={styles.separator} />
         <Delete
@@ -138,12 +138,15 @@ const Canvas = ({
           }
         />
       </div>
-      <div className={styles.editor}>
+      <div
+        className={styles.editor}
+        style={{width: EDITOR_SIZE, height: EDITOR_SIZE}}
+      >
         <canvas
           ref={canvasRef}
           className={styles.canvas}
-          width={CANVAS_SIZE}
-          height={CANVAS_SIZE}
+          width={EDITOR_SIZE}
+          height={EDITOR_SIZE}
           onGotPointerCapture={() => setCaptureFlag(true)}
           onLostPointerCapture={() => setCaptureFlag(false)}
           onPointerDown={evt => handlePointerDown(evt)}
