@@ -5,37 +5,11 @@ export const RX_NON_ALPHANUMERIC = /[^A-Za-z0-9\s]/g
 
 // App
 export const DEFAULT_PROMPT = 'sphinx of black quartz judge my vow'
-export const DEFAULT_SYMBOLS = [
-  'a',
-  'b',
-  'c',
-  'd',
-  'e',
-  'f',
-  'g',
-  'h',
-  'i',
-  'j',
-  'k',
-  'l',
-  'm',
-  'n',
-  'o',
-  'p',
-  'q',
-  'r',
-  's',
-  't',
-  'u',
-  'v',
-  'w',
-  'x',
-  'y',
-  'z',
-]
+export const DEFAULT_SYMBOLS = 'abcdefghijklmnopqrstuvwxyz'.split('')
 
 // Canvas
 export const EDITOR_SIZE = 400
+export const LINE_COLOR = '#ffffff'
 export const EMPTY_CELL = '#efefef'
 export const FILLED_CELL = '#2b2b2b'
 
