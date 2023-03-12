@@ -1,7 +1,8 @@
-import {useEffect, useMemo, useState} from 'react'
+import {useState} from 'react'
 import styles from './App.module.scss'
 import {
   DEFAULT_PROMPT,
+  DEFAULT_SYMBOLS,
   RX_LETTERS,
   RX_NON_ALPHANUMERIC,
   RX_NUMBERS,
@@ -11,23 +12,31 @@ import GlyphSet from '../GlyphSet/GlyphSet'
 
 const App = ({bitmapSize}: {bitmapSize: number}) => {
   const [inputText, setInputText] = useState(DEFAULT_PROMPT)
-  const [query, setQuery] = useState(DEFAULT_PROMPT)
-  const [glyphSet, setGlyphSet] = useState(() => new Map<string, boolean[]>())
-  const symbolSet = useMemo(() => getUniqueCharacters(query), [query])
-  const [activeGlyph, setActiveGlyph] = useState<string | undefined>(symbolSet[0])
+  const [activeGlyph, setActiveGlyph] = useState<string | undefined>(
+    DEFAULT_SYMBOLS[0],
+  )
+  const [glyphSet, setGlyphSet] = useState(() => {
+    const newGlyphSet = new Map<string, boolean[]>()
+    DEFAULT_SYMBOLS.forEach(symbol =>
+      newGlyphSet.set(symbol, new Array<boolean>(bitmapSize ** 2).fill(false)),
+    )
+    return newGlyphSet
+  })
 
-  useEffect(() => {
+  const handleSubmit = () => {
+    const symbolSet = getUniqueCharacters(inputText)
+    setActiveGlyph(symbolSet[0])
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map<string, boolean[]>()
-      symbolSet.forEach(symbol =>
+      symbolSet.forEach(symbol => {
         newGlyphSet.set(
           symbol,
           oldGlyphSet.get(symbol) ?? new Array<boolean>(bitmapSize ** 2).fill(false),
-        ),
-      )
+        )
+      })
       return newGlyphSet
     })
-  }, [bitmapSize, symbolSet])
+  }
 
   return (
     <div>
@@ -42,16 +51,10 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
           className={styles.input}
         />
         <div className={styles.buttonRow}>
-          <button onClick={() => setQuery(inputText)} className={styles.button}>
+          <button onClick={handleSubmit} className={styles.button}>
             Submit
           </button>
-          <button
-            onClick={() => {
-              setInputText('')
-              setQuery('')
-            }}
-            className={styles.button}
-          >
+          <button onClick={() => setInputText('')} className={styles.button}>
             Clear
           </button>
         </div>
