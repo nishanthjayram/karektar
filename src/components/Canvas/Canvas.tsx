@@ -1,8 +1,8 @@
 // A canvas for drawing individual glyphs.
-import {Dispatch, SetStateAction, useEffect, useRef, useState} from 'react'
+import {Dispatch, SetStateAction, useRef, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {ReactComponent as Delete} from '../../assets/delete.svg'
-import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
+import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL, LINE_COLOR} from '../../constants'
 
 const Canvas = ({
   bitmapSize,
@@ -15,35 +15,25 @@ const Canvas = ({
   setGlyphSet: Dispatch<SetStateAction<Map<string, boolean[]>>>
   activeGlyph: string | undefined
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
-  const p = EDITOR_SIZE / bitmapSize
-
+  const gridFlag = useRef(false)
   const [drawFlag, setDrawFlag] = useState(true)
   const [captureFlag, setCaptureFlag] = useState(false)
 
-  const drawCanvas = () => {
-    const ctx = canvasRef.current?.getContext('2d')
-    if (!ctx) {
-      return
-    }
-    ctx.strokeStyle = '#ffffff'
-    ctx.beginPath()
-    for (let i = 1; i < bitmapSize; i++) {
-      ctx.moveTo(i * p + 0.5, 1)
-      ctx.lineTo(i * p + 0.5, EDITOR_SIZE)
-      ctx.moveTo(1, i * p + 0.5)
-      ctx.lineTo(EDITOR_SIZE, i * p + 0.5)
-    }
-    ctx.closePath()
-    ctx.stroke()
-  }
+  const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
+  const p = EDITOR_SIZE / bitmapSize
 
-  const updateCanvas = () => {
-    const ctx = canvasRef.current?.getContext('2d')
-    if (!ctx || !glyphCanvas) {
+  const updateCanvas = (canvas: HTMLCanvasElement | null) => {
+    const ctx = canvas?.getContext('2d')
+    if (!glyphCanvas || !canvas || !ctx) {
       return
     }
+
+    if (!gridFlag.current) {
+      drawCanvas(ctx)
+      gridFlag.current = true
+    }
+
+    ctx.beginPath()
     glyphCanvas.forEach((filled: boolean, idx: number) => {
       const [x, y] = [idx % bitmapSize, Math.floor(idx / bitmapSize)]
       ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
@@ -52,28 +42,25 @@ const Canvas = ({
     ctx.closePath()
   }
 
-  useEffect(drawCanvas, [bitmapSize, p])
-  useEffect(updateCanvas, [bitmapSize, glyphCanvas, p])
+  const drawCanvas = (ctx: CanvasRenderingContext2D) => {
+    ctx.strokeStyle = LINE_COLOR
 
-  const getMousePos = (
-    canvas: HTMLCanvasElement,
-    evt: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-  ) => {
-    const rect = canvas.getBoundingClientRect()
+    ctx.beginPath()
+    Array.from({length: bitmapSize - 1}, (_, i) => i + 1).forEach(i => {
+      ctx.moveTo(i * p + 0.5, 1)
+      ctx.lineTo(i * p + 0.5, EDITOR_SIZE)
+      ctx.moveTo(1, i * p + 0.5)
+      ctx.lineTo(EDITOR_SIZE, i * p + 0.5)
+    })
+    ctx.closePath()
 
-    if (
-      evt.clientX < rect.left ||
-      evt.clientX > rect.right ||
-      evt.clientY < rect.top ||
-      evt.clientY > rect.bottom
-    ) {
-      return null
-    }
+    ctx.stroke()
+  }
 
-    const x = Math.floor((evt.clientX - rect.left) / p)
-    const y = Math.floor((evt.clientY - rect.top) / p)
+  const getMousePos = (evt: React.PointerEvent<HTMLCanvasElement>) => {
     return (
-      ((x + bitmapSize) % bitmapSize) + (y + (bitmapSize % bitmapSize)) * bitmapSize
+      bitmapSize * Math.floor(evt.nativeEvent.offsetY / p) +
+      Math.floor(evt.nativeEvent.offsetX / p)
     )
   }
 
@@ -93,29 +80,20 @@ const Canvas = ({
   }
 
   const handlePointerDown = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    if (evt.buttons !== 1 || !canvasRef.current || !glyphCanvas) {
+    if (evt.buttons !== 1 || !glyphCanvas) {
       return
     }
-
-    const idx = getMousePos(canvasRef.current, evt)
-    if (idx === null) {
-      return
-    }
-
     evt.currentTarget.setPointerCapture(evt.pointerId)
+    const idx = getMousePos(evt)
     setDrawFlag(!glyphCanvas[idx])
     updateCell(idx, !glyphCanvas[idx])
   }
+
   const handlePointerMove = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    if (evt.buttons !== 1 || !canvasRef.current || !glyphCanvas) {
+    if (evt.buttons !== 1 || !glyphCanvas || !captureFlag) {
       return
     }
-
-    const idx = getMousePos(canvasRef.current, evt)
-    if (idx === null || !captureFlag) {
-      return
-    }
-
+    const idx = getMousePos(evt)
     updateCell(idx, drawFlag)
   }
 
@@ -143,7 +121,7 @@ const Canvas = ({
         style={{width: EDITOR_SIZE, height: EDITOR_SIZE}}
       >
         <canvas
-          ref={canvasRef}
+          ref={updateCanvas}
           className={styles.canvas}
           width={EDITOR_SIZE}
           height={EDITOR_SIZE}
