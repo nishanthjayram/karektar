@@ -1,10 +1,8 @@
 import classnames from 'classnames'
-import {memo, useEffect, useRef} from 'react'
+import {memo} from 'react'
 import {Dispatch, SetStateAction} from 'react'
 import styles from './Glyph.module.scss'
 import {EMPTY_CELL, FILLED_CELL, GLYPH_SIZE} from '../../constants'
-
-export type TGlyphState = boolean[]
 
 const Glyph = ({
   bitmapSize,
@@ -19,11 +17,10 @@ const Glyph = ({
   active: boolean
   setActiveGlyph: Dispatch<SetStateAction<string | undefined>>
 }) => {
-  const glyphRef = useRef<HTMLCanvasElement | null>(null)
   const p = GLYPH_SIZE / bitmapSize
 
-  useEffect(() => {
-    const ctx = glyphRef.current?.getContext('2d')
+  const updateGlyph = (canvas: HTMLCanvasElement | null) => {
+    const ctx = canvas?.getContext('2d')
     if (!ctx) {
       return
     }
@@ -35,14 +32,14 @@ const Glyph = ({
       ctx.fillRect(x * p, y * p, p, p)
     })
     ctx.closePath()
-  }, [bitmapSize, glyphCanvas, p])
+  }
 
   return (
     <div className={styles.glyph} onClick={() => setActiveGlyph(glyph)}>
       <div className={classnames(active && styles.activeSymbol, styles.symbol)}>
         {glyph}
       </div>
-      <canvas ref={glyphRef} width={GLYPH_SIZE} height={GLYPH_SIZE} />
+      <canvas ref={updateGlyph} width={GLYPH_SIZE} height={GLYPH_SIZE} />
     </div>
   )
 }
