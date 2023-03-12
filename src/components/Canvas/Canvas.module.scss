@@ -1,9 +1,14 @@
-.canvas {
-  width: 416px;
-  height: 416px;
-  display: flex;
-  flex-flow: row wrap;
-  user-select: none;
+$header-height: 32px;
+
+.editor {
+  position: relative;
+
+  & .canvas {
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    left: 0;
+  }
 }
 
 .header {
@@ -12,22 +17,22 @@
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  height: 32px;
+  height: $header-height;
   & .text {
-    min-width: 20px;
+    min-width: 30px;
     padding: 0 10px;
     text-align: center;
   }
   & .separator {
     border-right: 1px #ffa500 solid;
-    height: 32px;
+    height: $header-height;
   }
   & .deleteIcon {
     margin-left: auto;
     fill: #efefef;
     transform: scale(0.5);
     &:hover {
-      background-color: orange;
+      background-color: #ffa500;
     }
   }
 }

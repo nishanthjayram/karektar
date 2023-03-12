@@ -5,6 +5,16 @@ export const RX_NON_ALPHANUMERIC = /[^A-Za-z0-9\s]/g
 
 // App
 export const DEFAULT_PROMPT = 'sphinx of black quartz judge my vow'
+export const DEFAULT_SYMBOLS = 'abcdefghijklmnopqrstuvwxyz'.split('')
+
+// Canvas
+export const EDITOR_SIZE = 400
+export const LINE_COLOR = '#ffffff'
+export const EMPTY_CELL = '#efefef'
+export const FILLED_CELL = '#2b2b2b'
+
+// Glyph
+export const GLYPH_SIZE = 48
 
 // GlyphSet
 export const PAGE_LENGTH = 30 // Number of glyphs to display in a page
