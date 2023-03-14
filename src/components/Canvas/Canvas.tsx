@@ -58,10 +58,14 @@ const Canvas = ({
   }
 
   const getMousePos = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    return (
-      bitmapSize * Math.floor(evt.nativeEvent.offsetY / p) +
-      Math.floor(evt.nativeEvent.offsetX / p)
-    )
+    const [x, y] = [
+      Math.floor(evt.nativeEvent.offsetX / p),
+      Math.floor(evt.nativeEvent.offsetY / p),
+    ]
+    if (x < 0 || y < 0 || x > bitmapSize - 1 || y > bitmapSize - 1) {
+      return null
+    }
+    return bitmapSize * y + x
   }
 
   const updateCell = (idx: number, filled: boolean) => {
@@ -80,20 +84,21 @@ const Canvas = ({
   }
 
   const handlePointerDown = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    if (evt.buttons !== 1 || !glyphCanvas) {
+    const idx = getMousePos(evt)
+    if (evt.buttons !== 1 || !glyphCanvas || idx === null) {
       return
     }
+
     evt.currentTarget.setPointerCapture(evt.pointerId)
-    const idx = getMousePos(evt)
     setDrawFlag(!glyphCanvas[idx])
     updateCell(idx, !glyphCanvas[idx])
   }
 
   const handlePointerMove = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    if (evt.buttons !== 1 || !glyphCanvas || !captureFlag) {
+    const idx = getMousePos(evt)
+    if (evt.buttons !== 1 || !glyphCanvas || !captureFlag || idx === null) {
       return
     }
-    const idx = getMousePos(evt)
     updateCell(idx, drawFlag)
   }
 
