@@ -8,7 +8,7 @@ export const DEFAULT_PROMPT = 'sphinx of black quartz judge my vow'
 export const DEFAULT_SYMBOLS = 'abcdefghijklmnopqrstuvwxyz'.split('')
 
 // Canvas
-export const EDITOR_SIZE = 400
+export const EDITOR_SIZE = 416
 export const LINE_COLOR = '#ffffff'
 export const EMPTY_CELL = '#efefef'
 export const FILLED_CELL = '#2b2b2b'
