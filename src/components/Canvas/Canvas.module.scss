@@ -3,7 +3,7 @@ $header-height: 32px;
 .editor {
   position: relative;
 
-  & .canvas {
+  .canvas {
     position: absolute;
     z-index: 10;
     top: 0;
@@ -18,21 +18,40 @@ $header-height: 32px;
   flex-flow: row nowrap;
   align-items: center;
   height: $header-height;
-  & .text {
+
+  .text {
     min-width: 30px;
     padding: 0 11px;
     text-align: center;
   }
-  & .separator {
-    border-right: 1px #ffa500 solid;
+
+  .separator {
+    border-right: 1px #ffffff solid;
     height: $header-height;
   }
-  & .deleteIcon {
+
+  .toolbar {
+    display: flex;
+    width: 100px;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    justify-content: space-evenly;
     margin-left: auto;
-    fill: #efefef;
-    transform: scale(0.5);
-    &:hover {
-      background-color: #ffa500;
+
+    .icon {
+      fill: #efefef;
+      width: 20px;
+      height: $header-height;
+      margin-left: 5px;
+      margin-right: 5px;
+
+      &:hover {
+        fill: #ffa500;
+      }
+    }
+
+    .activeIcon {
+      fill: #ffa500;
     }
   }
 }

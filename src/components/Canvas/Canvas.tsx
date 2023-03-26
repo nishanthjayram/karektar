@@ -1,7 +1,10 @@
 // A canvas for drawing individual glyphs.
+import classnames from 'classnames'
 import {Dispatch, SetStateAction, useRef, useState} from 'react'
 import styles from './Canvas.module.scss'
-import {ReactComponent as Delete} from '../../assets/delete.svg'
+import {ReactComponent as Eraser} from '../../assets/eraser.svg'
+import {ReactComponent as Pencil} from '../../assets/pencil.svg'
+import {ReactComponent as Trash} from '../../assets/trash.svg'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL, LINE_COLOR} from '../../constants'
 
 const Canvas = ({
@@ -68,14 +71,14 @@ const Canvas = ({
     return bitmapSize * y + x
   }
 
-  const updateCell = (idx: number, filled: boolean) => {
+  const updateCell = (idx: number) => {
     if (!glyphCanvas) {
       return
     }
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
       const newGlyphCanvas = [...glyphCanvas]
-      newGlyphCanvas[idx] = filled
+      newGlyphCanvas[idx] = drawFlag
       if (activeGlyph) {
         newGlyphSet.set(activeGlyph, newGlyphCanvas)
       }
@@ -90,8 +93,7 @@ const Canvas = ({
     }
 
     evt.currentTarget.setPointerCapture(evt.pointerId)
-    setDrawFlag(!glyphCanvas[idx])
-    updateCell(idx, !glyphCanvas[idx])
+    updateCell(idx)
   }
 
   const handlePointerMove = (evt: React.PointerEvent<HTMLCanvasElement>) => {
@@ -99,7 +101,7 @@ const Canvas = ({
     if (evt.buttons !== 1 || !glyphCanvas || !captureFlag || idx === null) {
       return
     }
-    updateCell(idx, drawFlag)
+    updateCell(idx)
   }
 
   return (
@@ -107,19 +109,32 @@ const Canvas = ({
       <div className={styles.header} style={{width: EDITOR_SIZE}}>
         <div className={styles.text}>{activeGlyph}</div>
         <div className={styles.separator} />
-        <Delete
-          className={styles.deleteIcon}
-          onClick={() =>
-            setGlyphSet(oldGlyphSet => {
-              const newGlyphSet = new Map(oldGlyphSet)
-              const newGlyphCanvas = new Array<boolean>(bitmapSize ** 2).fill(false)
-              if (activeGlyph) {
-                newGlyphSet.set(activeGlyph, newGlyphCanvas)
-              }
-              return newGlyphSet
-            })
-          }
-        />
+        <div className={styles.toolbar}>
+          <Pencil
+            className={classnames(drawFlag && styles.activeIcon, styles.icon)}
+            onClick={() => setDrawFlag(true)}
+          />
+          <Eraser
+            className={classnames(!drawFlag && styles.activeIcon, styles.icon)}
+            onClick={() => setDrawFlag(false)}
+          />
+          <Trash
+            className={styles.icon}
+            style={{marginLeft: '9px', width: '17px'}}
+            onClick={() =>
+              setGlyphSet(oldGlyphSet => {
+                const newGlyphSet = new Map(oldGlyphSet)
+                const newGlyphCanvas = new Array<boolean>(bitmapSize ** 2).fill(
+                  false,
+                )
+                if (activeGlyph) {
+                  newGlyphSet.set(activeGlyph, newGlyphCanvas)
+                }
+                return newGlyphSet
+              })
+            }
+          />
+        </div>
       </div>
       <div
         className={styles.editor}
