@@ -3,11 +3,12 @@ import classnames from 'classnames'
 import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {ReactComponent as Eraser} from '../../assets/eraser.svg'
+import {ReactComponent as Line} from '../../assets/line.svg'
 import {ReactComponent as Pencil} from '../../assets/pencil.svg'
 import {ReactComponent as Trash} from '../../assets/trash.svg'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
 
-type TOOL = 'DRAW' | 'ERASE'
+type TTool = 'DRAW' | 'ERASE' | 'LINE'
 
 const Canvas = ({
   bitmapSize,
@@ -20,7 +21,7 @@ const Canvas = ({
   setGlyphSet: Dispatch<SetStateAction<Map<string, boolean[]>>>
   activeGlyph: string | undefined
 }) => {
-  const [tool, setTool] = useState<TOOL>('DRAW')
+  const [tool, setTool] = useState<TTool>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
@@ -50,7 +51,13 @@ const Canvas = ({
     if (x < 0 || y < 0 || x > bitmapSize - 1 || y > bitmapSize - 1) {
       return null
     }
-    return bitmapSize * y + x
+    return [x, y]
+  }
+
+  const getIndex = (evt: React.PointerEvent<HTMLCanvasElement>) => {
+    const mousePos = getMousePos(evt)
+    console.log('hecc')
+    return mousePos === null ? mousePos : bitmapSize * mousePos[1] + mousePos[0]
   }
 
   const drawCell = (idx: number) => {
@@ -71,21 +78,26 @@ const Canvas = ({
   }
 
   const handlePointerDown = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    const idx = getMousePos(evt)
-    if (evt.buttons !== 1 || !glyphCanvas || idx === null) {
+    if (evt.buttons !== 1 || !glyphCanvas) {
       return
     }
 
-    evt.currentTarget.setPointerCapture(evt.pointerId)
-    drawCell(idx)
+    const idx = getIndex(evt)
+    if (idx !== null) {
+      evt.currentTarget.setPointerCapture(evt.pointerId)
+      drawCell(idx)
+    }
   }
 
   const handlePointerMove = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    const idx = getMousePos(evt)
-    if (evt.buttons !== 1 || !glyphCanvas || !captureFlag || idx === null) {
+    if (evt.buttons !== 1 || !glyphCanvas || !captureFlag) {
       return
     }
-    drawCell(idx)
+
+    const idx = getIndex(evt)
+    if (idx !== null) {
+      drawCell(idx)
+    }
   }
 
   return (
@@ -98,6 +110,10 @@ const Canvas = ({
             className={classnames(tool === 'DRAW' && styles.activeIcon, styles.icon)}
             onClick={() => setTool('DRAW')}
           />
+          <Line
+            className={classnames(tool === 'LINE' && styles.activeIcon, styles.icon)}
+            onClick={() => setTool('LINE')}
+          />
           <Eraser
             className={classnames(
               tool === 'ERASE' && styles.activeIcon,
@@ -107,7 +123,7 @@ const Canvas = ({
           />
           <Trash
             className={styles.icon}
-            style={{marginLeft: '9px', width: '17px'}}
+            style={{marginLeft: '9px', width: '16px'}}
             onClick={() =>
               setGlyphSet(oldGlyphSet => {
                 const newGlyphSet = new Map(oldGlyphSet)
