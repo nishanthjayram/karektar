@@ -7,6 +7,8 @@ import {ReactComponent as Pencil} from '../../assets/pencil.svg'
 import {ReactComponent as Trash} from '../../assets/trash.svg'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL, LINE_COLOR} from '../../constants'
 
+type TOOL = 'DRAW' | 'ERASE'
+
 const Canvas = ({
   bitmapSize,
   glyphSet,
@@ -19,7 +21,8 @@ const Canvas = ({
   activeGlyph: string | undefined
 }) => {
   const gridFlag = useRef(false)
-  const [drawFlag, setDrawFlag] = useState(true)
+
+  const [tool, setTool] = useState<TOOL>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
@@ -71,10 +74,12 @@ const Canvas = ({
     return bitmapSize * y + x
   }
 
-  const updateCell = (idx: number) => {
+  const drawCell = (idx: number) => {
     if (!glyphCanvas) {
       return
     }
+
+    const drawFlag = tool === 'DRAW' ? true : false
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
       const newGlyphCanvas = [...glyphCanvas]
@@ -93,7 +98,7 @@ const Canvas = ({
     }
 
     evt.currentTarget.setPointerCapture(evt.pointerId)
-    updateCell(idx)
+    drawCell(idx)
   }
 
   const handlePointerMove = (evt: React.PointerEvent<HTMLCanvasElement>) => {
@@ -101,7 +106,7 @@ const Canvas = ({
     if (evt.buttons !== 1 || !glyphCanvas || !captureFlag || idx === null) {
       return
     }
-    updateCell(idx)
+    drawCell(idx)
   }
 
   return (
@@ -111,12 +116,15 @@ const Canvas = ({
         <div className={styles.separator} />
         <div className={styles.toolbar}>
           <Pencil
-            className={classnames(drawFlag && styles.activeIcon, styles.icon)}
-            onClick={() => setDrawFlag(true)}
+            className={classnames(tool === 'DRAW' && styles.activeIcon, styles.icon)}
+            onClick={() => setTool('DRAW')}
           />
           <Eraser
-            className={classnames(!drawFlag && styles.activeIcon, styles.icon)}
-            onClick={() => setDrawFlag(false)}
+            className={classnames(
+              tool === 'ERASE' && styles.activeIcon,
+              styles.icon,
+            )}
+            onClick={() => setTool('ERASE')}
           />
           <Trash
             className={styles.icon}
