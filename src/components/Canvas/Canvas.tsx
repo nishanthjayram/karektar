@@ -1,11 +1,11 @@
 // A canvas for drawing individual glyphs.
 import classnames from 'classnames'
-import {Dispatch, SetStateAction, useRef, useState} from 'react'
+import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {ReactComponent as Eraser} from '../../assets/eraser.svg'
 import {ReactComponent as Pencil} from '../../assets/pencil.svg'
 import {ReactComponent as Trash} from '../../assets/trash.svg'
-import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL, LINE_COLOR} from '../../constants'
+import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
 
 type TOOL = 'DRAW' | 'ERASE'
 
@@ -20,8 +20,6 @@ const Canvas = ({
   setGlyphSet: Dispatch<SetStateAction<Map<string, boolean[]>>>
   activeGlyph: string | undefined
 }) => {
-  const gridFlag = useRef(false)
-
   const [tool, setTool] = useState<TOOL>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
 
@@ -30,13 +28,9 @@ const Canvas = ({
 
   const updateCanvas = (canvas: HTMLCanvasElement | null) => {
     const ctx = canvas?.getContext('2d')
+
     if (!glyphCanvas || !canvas || !ctx) {
       return
-    }
-
-    if (!gridFlag.current) {
-      drawCanvas(ctx)
-      gridFlag.current = true
     }
 
     ctx.beginPath()
@@ -46,21 +40,6 @@ const Canvas = ({
       ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
     })
     ctx.closePath()
-  }
-
-  const drawCanvas = (ctx: CanvasRenderingContext2D) => {
-    ctx.strokeStyle = LINE_COLOR
-
-    ctx.beginPath()
-    Array.from({length: bitmapSize - 1}, (_, i) => i + 1).forEach(i => {
-      ctx.moveTo(i * p + 0.5, 1)
-      ctx.lineTo(i * p + 0.5, EDITOR_SIZE)
-      ctx.moveTo(1, i * p + 0.5)
-      ctx.lineTo(EDITOR_SIZE, i * p + 0.5)
-    })
-    ctx.closePath()
-
-    ctx.stroke()
   }
 
   const getMousePos = (evt: React.PointerEvent<HTMLCanvasElement>) => {
