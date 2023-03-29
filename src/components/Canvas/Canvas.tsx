@@ -23,6 +23,8 @@ const Canvas = ({
 }) => {
   const [tool, setTool] = useState<TTool>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
+  const [startPos, setStartPos] = useState<number[] | undefined>(undefined)
+  const [endPos, setEndPos] = useState<number[] | undefined>(undefined)
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
   const p = EDITOR_SIZE / bitmapSize
@@ -41,6 +43,15 @@ const Canvas = ({
       ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
     })
     ctx.closePath()
+
+    if (tool === 'LINE' && startPos !== undefined && endPos !== undefined) {
+      ctx.beginPath()
+      ctx.fillStyle = FILLED_CELL
+      plotLine(startPos, endPos).forEach(idx => {
+        const [x, y] = indexToPos(idx)
+        ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
+      })
+    }
   }
 
   const posToIndex = ([x, y]: number[]) => bitmapSize * y + x
@@ -76,8 +87,44 @@ const Canvas = ({
     })
   }
 
+  const plotLine = ([x0, y0]: number[], [x1, y1]: number[]) => {
+    const indices = []
+
+    const dx = Math.abs(x1 - x0)
+    const sx = x0 < x1 ? 1 : -1
+    const dy = -Math.abs(y1 - y0)
+    const sy = y0 < y1 ? 1 : -1
+    let error = dx + dy
+
+    for (;;) {
+      indices.push(bitmapSize * y0 + x0)
+      if (x0 === x1 && y0 === y1) {
+        break
+      }
+
+      const e2 = 2 * error
+
+      if (e2 >= dy) {
+        if (x0 === x1) {
+          break
+        }
+        error = error + dy
+        x0 = x0 + sx
+      }
+      if (e2 <= dx) {
+        if (y0 === y1) {
+          break
+        }
+        error = error + dx
+        y0 = y0 + sy
+      }
+    }
+
+    return indices
+  }
+
   const handlePointerDown = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    if (evt.buttons !== 1 || !glyphCanvas) {
+    if (evt.buttons !== 1) {
       return
     }
 
@@ -93,11 +140,13 @@ const Canvas = ({
       drawCells([idx], true)
     } else if (tool === 'ERASE') {
       drawCells([idx], false)
+    } else if (tool === 'LINE') {
+      setStartPos(mousePos)
     }
   }
 
   const handlePointerMove = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    if (evt.buttons !== 1 || !glyphCanvas || !captureFlag) {
+    if (evt.buttons !== 1 || !captureFlag) {
       return
     }
 
@@ -111,6 +160,20 @@ const Canvas = ({
       drawCells([idx], true)
     } else if (tool === 'ERASE') {
       drawCells([idx], false)
+    } else if (tool === 'LINE') {
+      setEndPos(mousePos)
+    }
+  }
+
+  const handlePointerUp = (evt: React.PointerEvent<HTMLCanvasElement>) => {
+    const mousePos = getMousePos(evt)
+    if (startPos === undefined || mousePos === null) {
+      return
+    }
+    if (tool === 'LINE') {
+      drawCells(plotLine(startPos, mousePos), true)
+      setStartPos(undefined)
+      setEndPos(undefined)
     }
   }
 
@@ -165,6 +228,7 @@ const Canvas = ({
           onGotPointerCapture={() => setCaptureFlag(true)}
           onLostPointerCapture={() => setCaptureFlag(false)}
           onPointerDown={evt => handlePointerDown(evt)}
+          onPointerUp={evt => handlePointerUp(evt)}
           onPointerMove={evt => handlePointerMove(evt)}
         />
       </div>
