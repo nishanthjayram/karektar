@@ -5,6 +5,7 @@ import styles from './Canvas.module.scss'
 import {ReactComponent as Ellipse} from '../../assets/ellipse.svg'
 import {ReactComponent as Eraser} from '../../assets/eraser.svg'
 import {ReactComponent as Line} from '../../assets/line.svg'
+import {ReactComponent as Outline} from '../../assets/outline.svg'
 import {ReactComponent as Pencil} from '../../assets/pencil.svg'
 import {ReactComponent as Trash} from '../../assets/trash.svg'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
@@ -30,9 +31,11 @@ const Canvas = ({
   const p = EDITOR_SIZE / bitmapSize
 
   const updateCanvas = (canvas: HTMLCanvasElement | null) => {
-    const ctx = canvas?.getContext('2d')
-
-    if (!glyphCanvas || !canvas || !ctx) {
+    if (canvas === null) {
+      return
+    }
+    const ctx = canvas.getContext('2d')
+    if (ctx === null || glyphCanvas === undefined) {
       return
     }
 
@@ -46,6 +49,7 @@ const Canvas = ({
 
     if (range !== undefined) {
       ctx.fillStyle = FILLED_CELL
+      ctx.beginPath()
       if (tool === 'LINE') {
         plotLine(range[0], range[1]).forEach(idx => {
           const [x, y] = indexToPos(idx)
@@ -57,6 +61,7 @@ const Canvas = ({
           ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
         })
       }
+      ctx.closePath()
     }
   }
 
@@ -82,7 +87,7 @@ const Canvas = ({
   }
 
   const drawCells = (indices: number[], filled: boolean) => {
-    if (!glyphCanvas) {
+    if (activeGlyph === undefined || glyphCanvas === undefined) {
       return
     }
 
@@ -90,9 +95,7 @@ const Canvas = ({
       const newGlyphSet = new Map(oldGlyphSet)
       const newGlyphCanvas = [...glyphCanvas]
       indices.forEach(idx => (newGlyphCanvas[idx] = filled))
-      if (activeGlyph) {
-        newGlyphSet.set(activeGlyph, newGlyphCanvas)
-      }
+      newGlyphSet.set(activeGlyph, newGlyphCanvas)
       return newGlyphSet
     })
   }
@@ -281,20 +284,35 @@ const Canvas = ({
             )}
             onClick={() => setTool('ELLIPSE')}
           />
+          <Outline
+            className={styles.icon}
+            onClick={() => {
+              if (activeGlyph === undefined || glyphCanvas === undefined) {
+                return
+              }
+              setGlyphSet(oldGlyphSet => {
+                const newGlyphSet = new Map(oldGlyphSet)
+                const newGlyphCanvas = glyphCanvas.map(filled => !filled)
+                newGlyphSet.set(activeGlyph, newGlyphCanvas)
+                return newGlyphSet
+              })
+            }}
+          />
           <Trash
             className={styles.icon}
-            onClick={() =>
+            onClick={() => {
+              if (activeGlyph === undefined) {
+                return
+              }
               setGlyphSet(oldGlyphSet => {
                 const newGlyphSet = new Map(oldGlyphSet)
                 const newGlyphCanvas = new Array<boolean>(bitmapSize ** 2).fill(
                   false,
                 )
-                if (activeGlyph) {
-                  newGlyphSet.set(activeGlyph, newGlyphCanvas)
-                }
+                newGlyphSet.set(activeGlyph, newGlyphCanvas)
                 return newGlyphSet
               })
-            }
+            }}
           />
         </div>
       </div>
