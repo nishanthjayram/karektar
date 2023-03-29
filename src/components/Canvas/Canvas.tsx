@@ -36,12 +36,18 @@ const Canvas = ({
 
     ctx.beginPath()
     glyphCanvas.forEach((filled: boolean, idx: number) => {
-      const [x, y] = [idx % bitmapSize, Math.floor(idx / bitmapSize)]
+      const [x, y] = indexToPos(idx)
       ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
       ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
     })
     ctx.closePath()
   }
+
+  const posToIndex = ([x, y]: number[]) => bitmapSize * y + x
+  const indexToPos = (idx: number) => [
+    idx % bitmapSize,
+    Math.floor(idx / bitmapSize),
+  ]
 
   const getMousePos = (evt: React.PointerEvent<HTMLCanvasElement>) => {
     const [x, y] = [
@@ -54,22 +60,15 @@ const Canvas = ({
     return [x, y]
   }
 
-  const getIndex = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    const mousePos = getMousePos(evt)
-    console.log('hecc')
-    return mousePos === null ? mousePos : bitmapSize * mousePos[1] + mousePos[0]
-  }
-
-  const drawCell = (idx: number) => {
+  const drawCells = (indices: number[], filled: boolean) => {
     if (!glyphCanvas) {
       return
     }
 
-    const drawFlag = tool === 'DRAW' ? true : false
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
       const newGlyphCanvas = [...glyphCanvas]
-      newGlyphCanvas[idx] = drawFlag
+      indices.forEach(idx => (newGlyphCanvas[idx] = filled))
       if (activeGlyph) {
         newGlyphSet.set(activeGlyph, newGlyphCanvas)
       }
@@ -82,10 +81,18 @@ const Canvas = ({
       return
     }
 
-    const idx = getIndex(evt)
-    if (idx !== null) {
-      evt.currentTarget.setPointerCapture(evt.pointerId)
-      drawCell(idx)
+    const mousePos = getMousePos(evt)
+    if (mousePos === null) {
+      return
+    }
+    const idx = posToIndex(mousePos)
+
+    evt.currentTarget.setPointerCapture(evt.pointerId)
+
+    if (tool === 'DRAW') {
+      drawCells([idx], true)
+    } else if (tool === 'ERASE') {
+      drawCells([idx], false)
     }
   }
 
@@ -94,9 +101,16 @@ const Canvas = ({
       return
     }
 
-    const idx = getIndex(evt)
-    if (idx !== null) {
-      drawCell(idx)
+    const mousePos = getMousePos(evt)
+    if (mousePos === null) {
+      return
+    }
+    const idx = posToIndex(mousePos)
+
+    if (tool === 'DRAW') {
+      drawCells([idx], true)
+    } else if (tool === 'ERASE') {
+      drawCells([idx], false)
     }
   }
 
