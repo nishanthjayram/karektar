@@ -35,7 +35,14 @@ const Glyph = ({
   }
 
   return (
-    <div className={styles.glyph} onClick={() => setActiveGlyph(glyph)}>
+    <div
+      className={styles.glyph}
+      onMouseDown={evt => {
+        if (evt.buttons === 1) {
+          setActiveGlyph(glyph)
+        }
+      }}
+    >
       <div className={classnames(active && styles.activeSymbol, styles.symbol)}>
         {glyph}
       </div>
