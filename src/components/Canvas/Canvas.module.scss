@@ -32,17 +32,13 @@ $header-height: 32px;
 
   .toolbar {
     display: flex;
-    flex-flow: row nowrap;
-    align-items: flex-start;
-    justify-content: space-evenly;
     margin-left: auto;
 
     .icon {
       fill: #efefef;
       width: 20px;
       height: $header-height;
-      margin-left: 5px;
-      margin-right: 5px;
+      margin: 0 5px;
 
       &:hover {
         fill: #ffa500;

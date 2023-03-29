@@ -2,13 +2,14 @@
 import classnames from 'classnames'
 import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
+import {ReactComponent as Ellipse} from '../../assets/ellipse.svg'
 import {ReactComponent as Eraser} from '../../assets/eraser.svg'
 import {ReactComponent as Line} from '../../assets/line.svg'
 import {ReactComponent as Pencil} from '../../assets/pencil.svg'
 import {ReactComponent as Trash} from '../../assets/trash.svg'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
 
-type TTool = 'DRAW' | 'ERASE' | 'LINE'
+type TTool = 'DRAW' | 'ERASE' | 'LINE' | 'ELLIPSE'
 
 const Canvas = ({
   bitmapSize,
@@ -23,8 +24,7 @@ const Canvas = ({
 }) => {
   const [tool, setTool] = useState<TTool>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
-  const [startPos, setStartPos] = useState<number[] | undefined>(undefined)
-  const [endPos, setEndPos] = useState<number[] | undefined>(undefined)
+  const [range, setRange] = useState<number[][] | undefined>(undefined)
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
   const p = EDITOR_SIZE / bitmapSize
@@ -44,16 +44,26 @@ const Canvas = ({
     })
     ctx.closePath()
 
-    if (tool === 'LINE' && startPos !== undefined && endPos !== undefined) {
-      ctx.beginPath()
+    if (range !== undefined) {
       ctx.fillStyle = FILLED_CELL
-      plotLine(startPos, endPos).forEach(idx => {
-        const [x, y] = indexToPos(idx)
-        ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
-      })
+      if (tool === 'LINE') {
+        plotLine(range[0], range[1]).forEach(idx => {
+          const [x, y] = indexToPos(idx)
+          ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
+        })
+      } else if (tool === 'ELLIPSE') {
+        plotEllipse(range[1], getDistance(range[0], range[1])).forEach(idx => {
+          const [x, y] = indexToPos(idx)
+          ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
+        })
+      }
     }
   }
 
+  const getDistance = ([x0, y0]: number[], [x1, y1]: number[]) => [
+    Math.abs(x1 - x0),
+    Math.abs(y1 - y0),
+  ]
   const posToIndex = ([x, y]: number[]) => bitmapSize * y + x
   const indexToPos = (idx: number) => [
     idx % bitmapSize,
@@ -87,8 +97,66 @@ const Canvas = ({
     })
   }
 
+  const plotEllipse = ([xc, yc]: number[], [rx, ry]: number[]) => {
+    const coords = []
+    let [x, y] = [0, ry]
+
+    let d1 = ry * ry - rx * rx * ry + 0.25 * rx * rx
+    let dx = 2 * ry * ry * x
+    let dy = 2 * rx * rx * y
+
+    while (dx < dy) {
+      coords.push(
+        [x + xc, y + yc],
+        [-x + xc, y + yc],
+        [x + xc, -y + yc],
+        [-x + xc, -y + yc],
+      )
+
+      if (d1 < 0) {
+        x++
+        dx = dx + 2 * ry * ry
+        d1 = d1 + dx + ry * ry
+      } else {
+        x++
+        y--
+        dx = dx + 2 * ry * ry
+        dy = dy - 2 * rx * rx
+        d1 = d1 + dx - dy + ry * ry
+      }
+    }
+
+    let d2 =
+      ry * ry * ((x + 0.5) * (x + 0.5)) +
+      rx * rx * ((y - 1) * (y - 1)) -
+      rx * rx * ry * ry
+
+    while (y >= 0) {
+      coords.push(
+        [x + xc, y + yc],
+        [-x + xc, y + yc],
+        [x + xc, -y + yc],
+        [-x + xc, -y + yc],
+      )
+
+      if (d2 > 0) {
+        y--
+        dy = dy - 2 * rx * rx
+        d2 = d2 + rx * rx - dy
+      } else {
+        y--
+        x++
+        dx = dx + 2 * ry * ry
+        dy = dy - 2 * rx * rx
+        d2 = d2 + dx - dy + rx * rx
+      }
+    }
+
+    return coords.map(c => posToIndex(c))
+  }
+
   const plotLine = ([x0, y0]: number[], [x1, y1]: number[]) => {
-    const indices = []
+    const coords = []
 
     const dx = Math.abs(x1 - x0)
     const sx = x0 < x1 ? 1 : -1
@@ -97,7 +165,7 @@ const Canvas = ({
     let error = dx + dy
 
     for (;;) {
-      indices.push(bitmapSize * y0 + x0)
+      coords.push([x0, y0])
       if (x0 === x1 && y0 === y1) {
         break
       }
@@ -120,7 +188,21 @@ const Canvas = ({
       }
     }
 
-    return indices
+    return coords.map(c => posToIndex(c))
+  }
+
+  const handlePointerUp = () => {
+    if (range === undefined) {
+      return
+    }
+
+    drawCells(
+      tool === 'LINE'
+        ? plotLine(range[0], range[1])
+        : plotEllipse(range[1], getDistance(range[0], range[1])),
+      true,
+    )
+    setRange(undefined)
   }
 
   const handlePointerDown = (evt: React.PointerEvent<HTMLCanvasElement>) => {
@@ -140,8 +222,8 @@ const Canvas = ({
       drawCells([idx], true)
     } else if (tool === 'ERASE') {
       drawCells([idx], false)
-    } else if (tool === 'LINE') {
-      setStartPos(mousePos)
+    } else if (tool === 'LINE' || tool === 'ELLIPSE') {
+      setRange([mousePos, mousePos])
     }
   }
 
@@ -160,20 +242,13 @@ const Canvas = ({
       drawCells([idx], true)
     } else if (tool === 'ERASE') {
       drawCells([idx], false)
-    } else if (tool === 'LINE') {
-      setEndPos(mousePos)
-    }
-  }
-
-  const handlePointerUp = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    const mousePos = getMousePos(evt)
-    if (startPos === undefined || mousePos === null) {
-      return
-    }
-    if (tool === 'LINE') {
-      drawCells(plotLine(startPos, mousePos), true)
-      setStartPos(undefined)
-      setEndPos(undefined)
+    } else if (tool === 'LINE' || tool === 'ELLIPSE') {
+      setRange(oldRange => {
+        if (oldRange === undefined) {
+          return
+        }
+        return [oldRange[0], mousePos]
+      })
     }
   }
 
@@ -182,14 +257,11 @@ const Canvas = ({
       <div className={styles.header} style={{width: EDITOR_SIZE}}>
         <div className={styles.text}>{activeGlyph}</div>
         <div className={styles.separator} />
+        <div className={styles.text}>{tool}</div>
         <div className={styles.toolbar}>
           <Pencil
             className={classnames(tool === 'DRAW' && styles.activeIcon, styles.icon)}
             onClick={() => setTool('DRAW')}
-          />
-          <Line
-            className={classnames(tool === 'LINE' && styles.activeIcon, styles.icon)}
-            onClick={() => setTool('LINE')}
           />
           <Eraser
             className={classnames(
@@ -198,9 +270,19 @@ const Canvas = ({
             )}
             onClick={() => setTool('ERASE')}
           />
+          <Line
+            className={classnames(tool === 'LINE' && styles.activeIcon, styles.icon)}
+            onClick={() => setTool('LINE')}
+          />
+          <Ellipse
+            className={classnames(
+              tool === 'ELLIPSE' && styles.activeIcon,
+              styles.icon,
+            )}
+            onClick={() => setTool('ELLIPSE')}
+          />
           <Trash
             className={styles.icon}
-            style={{marginLeft: '9px', width: '16px'}}
             onClick={() =>
               setGlyphSet(oldGlyphSet => {
                 const newGlyphSet = new Map(oldGlyphSet)
@@ -227,8 +309,8 @@ const Canvas = ({
           height={EDITOR_SIZE}
           onGotPointerCapture={() => setCaptureFlag(true)}
           onLostPointerCapture={() => setCaptureFlag(false)}
+          onPointerUp={() => handlePointerUp()}
           onPointerDown={evt => handlePointerDown(evt)}
-          onPointerUp={evt => handlePointerUp(evt)}
           onPointerMove={evt => handlePointerMove(evt)}
         />
       </div>
