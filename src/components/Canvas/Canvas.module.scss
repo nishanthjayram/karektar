@@ -1,4 +1,4 @@
-$header-height: 32px;
+$header-height: 48px;
 
 .editor {
   position: relative;
@@ -20,8 +20,9 @@ $header-height: 32px;
   height: $header-height;
 
   .text {
+    font-size: 20px;
     min-width: 30px;
-    padding: 0 11px;
+    padding: 0 17px; // TODO: Avoid hardcoding this; figure out the formula to compute for proper alignment.
     text-align: center;
   }
 
@@ -33,20 +34,21 @@ $header-height: 32px;
   .toolbar {
     display: flex;
     margin-left: auto;
+    margin-right: 5px;
 
     .icon {
-      fill: #efefef;
-      width: 20px;
+      color: #efefef;
+      width: 22px;
       height: $header-height;
-      margin: 0 5px;
+      padding: 0 12px;
 
       &:hover {
-        fill: #ffa500;
+        color: #ffa500;
       }
     }
 
     .activeIcon {
-      fill: #ffa500;
+      color: #ffa500;
     }
   }
 }

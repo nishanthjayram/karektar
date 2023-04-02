@@ -1,13 +1,16 @@
 // A canvas for drawing individual glyphs.
+import {IconProp} from '@fortawesome/fontawesome-svg-core'
+import {faCircle, faTrashAlt} from '@fortawesome/free-regular-svg-icons'
+import {
+  faCircleHalfStroke,
+  faEraser,
+  faPencil,
+  faSlash,
+} from '@fortawesome/free-solid-svg-icons'
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import classnames from 'classnames'
 import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
-import {ReactComponent as Ellipse} from '../../assets/ellipse.svg'
-import {ReactComponent as Eraser} from '../../assets/eraser.svg'
-import {ReactComponent as Line} from '../../assets/line.svg'
-import {ReactComponent as Outline} from '../../assets/outline.svg'
-import {ReactComponent as Pencil} from '../../assets/pencil.svg'
-import {ReactComponent as Trash} from '../../assets/trash.svg'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
 
 type TTool = 'DRAW' | 'ERASE' | 'LINE' | 'ELLIPSE'
@@ -255,6 +258,14 @@ const Canvas = ({
     }
   }
 
+  const Icon = ({icon, drawTool}: {icon: IconProp; drawTool: TTool}) => (
+    <FontAwesomeIcon
+      icon={icon}
+      onClick={() => setTool(drawTool)}
+      className={classnames(tool === drawTool && styles.activeIcon, styles.icon)}
+    />
+  )
+
   return (
     <div>
       <div className={styles.header} style={{width: EDITOR_SIZE}}>
@@ -262,29 +273,11 @@ const Canvas = ({
         <div className={styles.separator} />
         <div className={styles.text}>{tool}</div>
         <div className={styles.toolbar}>
-          <Pencil
-            className={classnames(tool === 'DRAW' && styles.activeIcon, styles.icon)}
-            onClick={() => setTool('DRAW')}
-          />
-          <Eraser
-            className={classnames(
-              tool === 'ERASE' && styles.activeIcon,
-              styles.icon,
-            )}
-            onClick={() => setTool('ERASE')}
-          />
-          <Line
-            className={classnames(tool === 'LINE' && styles.activeIcon, styles.icon)}
-            onClick={() => setTool('LINE')}
-          />
-          <Ellipse
-            className={classnames(
-              tool === 'ELLIPSE' && styles.activeIcon,
-              styles.icon,
-            )}
-            onClick={() => setTool('ELLIPSE')}
-          />
-          <Outline
+          <Icon icon={faPencil} drawTool="DRAW" />
+          <Icon icon={faEraser} drawTool="ERASE" />
+          <Icon icon={faSlash} drawTool="LINE" />
+          <Icon icon={faCircle} drawTool="ELLIPSE" />
+          <FontAwesomeIcon
             className={styles.icon}
             onClick={() => {
               if (activeGlyph === undefined || glyphCanvas === undefined) {
@@ -297,8 +290,9 @@ const Canvas = ({
                 return newGlyphSet
               })
             }}
+            icon={faCircleHalfStroke}
           />
-          <Trash
+          <FontAwesomeIcon
             className={styles.icon}
             onClick={() => {
               if (activeGlyph === undefined) {
@@ -313,6 +307,7 @@ const Canvas = ({
                 return newGlyphSet
               })
             }}
+            icon={faTrashAlt}
           />
         </div>
       </div>
@@ -327,7 +322,7 @@ const Canvas = ({
           height={EDITOR_SIZE}
           onGotPointerCapture={() => setCaptureFlag(true)}
           onLostPointerCapture={() => setCaptureFlag(false)}
-          onPointerUp={() => handlePointerUp()}
+          onPointerUp={handlePointerUp}
           onPointerDown={evt => handlePointerDown(evt)}
           onPointerMove={evt => handlePointerMove(evt)}
         />
