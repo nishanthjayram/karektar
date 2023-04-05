@@ -13,6 +13,8 @@ import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
 
+type TPos = [x: number, y: number]
+type TRect = [x: number, y: number, w: number, h: number]
 type TTool = 'DRAW' | 'ERASE' | 'LINE' | 'ELLIPSE'
 
 const Canvas = ({
@@ -28,68 +30,41 @@ const Canvas = ({
 }) => {
   const [tool, setTool] = useState<TTool>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
-  const [range, setRange] = useState<number[][] | undefined>(undefined)
+  const [startPos, setStartPos] = useState<TPos | undefined>(undefined)
+  const [currPos, setCurrPos] = useState<TPos | undefined>(undefined)
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
   const p = EDITOR_SIZE / bitmapSize
 
-  const updateCanvas = (canvas: HTMLCanvasElement | null) => {
-    if (canvas === null) {
-      return
-    }
-    const ctx = canvas.getContext('2d')
-    if (ctx === null || glyphCanvas === undefined) {
+  const drawCanvas = (canvas: HTMLCanvasElement | null) => {
+    const ctx = canvas?.getContext('2d')
+    if (ctx === undefined || ctx === null || glyphCanvas === undefined) {
       return
     }
 
     ctx.beginPath()
     glyphCanvas.forEach((filled: boolean, idx: number) => {
-      const [x, y] = indexToPos(idx)
       ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
-      ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
+      ctx.fillRect(...getRect(idx))
     })
     ctx.closePath()
 
-    if (range !== undefined) {
+    if (startPos !== undefined && currPos !== undefined) {
       ctx.fillStyle = FILLED_CELL
+      const cells =
+        tool === 'LINE'
+          ? plotLine(startPos, currPos)
+          : tool === 'ELLIPSE'
+          ? plotEllipse(currPos, getDistance(startPos, currPos))
+          : []
+
       ctx.beginPath()
-      if (tool === 'LINE') {
-        plotLine(range[0], range[1]).forEach(idx => {
-          const [x, y] = indexToPos(idx)
-          ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
-        })
-      } else if (tool === 'ELLIPSE') {
-        plotEllipse(range[1], getDistance(range[0], range[1])).forEach(idx => {
-          const [x, y] = indexToPos(idx)
-          ctx.fillRect(x * p + 1, y * p + 1, p - 1, p - 1)
-        })
-      }
+      cells.forEach(idx => ctx.fillRect(...getRect(idx)))
       ctx.closePath()
     }
   }
 
-  const getDistance = ([x0, y0]: number[], [x1, y1]: number[]) => [
-    Math.abs(x1 - x0),
-    Math.abs(y1 - y0),
-  ]
-  const posToIndex = ([x, y]: number[]) => bitmapSize * y + x
-  const indexToPos = (idx: number) => [
-    idx % bitmapSize,
-    Math.floor(idx / bitmapSize),
-  ]
-
-  const getMousePos = (evt: React.PointerEvent<HTMLCanvasElement>) => {
-    const [x, y] = [
-      Math.floor(evt.nativeEvent.offsetX / p),
-      Math.floor(evt.nativeEvent.offsetY / p),
-    ]
-    if (x < 0 || y < 0 || x > bitmapSize - 1 || y > bitmapSize - 1) {
-      return null
-    }
-    return [x, y]
-  }
-
-  const drawCells = (indices: number[], filled: boolean) => {
+  const updateCells = (indices: number[], filled: boolean) => {
     if (activeGlyph === undefined || glyphCanvas === undefined) {
       return
     }
@@ -103,8 +78,34 @@ const Canvas = ({
     })
   }
 
-  const plotEllipse = ([xc, yc]: number[], [rx, ry]: number[]) => {
-    const coords = []
+  const getMousePos = (evt: React.PointerEvent<HTMLCanvasElement>): TPos | null => {
+    const [x, y] = [
+      Math.floor(evt.nativeEvent.offsetX / p),
+      Math.floor(evt.nativeEvent.offsetY / p),
+    ]
+    if (x < 0 || y < 0 || x > bitmapSize - 1 || y > bitmapSize - 1) {
+      return null
+    }
+    return [x, y]
+  }
+
+  const posToIndex = (pos: TPos): number => bitmapSize * pos[1] + pos[0]
+  const indexToPos = (idx: number): TPos => [
+    idx % bitmapSize,
+    Math.floor(idx / bitmapSize),
+  ]
+
+  const getDistance = ([x0, y0]: TPos, [x1, y1]: TPos): TPos => [
+    Math.abs(x1 - x0),
+    Math.abs(y1 - y0),
+  ]
+  const getRect = (idx: number): TRect => {
+    const [x, y] = indexToPos(idx)
+    return [x * p + 1, y * p + 1, p - 1, p - 1]
+  }
+
+  const plotEllipse = ([xc, yc]: TPos, [rx, ry]: TPos) => {
+    const coords = new Array<TPos>()
     let [x, y] = [0, ry]
 
     let d1 = ry * ry - rx * rx * ry + 0.25 * rx * rx
@@ -161,8 +162,8 @@ const Canvas = ({
     return coords.map(c => posToIndex(c))
   }
 
-  const plotLine = ([x0, y0]: number[], [x1, y1]: number[]) => {
-    const coords = []
+  const plotLine = ([x0, y0]: TPos, [x1, y1]: TPos) => {
+    const coords = new Array<TPos>()
 
     const dx = Math.abs(x1 - x0)
     const sx = x0 < x1 ? 1 : -1
@@ -198,17 +199,19 @@ const Canvas = ({
   }
 
   const handlePointerUp = () => {
-    if (range === undefined) {
+    if (startPos === undefined || currPos === undefined) {
       return
     }
 
-    drawCells(
+    updateCells(
       tool === 'LINE'
-        ? plotLine(range[0], range[1])
-        : plotEllipse(range[1], getDistance(range[0], range[1])),
+        ? plotLine(startPos, currPos)
+        : plotEllipse(currPos, getDistance(startPos, currPos)),
       true,
     )
-    setRange(undefined)
+
+    setStartPos(undefined)
+    setCurrPos(undefined)
   }
 
   const handlePointerDown = (evt: React.PointerEvent<HTMLCanvasElement>) => {
@@ -220,16 +223,16 @@ const Canvas = ({
     if (mousePos === null) {
       return
     }
-    const idx = posToIndex(mousePos)
 
+    const idx = posToIndex(mousePos)
     evt.currentTarget.setPointerCapture(evt.pointerId)
 
     if (tool === 'DRAW') {
-      drawCells([idx], true)
+      updateCells([idx], true)
     } else if (tool === 'ERASE') {
-      drawCells([idx], false)
+      updateCells([idx], false)
     } else if (tool === 'LINE' || tool === 'ELLIPSE') {
-      setRange([mousePos, mousePos])
+      setStartPos(mousePos)
     }
   }
 
@@ -242,19 +245,15 @@ const Canvas = ({
     if (mousePos === null) {
       return
     }
+
     const idx = posToIndex(mousePos)
 
     if (tool === 'DRAW') {
-      drawCells([idx], true)
+      updateCells([idx], true)
     } else if (tool === 'ERASE') {
-      drawCells([idx], false)
+      updateCells([idx], false)
     } else if (tool === 'LINE' || tool === 'ELLIPSE') {
-      setRange(oldRange => {
-        if (oldRange === undefined) {
-          return
-        }
-        return [oldRange[0], mousePos]
-      })
+      setCurrPos(mousePos)
     }
   }
 
@@ -316,7 +315,7 @@ const Canvas = ({
         style={{width: EDITOR_SIZE, height: EDITOR_SIZE}}
       >
         <canvas
-          ref={updateCanvas}
+          ref={drawCanvas}
           className={styles.canvas}
           width={EDITOR_SIZE}
           height={EDITOR_SIZE}
