@@ -4,6 +4,7 @@ import {faCircle, faTrashAlt} from '@fortawesome/free-regular-svg-icons'
 import {
   faCircleHalfStroke,
   faEraser,
+  faFill,
   faPencil,
   faSlash,
 } from '@fortawesome/free-solid-svg-icons'
@@ -15,7 +16,7 @@ import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
 
 type TPos = [x: number, y: number]
 type TRect = [x: number, y: number, w: number, h: number]
-type TTool = 'DRAW' | 'ERASE' | 'LINE' | 'ELLIPSE'
+type TTool = 'DRAW' | 'ERASE' | 'FILL' | 'LINE' | 'ELLIPSE'
 
 const Canvas = ({
   bitmapSize,
@@ -78,15 +79,15 @@ const Canvas = ({
     })
   }
 
+  const checkPos = ([x, y]: TPos) =>
+    x >= 0 && y >= 0 && x <= bitmapSize - 1 && y <= bitmapSize - 1
+
   const getMousePos = (evt: React.PointerEvent<HTMLCanvasElement>): TPos | null => {
     const [x, y] = [
       Math.floor(evt.nativeEvent.offsetX / p),
       Math.floor(evt.nativeEvent.offsetY / p),
     ]
-    if (x < 0 || y < 0 || x > bitmapSize - 1 || y > bitmapSize - 1) {
-      return null
-    }
-    return [x, y]
+    return checkPos([x, y]) ? [x, y] : null
   }
 
   const posToIndex = (pos: TPos): number => bitmapSize * pos[1] + pos[0]
@@ -198,18 +199,58 @@ const Canvas = ({
     return coords.map(c => posToIndex(c))
   }
 
+  const fill = ([x0, y0]: TPos) => {
+    if (glyphCanvas === undefined) {
+      return
+    }
+
+    const queue = new Array<TPos>()
+    const visited = new Array<TPos>()
+    queue.push([x0, y0])
+
+    while (queue.length > 0) {
+      const pos = queue.pop()
+
+      if (pos === undefined) {
+        break
+      }
+
+      const [x, y] = pos
+      const cells: TPos[] = [
+        [x + 1, y],
+        [x - 1, y],
+        [x, y + 1],
+        [x, y - 1],
+      ]
+      cells.forEach(c => {
+        if (
+          checkPos(c) &&
+          !visited.some(e => e.join() === c.join()) &&
+          !glyphCanvas[posToIndex(c)]
+        ) {
+          queue.push(c)
+          visited.push(c)
+        }
+      })
+    }
+
+    updateCells(
+      visited.map(c => posToIndex(c)),
+      true,
+    )
+  }
+
   const handlePointerUp = () => {
     if (startPos === undefined || currPos === undefined) {
       return
     }
 
-    updateCells(
+    const cells =
       tool === 'LINE'
         ? plotLine(startPos, currPos)
-        : plotEllipse(currPos, getDistance(startPos, currPos)),
-      true,
-    )
+        : plotEllipse(currPos, getDistance(startPos, currPos))
 
+    updateCells(cells, true)
     setStartPos(undefined)
     setCurrPos(undefined)
   }
@@ -231,8 +272,11 @@ const Canvas = ({
       updateCells([idx], true)
     } else if (tool === 'ERASE') {
       updateCells([idx], false)
+    } else if (tool === 'FILL') {
+      fill(mousePos)
     } else if (tool === 'LINE' || tool === 'ELLIPSE') {
       setStartPos(mousePos)
+      setCurrPos(mousePos)
     }
   }
 
@@ -276,6 +320,7 @@ const Canvas = ({
           <Icon icon={faEraser} drawTool="ERASE" />
           <Icon icon={faSlash} drawTool="LINE" />
           <Icon icon={faCircle} drawTool="ELLIPSE" />
+          <Icon icon={faFill} drawTool="FILL" />
           <FontAwesomeIcon
             className={styles.icon}
             onClick={() => {
