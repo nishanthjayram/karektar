@@ -199,14 +199,13 @@ const Canvas = ({
     return coords.map(c => posToIndex(c))
   }
 
-  const fill = ([x0, y0]: TPos) => {
-    if (glyphCanvas === undefined) {
+  const fill = (start: TPos) => {
+    if (glyphCanvas === undefined || glyphCanvas[posToIndex(start)]) {
       return
     }
 
-    const queue = new Array<TPos>()
+    const queue = [start]
     const visited = new Array<TPos>()
-    queue.push([x0, y0])
 
     while (queue.length > 0) {
       const pos = queue.pop()
@@ -217,6 +216,7 @@ const Canvas = ({
 
       const [x, y] = pos
       const cells: TPos[] = [
+        [x, y],
         [x + 1, y],
         [x - 1, y],
         [x, y + 1],
