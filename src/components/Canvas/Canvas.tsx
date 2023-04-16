@@ -14,9 +14,10 @@ import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
 
+type TTool = 'DRAW' | 'ERASE' | 'LINE' | 'ELLIPSE' | 'FILL' | 'INVERT' | 'CLEAR'
 type TPos = [x: number, y: number]
 type TRect = [x: number, y: number, w: number, h: number]
-type TTool = 'DRAW' | 'ERASE' | 'FILL' | 'LINE' | 'ELLIPSE'
+type TRange = [startPos: TPos, endPos: TPos]
 
 const Canvas = ({
   bitmapSize,
@@ -29,10 +30,9 @@ const Canvas = ({
   setGlyphSet: Dispatch<SetStateAction<Map<string, boolean[]>>>
   activeGlyph: string | undefined
 }) => {
-  const [tool, setTool] = useState<TTool>('DRAW')
+  const [currTool, setCurrTool] = useState<TTool>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
-  const [startPos, setStartPos] = useState<TPos | undefined>(undefined)
-  const [currPos, setCurrPos] = useState<TPos | undefined>(undefined)
+  const [range, setRange] = useState<TRange | undefined>(undefined)
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
   const p = EDITOR_SIZE / bitmapSize
@@ -50,13 +50,14 @@ const Canvas = ({
     })
     ctx.closePath()
 
-    if (startPos !== undefined && currPos !== undefined) {
+    if (range !== undefined) {
+      const [startPos, endPos] = range
       ctx.fillStyle = FILLED_CELL
       const cells =
-        tool === 'LINE'
-          ? plotLine(startPos, currPos)
-          : tool === 'ELLIPSE'
-          ? plotEllipse(currPos, getDistance(startPos, currPos))
+        currTool === 'LINE'
+          ? plotLine(startPos, endPos)
+          : currTool === 'ELLIPSE'
+          ? plotEllipse(endPos, getDistance(startPos, endPos))
           : []
 
       ctx.beginPath()
@@ -241,18 +242,19 @@ const Canvas = ({
   }
 
   const handlePointerUp = () => {
-    if (startPos === undefined || currPos === undefined) {
+    if (range === undefined) {
       return
     }
 
+    const [startPos, endPos] = range
+
     const cells =
-      tool === 'LINE'
-        ? plotLine(startPos, currPos)
-        : plotEllipse(currPos, getDistance(startPos, currPos))
+      currTool === 'LINE'
+        ? plotLine(startPos, endPos)
+        : plotEllipse(endPos, getDistance(startPos, endPos))
 
     updateCells(cells, true)
-    setStartPos(undefined)
-    setCurrPos(undefined)
+    setRange(undefined)
   }
 
   const handlePointerDown = (evt: React.PointerEvent<HTMLCanvasElement>) => {
@@ -268,15 +270,14 @@ const Canvas = ({
     const idx = posToIndex(mousePos)
     evt.currentTarget.setPointerCapture(evt.pointerId)
 
-    if (tool === 'DRAW') {
+    if (currTool === 'DRAW') {
       updateCells([idx], true)
-    } else if (tool === 'ERASE') {
+    } else if (currTool === 'ERASE') {
       updateCells([idx], false)
-    } else if (tool === 'FILL') {
+    } else if (currTool === 'FILL') {
       fill(mousePos)
-    } else if (tool === 'LINE' || tool === 'ELLIPSE') {
-      setStartPos(mousePos)
-      setCurrPos(mousePos)
+    } else if (currTool === 'LINE' || currTool === 'ELLIPSE') {
+      setRange([mousePos, mousePos])
     }
   }
 
@@ -292,20 +293,56 @@ const Canvas = ({
 
     const idx = posToIndex(mousePos)
 
-    if (tool === 'DRAW') {
+    if (currTool === 'DRAW') {
       updateCells([idx], true)
-    } else if (tool === 'ERASE') {
+    } else if (currTool === 'ERASE') {
       updateCells([idx], false)
-    } else if (tool === 'LINE' || tool === 'ELLIPSE') {
-      setCurrPos(mousePos)
+    } else if (currTool === 'LINE' || currTool === 'ELLIPSE') {
+      setRange(oldRange =>
+        oldRange !== undefined ? [oldRange[0], mousePos] : oldRange,
+      )
     }
   }
 
-  const Icon = ({icon, drawTool}: {icon: IconProp; drawTool: TTool}) => (
+  const handleInvert = () => {
+    if (activeGlyph === undefined || glyphCanvas === undefined) {
+      return
+    }
+    setGlyphSet(oldGlyphSet => {
+      const newGlyphSet = new Map(oldGlyphSet)
+      const newGlyphCanvas = glyphCanvas.map(filled => !filled)
+      newGlyphSet.set(activeGlyph, newGlyphCanvas)
+      return newGlyphSet
+    })
+  }
+
+  const handleClear = () => {
+    if (activeGlyph === undefined) {
+      return
+    }
+    setGlyphSet(oldGlyphSet => {
+      const newGlyphSet = new Map(oldGlyphSet)
+      const newGlyphCanvas = new Array<boolean>(bitmapSize ** 2).fill(false)
+      newGlyphSet.set(activeGlyph, newGlyphCanvas)
+      return newGlyphSet
+    })
+  }
+
+  const Tool = ({icon, tool}: {icon: IconProp; tool: TTool}) => (
     <FontAwesomeIcon
       icon={icon}
-      onClick={() => setTool(drawTool)}
-      className={classnames(tool === drawTool && styles.activeIcon, styles.icon)}
+      className={classnames(currTool === tool && styles.activeIcon, styles.icon)}
+      onClick={() => {
+        if (captureFlag) {
+          return
+        } else if (tool === 'INVERT') {
+          handleInvert()
+        } else if (tool === 'CLEAR') {
+          handleClear()
+        } else {
+          setCurrTool(tool)
+        }
+      }}
     />
   )
 
@@ -314,45 +351,15 @@ const Canvas = ({
       <div className={styles.header} style={{width: EDITOR_SIZE}}>
         <div className={styles.text}>{activeGlyph}</div>
         <div className={styles.separator} />
-        <div className={styles.text}>{tool}</div>
+        <div className={styles.text}>{currTool}</div>
         <div className={styles.toolbar}>
-          <Icon icon={faPencil} drawTool="DRAW" />
-          <Icon icon={faEraser} drawTool="ERASE" />
-          <Icon icon={faSlash} drawTool="LINE" />
-          <Icon icon={faCircle} drawTool="ELLIPSE" />
-          <Icon icon={faFill} drawTool="FILL" />
-          <FontAwesomeIcon
-            className={styles.icon}
-            onClick={() => {
-              if (activeGlyph === undefined || glyphCanvas === undefined) {
-                return
-              }
-              setGlyphSet(oldGlyphSet => {
-                const newGlyphSet = new Map(oldGlyphSet)
-                const newGlyphCanvas = glyphCanvas.map(filled => !filled)
-                newGlyphSet.set(activeGlyph, newGlyphCanvas)
-                return newGlyphSet
-              })
-            }}
-            icon={faCircleHalfStroke}
-          />
-          <FontAwesomeIcon
-            className={styles.icon}
-            onClick={() => {
-              if (activeGlyph === undefined) {
-                return
-              }
-              setGlyphSet(oldGlyphSet => {
-                const newGlyphSet = new Map(oldGlyphSet)
-                const newGlyphCanvas = new Array<boolean>(bitmapSize ** 2).fill(
-                  false,
-                )
-                newGlyphSet.set(activeGlyph, newGlyphCanvas)
-                return newGlyphSet
-              })
-            }}
-            icon={faTrashAlt}
-          />
+          <Tool icon={faPencil} tool="DRAW" />
+          <Tool icon={faEraser} tool="ERASE" />
+          <Tool icon={faSlash} tool="LINE" />
+          <Tool icon={faCircle} tool="ELLIPSE" />
+          <Tool icon={faFill} tool="FILL" />
+          <Tool icon={faCircleHalfStroke} tool="INVERT" />
+          <Tool icon={faTrashAlt} tool="CLEAR" />
         </div>
       </div>
       <div
