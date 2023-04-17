@@ -50,5 +50,10 @@ $header-height: 48px;
     .activeIcon {
       color: #ffa500;
     }
+
+    .disabledIcon {
+      color: gray;
+      pointer-events: none;
+    }
   }
 }

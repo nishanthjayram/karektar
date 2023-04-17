@@ -7,17 +7,28 @@ import {
   faFill,
   faPencil,
   faSlash,
+  faUndo,
 } from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import classnames from 'classnames'
 import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
+import {compareArrays} from '../../utils'
 
-type TTool = 'DRAW' | 'ERASE' | 'LINE' | 'ELLIPSE' | 'FILL' | 'INVERT' | 'CLEAR'
+type TTool =
+  | 'DRAW'
+  | 'ERASE'
+  | 'LINE'
+  | 'ELLIPSE'
+  | 'FILL'
+  | 'INVERT'
+  | 'CLEAR'
+  | 'UNDO'
 type TPos = [x: number, y: number]
 type TRect = [x: number, y: number, w: number, h: number]
 type TRange = [startPos: TPos, endPos: TPos]
+type THistory = boolean[][]
 
 const Canvas = ({
   bitmapSize,
@@ -33,6 +44,9 @@ const Canvas = ({
   const [currTool, setCurrTool] = useState<TTool>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
   const [range, setRange] = useState<TRange | undefined>(undefined)
+  const [history, setHistory] = useState<THistory>(() => [
+    new Array<boolean>(bitmapSize ** 2).fill(false),
+  ])
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
   const p = EDITOR_SIZE / bitmapSize
@@ -242,6 +256,11 @@ const Canvas = ({
   }
 
   const handlePointerUp = () => {
+    setHistory(oldHistory =>
+      glyphCanvas === undefined || compareArrays(glyphCanvas, oldHistory[0])
+        ? oldHistory
+        : [glyphCanvas, ...oldHistory],
+    )
     if (range === undefined) {
       return
     }
@@ -308,16 +327,18 @@ const Canvas = ({
     if (activeGlyph === undefined || glyphCanvas === undefined) {
       return
     }
+
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
       const newGlyphCanvas = glyphCanvas.map(filled => !filled)
       newGlyphSet.set(activeGlyph, newGlyphCanvas)
       return newGlyphSet
     })
+    setHistory(oldHistory => [glyphCanvas, ...oldHistory])
   }
 
   const handleClear = () => {
-    if (activeGlyph === undefined) {
+    if (activeGlyph === undefined || glyphCanvas === undefined) {
       return
     }
     setGlyphSet(oldGlyphSet => {
@@ -326,12 +347,30 @@ const Canvas = ({
       newGlyphSet.set(activeGlyph, newGlyphCanvas)
       return newGlyphSet
     })
+    setHistory(oldHistory => [glyphCanvas, ...oldHistory])
+  }
+
+  const handleUndo = () => {
+    if (activeGlyph === undefined) {
+      return
+    }
+    setHistory(oldHistory => oldHistory.slice(1))
+
+    setGlyphSet(oldGlyphSet => {
+      const newGlyphSet = new Map(oldGlyphSet)
+      newGlyphSet.set(activeGlyph, history[1])
+      return newGlyphSet
+    })
   }
 
   const Tool = ({icon, tool}: {icon: IconProp; tool: TTool}) => (
     <FontAwesomeIcon
       icon={icon}
-      className={classnames(currTool === tool && styles.activeIcon, styles.icon)}
+      className={classnames(
+        currTool === tool && styles.activeIcon,
+        tool === 'UNDO' && history.length === 1 && styles.disabledIcon,
+        styles.icon,
+      )}
       onClick={() => {
         if (captureFlag) {
           return
@@ -339,6 +378,8 @@ const Canvas = ({
           handleInvert()
         } else if (tool === 'CLEAR') {
           handleClear()
+        } else if (tool === 'UNDO') {
+          handleUndo()
         } else {
           setCurrTool(tool)
         }
@@ -360,6 +401,7 @@ const Canvas = ({
           <Tool icon={faFill} tool="FILL" />
           <Tool icon={faCircleHalfStroke} tool="INVERT" />
           <Tool icon={faTrashAlt} tool="CLEAR" />
+          <Tool icon={faUndo} tool="UNDO" />
         </div>
       </div>
       <div
