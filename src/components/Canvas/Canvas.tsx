@@ -13,6 +13,7 @@ import classnames from 'classnames'
 import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
+import {assertUnreachable} from '../../utils'
 
 type TTool = 'DRAW' | 'ERASE' | 'LINE' | 'ELLIPSE' | 'FILL' | 'INVERT' | 'CLEAR'
 type TPos = [x: number, y: number]
@@ -270,14 +271,27 @@ const Canvas = ({
     const idx = posToIndex(mousePos)
     evt.currentTarget.setPointerCapture(evt.pointerId)
 
-    if (currTool === 'DRAW') {
-      updateCells([idx], true)
-    } else if (currTool === 'ERASE') {
-      updateCells([idx], false)
-    } else if (currTool === 'FILL') {
-      fill(mousePos)
-    } else if (currTool === 'LINE' || currTool === 'ELLIPSE') {
-      setRange([mousePos, mousePos])
+    switch (currTool) {
+      case 'DRAW': {
+        return updateCells([idx], true)
+      }
+      case 'ERASE': {
+        return updateCells([idx], false)
+      }
+      case 'LINE':
+      case 'ELLIPSE': {
+        return setRange([mousePos, mousePos])
+      }
+      case 'FILL': {
+        return fill(mousePos)
+      }
+      case 'INVERT':
+      case 'CLEAR': {
+        return
+      }
+      default: {
+        return assertUnreachable(currTool)
+      }
     }
   }
 
@@ -293,14 +307,27 @@ const Canvas = ({
 
     const idx = posToIndex(mousePos)
 
-    if (currTool === 'DRAW') {
-      updateCells([idx], true)
-    } else if (currTool === 'ERASE') {
-      updateCells([idx], false)
-    } else if (currTool === 'LINE' || currTool === 'ELLIPSE') {
-      setRange(oldRange =>
-        oldRange !== undefined ? [oldRange[0], mousePos] : oldRange,
-      )
+    switch (currTool) {
+      case 'DRAW': {
+        return updateCells([idx], true)
+      }
+      case 'ERASE': {
+        return updateCells([idx], false)
+      }
+      case 'LINE':
+      case 'ELLIPSE': {
+        return setRange(oldRange =>
+          oldRange !== undefined ? [oldRange[0], mousePos] : oldRange,
+        )
+      }
+      case 'FILL':
+      case 'INVERT':
+      case 'CLEAR': {
+        return
+      }
+      default: {
+        return assertUnreachable(currTool)
+      }
     }
   }
 
@@ -335,12 +362,24 @@ const Canvas = ({
       onClick={() => {
         if (captureFlag) {
           return
-        } else if (tool === 'INVERT') {
-          handleInvert()
-        } else if (tool === 'CLEAR') {
-          handleClear()
-        } else {
-          setCurrTool(tool)
+        }
+
+        switch (tool) {
+          case 'DRAW':
+          case 'ERASE':
+          case 'LINE':
+          case 'ELLIPSE':
+          case 'FILL': {
+            return setCurrTool(tool)
+          }
+          case 'INVERT': {
+            return handleInvert()
+          }
+          case 'CLEAR': {
+            return handleClear()
+          }
+          default:
+            return assertUnreachable(tool)
         }
       }}
     />
