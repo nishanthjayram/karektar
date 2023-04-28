@@ -6,14 +6,17 @@ import {
   faEraser,
   faFill,
   faPencil,
+  faShapes,
   faSlash,
 } from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import Tippy from '@tippy.js/react'
 import classnames from 'classnames'
 import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
 import {assertUnreachable} from '../../utils'
+import 'tippy.js/dist/tippy.css'
 
 type TTool = 'DRAW' | 'ERASE' | 'LINE' | 'ELLIPSE' | 'FILL' | 'INVERT' | 'CLEAR'
 type TPos = [x: number, y: number]
@@ -34,6 +37,7 @@ const Canvas = ({
   const [currTool, setCurrTool] = useState<TTool>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
   const [range, setRange] = useState<TRange | undefined>(undefined)
+  const [shapeMenuOpen, setShapeMenuOpen] = useState(false)
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
   const p = EDITOR_SIZE / bitmapSize
@@ -356,33 +360,80 @@ const Canvas = ({
   }
 
   const Tool = ({icon, tool}: {icon: IconProp; tool: TTool}) => (
-    <FontAwesomeIcon
-      icon={icon}
-      className={classnames(currTool === tool && styles.activeIcon, styles.icon)}
-      onClick={() => {
-        if (captureFlag) {
+    <Tippy
+      placement={tool === 'LINE' || tool === 'ELLIPSE' ? 'right' : 'top'}
+      content={tool}
+    >
+      <FontAwesomeIcon
+        icon={icon}
+        className={classnames(currTool === tool && styles.activeIcon, styles.icon)}
+        onClick={() => {
+          if (captureFlag) {
+            return
+          }
+
+          setShapeMenuOpen(false)
+
+          switch (tool) {
+            case 'DRAW':
+            case 'ERASE':
+            case 'LINE':
+            case 'ELLIPSE':
+            case 'FILL': {
+              return setCurrTool(tool)
+            }
+            case 'INVERT': {
+              return handleInvert()
+            }
+            case 'CLEAR': {
+              return handleClear()
+            }
+            default:
+              return assertUnreachable(tool)
+          }
+        }}
+      />
+    </Tippy>
+  )
+
+  const ShapeMenu = () => (
+    <Tippy
+      placement="top"
+      content={currTool}
+      onShow={() => {
+        if (currTool === 'LINE' || currTool === 'ELLIPSE') {
           return
         }
-
-        switch (tool) {
-          case 'DRAW':
-          case 'ERASE':
-          case 'LINE':
-          case 'ELLIPSE':
-          case 'FILL': {
-            return setCurrTool(tool)
-          }
-          case 'INVERT': {
-            return handleInvert()
-          }
-          case 'CLEAR': {
-            return handleClear()
-          }
-          default:
-            return assertUnreachable(tool)
-        }
+        return false
       }}
-    />
+    >
+      <div>
+        <FontAwesomeIcon
+          icon={
+            currTool === 'LINE'
+              ? faSlash
+              : currTool === 'ELLIPSE'
+              ? faCircle
+              : faShapes
+          }
+          className={classnames(
+            currTool === 'LINE' && styles.activeIcon,
+            currTool === 'ELLIPSE' && styles.activeIcon,
+            styles.icon,
+          )}
+          onClick={() => setShapeMenuOpen(!shapeMenuOpen)}
+        />
+        <div
+          className={classnames(
+            !shapeMenuOpen && styles.shapeMenu,
+            shapeMenuOpen && styles.shapeMenuOpen,
+          )}
+        >
+          <Tool icon={faSlash} tool="LINE" />
+          <Tool icon={faCircle} tool="ELLIPSE" />
+        </div>
+      </div>
+    </Tippy>
   )
 
   return (
@@ -390,12 +441,10 @@ const Canvas = ({
       <div className={styles.header} style={{width: EDITOR_SIZE}}>
         <div className={styles.text}>{activeGlyph}</div>
         <div className={styles.separator} />
-        <div className={styles.text}>{currTool}</div>
         <div className={styles.toolbar}>
           <Tool icon={faPencil} tool="DRAW" />
           <Tool icon={faEraser} tool="ERASE" />
-          <Tool icon={faSlash} tool="LINE" />
-          <Tool icon={faCircle} tool="ELLIPSE" />
+          <ShapeMenu />
           <Tool icon={faFill} tool="FILL" />
           <Tool icon={faCircleHalfStroke} tool="INVERT" />
           <Tool icon={faTrashAlt} tool="CLEAR" />
