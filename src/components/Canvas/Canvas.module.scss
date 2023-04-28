@@ -1,9 +1,9 @@
-$header-height: 32px;
+$header-height: 48px;
 
 .editor {
   position: relative;
 
-  & .canvas {
+  .canvas {
     position: absolute;
     z-index: 10;
     top: 0;
@@ -18,21 +18,37 @@ $header-height: 32px;
   flex-flow: row nowrap;
   align-items: center;
   height: $header-height;
-  & .text {
+
+  .text {
+    font-size: 20px;
     min-width: 30px;
-    padding: 0 11px;
+    padding: 0 17px; // TODO: Avoid hardcoding this; figure out the formula to compute for proper alignment.
     text-align: center;
   }
-  & .separator {
-    border-right: 1px #ffa500 solid;
+
+  .separator {
+    border-right: 1px #ffffff solid;
     height: $header-height;
   }
-  & .deleteIcon {
+
+  .toolbar {
+    display: flex;
     margin-left: auto;
-    fill: #efefef;
-    transform: scale(0.5);
-    &:hover {
-      background-color: #ffa500;
+    margin-right: 5px;
+
+    .icon {
+      color: #efefef;
+      width: 22px;
+      height: $header-height;
+      padding: 0 12px;
+
+      &:hover {
+        color: #ffa500;
+      }
+    }
+
+    .activeIcon {
+      color: #ffa500;
     }
   }
 }
