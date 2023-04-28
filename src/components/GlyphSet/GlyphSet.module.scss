@@ -2,40 +2,40 @@
   display: flex;
   flex-flow: column nowrap;
 
-  & .navBar {
+  .navBar {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
     justify-content: space-between;
-    height: 32px;
+    height: 48px;
 
-    & .page {
-      font-size: 16px;
+    .page {
+      font-size: 20px;
     }
 
-    & .navControls {
+    .navControls {
       justify-content: space-between;
       margin: 0px 0px;
       width: 50px;
       display: flex;
 
-      & .navButton {
+      .navButton {
         fill: #000000;
-        &:hover {
+        :hover {
           fill: #ffa500;
         }
       }
 
-      & .navButtonDisabled {
+      .navButtonDisabled {
         fill: #b7b5b5;
         pointer-events: none;
       }
     }
   }
 
-  & .gallery {
+  .gallery {
     display: grid;
-    grid-gap: 12px;
+    grid-gap: 18px;
     grid-template-columns: repeat(6, 1fr);
     border: none;
     user-select: none;

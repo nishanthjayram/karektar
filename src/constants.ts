@@ -8,13 +8,13 @@ export const DEFAULT_PROMPT = 'sphinx of black quartz judge my vow'
 export const DEFAULT_SYMBOLS = 'abcdefghijklmnopqrstuvwxyz'.split('')
 
 // Canvas
-export const EDITOR_SIZE = 416
+export const EDITOR_SIZE = 512
 export const LINE_COLOR = '#ffffff'
 export const EMPTY_CELL = '#efefef'
 export const FILLED_CELL = '#2b2b2b'
 
 // Glyph
-export const GLYPH_SIZE = 48
+export const GLYPH_SIZE = 64
 
 // GlyphSet
 export const PAGE_LENGTH = 30 // Number of glyphs to display in a page
