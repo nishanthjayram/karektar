@@ -213,6 +213,7 @@
     ],
     // no-empty-function is turned off because we are using the
     // incompatible rule provided by @typescript-eslint/no-empty-function
+    "no-constant-condition": ["error", {"checkLoops": false}],
     "no-empty-function": "off",
     "no-eval": "error",
     "no-multiple-empty-lines": "error",
