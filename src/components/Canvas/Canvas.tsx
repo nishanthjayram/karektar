@@ -52,7 +52,7 @@ const Canvas = ({
 
   const drawCanvas = (canvas: HTMLCanvasElement | null) => {
     const ctx = canvas?.getContext('2d')
-    if (ctx === undefined || ctx === null || glyphCanvas === undefined) {
+    if (!ctx || !glyphCanvas) {
       return
     }
 
@@ -131,7 +131,7 @@ const Canvas = ({
     const sy = y0 < y1 ? 1 : -1
     let error = dx + dy
 
-    for (;;) {
+    while (true) {
       coords.push([x0, y0])
       if (x0 === x1 && y0 === y1) {
         break
