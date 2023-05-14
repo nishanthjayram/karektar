@@ -293,6 +293,11 @@ const Canvas = ({
       return
     }
 
+    if (shapeMenuOpen) {
+      setShapeMenuOpen(!shapeMenuOpen)
+      return
+    }
+
     const mousePos = getMousePos(evt)
     if (mousePos === null) {
       return
