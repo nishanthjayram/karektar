@@ -41,6 +41,7 @@ $header-height: 48px;
       width: 22px;
       height: $header-height;
       padding: 0 12px;
+      position: relative;
 
       &:hover {
         color: #ffa500;
@@ -54,6 +55,25 @@ $header-height: 48px;
     .disabledIcon {
       color: gray;
       pointer-events: none;
+    }
+
+    .shapeMenu {
+      display: flex;
+      flex-flow: column nowrap;
+      position: absolute;
+      visibility: hidden;
+    }
+
+    .shapeMenuOpen {
+      display: flex;
+      flex-flow: column nowrap;
+      position: absolute;
+      visibility: visible;
+      border-radius: 10px;
+      background-color: black;
+      opacity: 0.7;
+      z-index: 20;
+      overflow: visible;
     }
   }
 }

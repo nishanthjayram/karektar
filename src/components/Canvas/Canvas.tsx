@@ -1,25 +1,30 @@
 // A canvas for drawing individual glyphs.
 import {IconProp} from '@fortawesome/fontawesome-svg-core'
-import {faCircle, faTrashAlt} from '@fortawesome/free-regular-svg-icons'
+import {faCircle, faSquare, faTrashAlt} from '@fortawesome/free-regular-svg-icons'
 import {
   faCircleHalfStroke,
   faEraser,
   faFill,
   faPencil,
+  faShapes,
   faSlash,
   faUndo,
 } from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import Tippy from '@tippy.js/react'
 import classnames from 'classnames'
 import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
+import {assertUnreachable} from '../../utils'
+import 'tippy.js/dist/tippy.css'
 import {compareArrays} from '../../utils'
 
 type TTool =
   | 'DRAW'
   | 'ERASE'
   | 'LINE'
+  | 'RECTANGLE'
   | 'ELLIPSE'
   | 'FILL'
   | 'INVERT'
@@ -44,6 +49,7 @@ const Canvas = ({
   const [currTool, setCurrTool] = useState<TTool>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
   const [range, setRange] = useState<TRange | undefined>(undefined)
+  const [shapeMenuOpen, setShapeMenuOpen] = useState(false)
   const [history, setHistory] = useState<THistory>(() => [
     new Array<boolean>(bitmapSize ** 2).fill(false),
   ])
@@ -53,7 +59,7 @@ const Canvas = ({
 
   const drawCanvas = (canvas: HTMLCanvasElement | null) => {
     const ctx = canvas?.getContext('2d')
-    if (ctx === undefined || ctx === null || glyphCanvas === undefined) {
+    if (!ctx || !glyphCanvas) {
       return
     }
 
@@ -67,9 +73,12 @@ const Canvas = ({
     if (range !== undefined) {
       const [startPos, endPos] = range
       ctx.fillStyle = FILLED_CELL
+
       const cells =
         currTool === 'LINE'
           ? plotLine(startPos, endPos)
+          : currTool === 'RECTANGLE'
+          ? plotRect(startPos, endPos)
           : currTool === 'ELLIPSE'
           ? plotEllipse(endPos, getDistance(startPos, endPos))
           : []
@@ -118,6 +127,55 @@ const Canvas = ({
   const getRect = (idx: number): TRect => {
     const [x, y] = indexToPos(idx)
     return [x * p + 1, y * p + 1, p - 1, p - 1]
+  }
+
+  const plotLine = ([x0, y0]: TPos, [x1, y1]: TPos) => {
+    const coords = new Array<TPos>()
+
+    const dx = Math.abs(x1 - x0)
+    const sx = x0 < x1 ? 1 : -1
+    const dy = -Math.abs(y1 - y0)
+    const sy = y0 < y1 ? 1 : -1
+    let error = dx + dy
+
+    while (true) {
+      coords.push([x0, y0])
+      if (x0 === x1 && y0 === y1) {
+        break
+      }
+
+      const e2 = 2 * error
+
+      if (e2 >= dy) {
+        if (x0 === x1) {
+          break
+        }
+        error = error + dy
+        x0 = x0 + sx
+      }
+      if (e2 <= dx) {
+        if (y0 === y1) {
+          break
+        }
+        error = error + dx
+        y0 = y0 + sy
+      }
+    }
+
+    return coords.map(c => posToIndex(c))
+  }
+
+  const plotRect = ([x0, y0]: TPos, [x1, y1]: TPos) => {
+    const coords = new Array<TPos>()
+    for (let i = x0; i <= x1; i++) {
+      coords.push([i, y0])
+      coords.push([i, y1])
+    }
+    for (let j = y0; j <= y1; j++) {
+      coords.push([x0, j])
+      coords.push([x1, j])
+    }
+    return coords.map(c => posToIndex(c))
   }
 
   const plotEllipse = ([xc, yc]: TPos, [rx, ry]: TPos) => {
@@ -178,42 +236,6 @@ const Canvas = ({
     return coords.map(c => posToIndex(c))
   }
 
-  const plotLine = ([x0, y0]: TPos, [x1, y1]: TPos) => {
-    const coords = new Array<TPos>()
-
-    const dx = Math.abs(x1 - x0)
-    const sx = x0 < x1 ? 1 : -1
-    const dy = -Math.abs(y1 - y0)
-    const sy = y0 < y1 ? 1 : -1
-    let error = dx + dy
-
-    for (;;) {
-      coords.push([x0, y0])
-      if (x0 === x1 && y0 === y1) {
-        break
-      }
-
-      const e2 = 2 * error
-
-      if (e2 >= dy) {
-        if (x0 === x1) {
-          break
-        }
-        error = error + dy
-        x0 = x0 + sx
-      }
-      if (e2 <= dx) {
-        if (y0 === y1) {
-          break
-        }
-        error = error + dx
-        y0 = y0 + sy
-      }
-    }
-
-    return coords.map(c => posToIndex(c))
-  }
-
   const fill = (start: TPos) => {
     if (glyphCanvas === undefined || glyphCanvas[posToIndex(start)]) {
       return
@@ -261,23 +283,30 @@ const Canvas = ({
         ? oldHistory
         : [glyphCanvas, ...oldHistory],
     )
-    if (range === undefined) {
-      return
+    if (range !== undefined) {
+      const [startPos, endPos] = range
+
+      const cells =
+        currTool === 'LINE'
+          ? plotLine(startPos, endPos)
+          : currTool === 'RECTANGLE'
+          ? plotRect(startPos, endPos)
+          : currTool === 'ELLIPSE'
+          ? plotEllipse(endPos, getDistance(startPos, endPos))
+          : []
+
+      updateCells(cells, true)
+      setRange(undefined)
     }
-
-    const [startPos, endPos] = range
-
-    const cells =
-      currTool === 'LINE'
-        ? plotLine(startPos, endPos)
-        : plotEllipse(endPos, getDistance(startPos, endPos))
-
-    updateCells(cells, true)
-    setRange(undefined)
   }
 
   const handlePointerDown = (evt: React.PointerEvent<HTMLCanvasElement>) => {
     if (evt.buttons !== 1) {
+      return
+    }
+
+    if (shapeMenuOpen) {
+      setShapeMenuOpen(!shapeMenuOpen)
       return
     }
 
@@ -289,14 +318,28 @@ const Canvas = ({
     const idx = posToIndex(mousePos)
     evt.currentTarget.setPointerCapture(evt.pointerId)
 
-    if (currTool === 'DRAW') {
-      updateCells([idx], true)
-    } else if (currTool === 'ERASE') {
-      updateCells([idx], false)
-    } else if (currTool === 'FILL') {
-      fill(mousePos)
-    } else if (currTool === 'LINE' || currTool === 'ELLIPSE') {
-      setRange([mousePos, mousePos])
+    switch (currTool) {
+      case 'DRAW': {
+        return updateCells([idx], true)
+      }
+      case 'ERASE': {
+        return updateCells([idx], false)
+      }
+      case 'LINE':
+      case 'RECTANGLE':
+      case 'ELLIPSE': {
+        return setRange([mousePos, mousePos])
+      }
+      case 'FILL': {
+        return fill(mousePos)
+      }
+      case 'INVERT':
+      case 'CLEAR': {
+        return
+      }
+      default: {
+        return assertUnreachable(currTool)
+      }
     }
   }
 
@@ -312,14 +355,28 @@ const Canvas = ({
 
     const idx = posToIndex(mousePos)
 
-    if (currTool === 'DRAW') {
-      updateCells([idx], true)
-    } else if (currTool === 'ERASE') {
-      updateCells([idx], false)
-    } else if (currTool === 'LINE' || currTool === 'ELLIPSE') {
-      setRange(oldRange =>
-        oldRange !== undefined ? [oldRange[0], mousePos] : oldRange,
-      )
+    switch (currTool) {
+      case 'DRAW': {
+        return updateCells([idx], true)
+      }
+      case 'ERASE': {
+        return updateCells([idx], false)
+      }
+      case 'LINE':
+      case 'RECTANGLE':
+      case 'ELLIPSE': {
+        return setRange(oldRange =>
+          oldRange !== undefined ? [oldRange[0], mousePos] : oldRange,
+        )
+      }
+      case 'FILL':
+      case 'INVERT':
+      case 'CLEAR': {
+        return
+      }
+      default: {
+        return assertUnreachable(currTool)
+      }
     }
   }
 
@@ -363,28 +420,77 @@ const Canvas = ({
     })
   }
 
+  const isShapeTool = (tool: TTool) =>
+    tool === 'LINE' || tool === 'RECTANGLE' || tool === 'ELLIPSE'
+
   const Tool = ({icon, tool}: {icon: IconProp; tool: TTool}) => (
-    <FontAwesomeIcon
-      icon={icon}
-      className={classnames(
-        currTool === tool && styles.activeIcon,
-        tool === 'UNDO' && history.length === 1 && styles.disabledIcon,
-        styles.icon,
-      )}
-      onClick={() => {
-        if (captureFlag) {
-          return
-        } else if (tool === 'INVERT') {
-          handleInvert()
-        } else if (tool === 'CLEAR') {
-          handleClear()
-        } else if (tool === 'UNDO') {
-          handleUndo()
-        } else {
-          setCurrTool(tool)
-        }
-      }}
-    />
+    <Tippy placement={isShapeTool(tool) ? 'right' : 'top'} content={tool}>
+      <FontAwesomeIcon
+        icon={icon}
+        className={classnames(currTool === tool && styles.activeIcon, styles.icon)}
+        onClick={() => {
+          if (captureFlag) {
+            return
+          }
+
+          setShapeMenuOpen(false)
+
+          switch (tool) {
+            case 'DRAW':
+            case 'ERASE':
+            case 'LINE':
+            case 'RECTANGLE':
+            case 'ELLIPSE':
+            case 'FILL': {
+              return setCurrTool(tool)
+            }
+            case 'INVERT': {
+              return handleInvert()
+            }
+            case 'CLEAR': {
+              return handleClear()
+            }
+            default:
+              return assertUnreachable(tool)
+          }
+        }}
+      />
+    </Tippy>
+  )
+
+  const ShapeMenu = () => (
+    <Tippy placement="top" content={isShapeTool(currTool) ? currTool : 'SHAPES'}>
+      <div>
+        <FontAwesomeIcon
+          icon={
+            currTool === 'LINE'
+              ? faSlash
+              : currTool === 'RECTANGLE'
+              ? faSquare
+              : currTool === 'ELLIPSE'
+              ? faCircle
+              : faShapes
+          }
+          className={classnames(
+            currTool === 'LINE' && styles.activeIcon,
+            currTool === 'RECTANGLE' && styles.activeIcon,
+            currTool === 'ELLIPSE' && styles.activeIcon,
+            styles.icon,
+          )}
+          onClick={() => setShapeMenuOpen(!shapeMenuOpen)}
+        />
+        <div
+          className={classnames(
+            !shapeMenuOpen && styles.shapeMenu,
+            shapeMenuOpen && styles.shapeMenuOpen,
+          )}
+        >
+          <Tool icon={faSlash} tool="LINE" />
+          <Tool icon={faCircle} tool="ELLIPSE" />
+          <Tool icon={faSquare} tool="RECTANGLE" />
+        </div>
+      </div>
+    </Tippy>
   )
 
   return (
@@ -392,12 +498,10 @@ const Canvas = ({
       <div className={styles.header} style={{width: EDITOR_SIZE}}>
         <div className={styles.text}>{activeGlyph}</div>
         <div className={styles.separator} />
-        <div className={styles.text}>{currTool}</div>
         <div className={styles.toolbar}>
           <Tool icon={faPencil} tool="DRAW" />
           <Tool icon={faEraser} tool="ERASE" />
-          <Tool icon={faSlash} tool="LINE" />
-          <Tool icon={faCircle} tool="ELLIPSE" />
+          <ShapeMenu />
           <Tool icon={faFill} tool="FILL" />
           <Tool icon={faCircleHalfStroke} tool="INVERT" />
           <Tool icon={faTrashAlt} tool="CLEAR" />
