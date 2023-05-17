@@ -334,7 +334,8 @@ const Canvas = ({
         return fill(mousePos)
       }
       case 'INVERT':
-      case 'CLEAR': {
+      case 'CLEAR':
+      case 'UNDO': {
         return
       }
       default: {
@@ -371,7 +372,8 @@ const Canvas = ({
       }
       case 'FILL':
       case 'INVERT':
-      case 'CLEAR': {
+      case 'CLEAR':
+      case 'UNDO': {
         return
       }
       default: {
@@ -427,7 +429,11 @@ const Canvas = ({
     <Tippy placement={isShapeTool(tool) ? 'right' : 'top'} content={tool}>
       <FontAwesomeIcon
         icon={icon}
-        className={classnames(currTool === tool && styles.activeIcon, styles.icon)}
+        className={classnames(
+          currTool === tool && styles.activeIcon,
+          tool === 'UNDO' && history.length === 1 && styles.disabledIcon,
+          styles.icon,
+        )}
         onClick={() => {
           if (captureFlag) {
             return
@@ -449,6 +455,9 @@ const Canvas = ({
             }
             case 'CLEAR': {
               return handleClear()
+            }
+            case 'UNDO': {
+              return handleUndo()
             }
             default:
               return assertUnreachable(tool)
