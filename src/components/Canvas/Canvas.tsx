@@ -14,7 +14,15 @@ import Tippy from '@tippy.js/react'
 import classnames from 'classnames'
 import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
-import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
+import {
+  EDITOR_SIZE,
+  EMPTY_CELL,
+  FILLED_CELL,
+  GRIDLINE_COLOR,
+  GUIDELINE_COLOR,
+  HLINE_POS,
+  VLINE_POS,
+} from '../../constants'
 import {assertUnreachable} from '../../utils'
 import 'tippy.js/dist/tippy.css'
 
@@ -56,6 +64,29 @@ const Canvas = ({
       return
     }
 
+    // Draw the gridlines of the canvas.
+    ctx.beginPath()
+    ctx.strokeStyle = GRIDLINE_COLOR
+    Array.from({length: bitmapSize - 1}, (_, i) => i + 1).forEach(i => {
+      ctx.moveTo(i * p + 0.5, 1)
+      ctx.lineTo(i * p + 0.5, EDITOR_SIZE)
+      ctx.moveTo(1, i * p + 0.5)
+      ctx.lineTo(EDITOR_SIZE, i * p + 0.5)
+    })
+    ctx.closePath()
+    ctx.stroke()
+
+    // Draw the horizontal and vertical guidelines of the canvas.
+    ctx.beginPath()
+    ctx.strokeStyle = GUIDELINE_COLOR
+    ctx.moveTo(VLINE_POS + 0.5, 1)
+    ctx.lineTo(VLINE_POS + 0.5, EDITOR_SIZE)
+    ctx.moveTo(1, HLINE_POS + 0.5)
+    ctx.lineTo(EDITOR_SIZE, HLINE_POS + 0.5)
+    ctx.closePath()
+    ctx.stroke()
+
+    // Draw the cells of the canvas with either an "empty" or "filled" state.
     ctx.beginPath()
     glyphCanvas.forEach((filled: boolean, idx: number) => {
       ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
