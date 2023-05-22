@@ -113,6 +113,19 @@ const Canvas = ({
     }
   }
 
+  const drawModel = (canvas: HTMLCanvasElement | null) => {
+    const ctx = canvas?.getContext('2d')
+    if (!ctx || !activeGlyph) {
+      return
+    }
+
+    ctx.beginPath()
+    ctx.font = '500px Helvetica'
+    ctx.clearRect(0, 0, EDITOR_SIZE, EDITOR_SIZE)
+    ctx.fillText(activeGlyph, 50, 450)
+    ctx.closePath()
+  }
+
   const updateCells = (indices: number[], filled: boolean) => {
     if (activeGlyph === undefined || glyphCanvas === undefined) {
       return
@@ -524,6 +537,12 @@ const Canvas = ({
           onPointerUp={handlePointerUp}
           onPointerDown={evt => handlePointerDown(evt)}
           onPointerMove={evt => handlePointerMove(evt)}
+        />
+        <canvas
+          ref={drawModel}
+          className={styles.model}
+          width={EDITOR_SIZE}
+          height={EDITOR_SIZE}
         />
       </div>
     </div>
