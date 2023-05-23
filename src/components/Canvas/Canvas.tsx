@@ -2,12 +2,16 @@
 import {IconProp} from '@fortawesome/fontawesome-svg-core'
 import {faCircle, faSquare, faTrashAlt} from '@fortawesome/free-regular-svg-icons'
 import {
+  faA,
   faCircleHalfStroke,
   faEraser,
   faFill,
+  faGear,
+  faGripLinesVertical,
   faPencil,
   faShapes,
   faSlash,
+  faTextHeight,
 } from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import Tippy from '@tippy.js/react'
@@ -35,6 +39,7 @@ type TTool =
   | 'FILL'
   | 'INVERT'
   | 'CLEAR'
+type TMenu = undefined | 'SHAPES' | 'OPTIONS'
 type TPos = [x: number, y: number]
 type TRect = [x: number, y: number, w: number, h: number]
 type TRange = [startPos: TPos, endPos: TPos]
@@ -53,7 +58,9 @@ const Canvas = ({
   const [currTool, setCurrTool] = useState<TTool>('DRAW')
   const [captureFlag, setCaptureFlag] = useState(false)
   const [range, setRange] = useState<TRange | undefined>(undefined)
-  const [shapeMenuOpen, setShapeMenuOpen] = useState(false)
+  const [activeMenu, setActiveMenu] = useState<TMenu>(undefined)
+  const [modelFlag, setModelFlag] = useState(true)
+  const [guideFlag, setGuideFlag] = useState(true)
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
   const p = EDITOR_SIZE / bitmapSize
@@ -76,15 +83,17 @@ const Canvas = ({
     ctx.closePath()
     ctx.stroke()
 
-    // Draw the horizontal and vertical guidelines of the canvas.
-    ctx.beginPath()
-    ctx.strokeStyle = GUIDELINE_COLOR
-    ctx.moveTo(VLINE_POS + 0.5, 1)
-    ctx.lineTo(VLINE_POS + 0.5, EDITOR_SIZE)
-    ctx.moveTo(1, HLINE_POS + 0.5)
-    ctx.lineTo(EDITOR_SIZE, HLINE_POS + 0.5)
-    ctx.closePath()
-    ctx.stroke()
+    if (guideFlag) {
+      // Draw the horizontal and vertical guidelines of the canvas.
+      ctx.beginPath()
+      ctx.strokeStyle = GUIDELINE_COLOR
+      ctx.moveTo(VLINE_POS + 0.5, 1)
+      ctx.lineTo(VLINE_POS + 0.5, EDITOR_SIZE)
+      ctx.moveTo(1, HLINE_POS + 0.5)
+      ctx.lineTo(EDITOR_SIZE, HLINE_POS + 0.5)
+      ctx.closePath()
+      ctx.stroke()
+    }
 
     // Draw the cells of the canvas with either an "empty" or "filled" state.
     ctx.beginPath()
@@ -119,11 +128,15 @@ const Canvas = ({
       return
     }
 
-    ctx.beginPath()
-    ctx.font = '512px Arial'
     ctx.clearRect(0, 0, EDITOR_SIZE, EDITOR_SIZE)
-    ctx.fillText(activeGlyph, VLINE_POS, HLINE_POS)
-    ctx.closePath()
+
+    if (modelFlag) {
+      ctx.beginPath()
+      ctx.font = '512px Arial'
+
+      ctx.fillText(activeGlyph, VLINE_POS, HLINE_POS)
+      ctx.closePath()
+    }
   }
 
   const updateCells = (indices: number[], filled: boolean) => {
@@ -337,8 +350,8 @@ const Canvas = ({
       return
     }
 
-    if (shapeMenuOpen) {
-      setShapeMenuOpen(!shapeMenuOpen)
+    if (activeMenu) {
+      setActiveMenu(undefined)
       return
     }
 
@@ -449,7 +462,7 @@ const Canvas = ({
             return
           }
 
-          setShapeMenuOpen(false)
+          setActiveMenu(undefined)
 
           switch (tool) {
             case 'DRAW':
@@ -493,17 +506,65 @@ const Canvas = ({
             currTool === 'ELLIPSE' && styles.activeIcon,
             styles.icon,
           )}
-          onClick={() => setShapeMenuOpen(!shapeMenuOpen)}
+          onClick={() =>
+            setActiveMenu(activeMenu === 'SHAPES' ? undefined : 'SHAPES')
+          }
         />
         <div
           className={classnames(
-            !shapeMenuOpen && styles.shapeMenu,
-            shapeMenuOpen && styles.shapeMenuOpen,
+            activeMenu !== 'SHAPES' && styles.menu,
+            activeMenu === 'SHAPES' && styles.menuOpen,
           )}
         >
           <Tool icon={faSlash} tool="LINE" />
           <Tool icon={faCircle} tool="ELLIPSE" />
           <Tool icon={faSquare} tool="RECTANGLE" />
+        </div>
+      </div>
+    </Tippy>
+  )
+
+  const OptionsMenu = () => (
+    <Tippy placement="top" content="OPTIONS">
+      <div>
+        <FontAwesomeIcon
+          icon={faGear}
+          className={classnames(
+            currTool === 'LINE' && styles.activeIcon,
+            currTool === 'RECTANGLE' && styles.activeIcon,
+            currTool === 'ELLIPSE' && styles.activeIcon,
+            styles.icon,
+          )}
+          onClick={() =>
+            setActiveMenu(activeMenu === 'OPTIONS' ? undefined : 'OPTIONS')
+          }
+        />
+        <div
+          className={classnames(
+            activeMenu !== 'OPTIONS' && styles.menu,
+            activeMenu === 'OPTIONS' && styles.menuOpen,
+          )}
+        >
+          <Tippy placement="left" content="MODEL">
+            <FontAwesomeIcon
+              icon={faA}
+              className={classnames(
+                modelFlag && styles.activeIcon,
+                styles.optionIcon,
+              )}
+              onClick={() => setModelFlag(!modelFlag)}
+            />
+          </Tippy>
+          <Tippy placement="left" content="GUIDELINES">
+            <FontAwesomeIcon
+              icon={faTextHeight}
+              className={classnames(
+                guideFlag && styles.activeIcon,
+                styles.optionIcon,
+              )}
+              onClick={() => setGuideFlag(!guideFlag)}
+            />
+          </Tippy>
         </div>
       </div>
     </Tippy>
@@ -521,6 +582,7 @@ const Canvas = ({
           <Tool icon={faFill} tool="FILL" />
           <Tool icon={faCircleHalfStroke} tool="INVERT" />
           <Tool icon={faTrashAlt} tool="CLEAR" />
+          <OptionsMenu />
         </div>
       </div>
       <div

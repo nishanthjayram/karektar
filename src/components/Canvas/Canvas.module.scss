@@ -56,23 +56,31 @@ $header-height: 48px;
       }
     }
 
+    .optionIcon {
+      color: #efefef;
+      width: 22px;
+      height: $header-height;
+      padding: 0 12px;
+      position: relative;
+    }
+
     .activeIcon {
       color: #ffa500;
     }
 
-    .shapeMenu {
+    .menu {
       display: flex;
       flex-flow: column nowrap;
       position: absolute;
       visibility: hidden;
     }
 
-    .shapeMenuOpen {
+    .menuOpen {
       display: flex;
       flex-flow: column nowrap;
       position: absolute;
       visibility: visible;
-      border-radius: 10px;
+      border-radius: 2px;
       background-color: black;
       opacity: 0.7;
       z-index: 30;
