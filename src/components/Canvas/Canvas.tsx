@@ -120,9 +120,9 @@ const Canvas = ({
     }
 
     ctx.beginPath()
-    ctx.font = '500px Helvetica'
+    ctx.font = '512px Arial'
     ctx.clearRect(0, 0, EDITOR_SIZE, EDITOR_SIZE)
-    ctx.fillText(activeGlyph, 50, 450)
+    ctx.fillText(activeGlyph, VLINE_POS, HLINE_POS)
     ctx.closePath()
   }
 
