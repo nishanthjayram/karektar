@@ -94,13 +94,16 @@ const Canvas = ({
       return
     }
 
+    const newGlyphCanvas = [...glyphCanvas]
+    indices.forEach(idx => (newGlyphCanvas[idx] = filled))
+
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
-      const newGlyphCanvas = [...glyphCanvas]
-      indices.forEach(idx => (newGlyphCanvas[idx] = filled))
       newGlyphSet.set(activeGlyph, newGlyphCanvas)
       return newGlyphSet
     })
+
+    return newGlyphCanvas
   }
 
   const checkPos = ([x, y]: TPos) =>
@@ -277,12 +280,16 @@ const Canvas = ({
     )
   }
 
-  const handlePointerUp = () => {
+  const updateHistory = (newState?: boolean[]) => {
+    const update = newState ?? glyphCanvas
     setHistory(oldHistory =>
-      glyphCanvas === undefined || compareArrays(glyphCanvas, oldHistory[0])
+      update === undefined || compareArrays(update, oldHistory[0])
         ? oldHistory
-        : [glyphCanvas, ...oldHistory],
+        : [update, ...oldHistory],
     )
+  }
+
+  const handlePointerUp = () => {
     if (range !== undefined) {
       const [startPos, endPos] = range
 
@@ -295,8 +302,10 @@ const Canvas = ({
           ? plotEllipse(endPos, getDistance(startPos, endPos))
           : []
 
-      updateCells(cells, true)
+      updateHistory(updateCells(cells, true))
       setRange(undefined)
+    } else {
+      updateHistory()
     }
   }
 
@@ -387,26 +396,27 @@ const Canvas = ({
       return
     }
 
+    const newGlyphCanvas = glyphCanvas.map(filled => !filled)
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
-      const newGlyphCanvas = glyphCanvas.map(filled => !filled)
       newGlyphSet.set(activeGlyph, newGlyphCanvas)
       return newGlyphSet
     })
-    setHistory(oldHistory => [glyphCanvas, ...oldHistory])
+    updateHistory(newGlyphCanvas)
   }
 
   const handleClear = () => {
     if (activeGlyph === undefined || glyphCanvas === undefined) {
       return
     }
+
+    const newGlyphCanvas = new Array<boolean>(bitmapSize ** 2).fill(false)
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
-      const newGlyphCanvas = new Array<boolean>(bitmapSize ** 2).fill(false)
       newGlyphSet.set(activeGlyph, newGlyphCanvas)
       return newGlyphSet
     })
-    setHistory(oldHistory => [glyphCanvas, ...oldHistory])
+    updateHistory(newGlyphCanvas)
   }
 
   const handleUndo = () => {
