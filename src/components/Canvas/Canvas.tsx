@@ -6,6 +6,7 @@ import {
   faEraser,
   faFill,
   faPencil,
+  faRedo,
   faShapes,
   faSlash,
   faUndo,
@@ -30,10 +31,11 @@ type TTool =
   | 'INVERT'
   | 'CLEAR'
   | 'UNDO'
+  | 'REDO'
 type TPos = [x: number, y: number]
 type TRect = [x: number, y: number, w: number, h: number]
 type TRange = [startPos: TPos, endPos: TPos]
-type THistory = boolean[][]
+type THistory = [states: boolean[][], index: number]
 
 const Canvas = ({
   bitmapSize,
@@ -51,7 +53,8 @@ const Canvas = ({
   const [range, setRange] = useState<TRange | undefined>(undefined)
   const [shapeMenuOpen, setShapeMenuOpen] = useState(false)
   const [history, setHistory] = useState<THistory>(() => [
-    new Array<boolean>(bitmapSize ** 2).fill(false),
+    [new Array<boolean>(bitmapSize ** 2).fill(false)],
+    0,
   ])
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
@@ -282,11 +285,12 @@ const Canvas = ({
 
   const updateHistory = (newState?: boolean[]) => {
     const update = newState ?? glyphCanvas
-    setHistory(oldHistory =>
-      update === undefined || compareArrays(update, oldHistory[0])
+    setHistory(oldHistory => {
+      const [oldStates, oldIndex] = oldHistory
+      return update === undefined || compareArrays(oldStates[oldIndex], update)
         ? oldHistory
-        : [update, ...oldHistory],
-    )
+        : [[...oldStates.slice(0, oldIndex + 1), update], oldIndex + 1]
+    })
   }
 
   const handlePointerUp = () => {
@@ -344,7 +348,8 @@ const Canvas = ({
       }
       case 'INVERT':
       case 'CLEAR':
-      case 'UNDO': {
+      case 'UNDO':
+      case 'REDO': {
         return
       }
       default: {
@@ -382,7 +387,8 @@ const Canvas = ({
       case 'FILL':
       case 'INVERT':
       case 'CLEAR':
-      case 'UNDO': {
+      case 'UNDO':
+      case 'REDO': {
         return
       }
       default: {
@@ -423,13 +429,28 @@ const Canvas = ({
     if (activeGlyph === undefined) {
       return
     }
-    setHistory(oldHistory => oldHistory.slice(1))
 
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
-      newGlyphSet.set(activeGlyph, history[1])
+      newGlyphSet.set(activeGlyph, history[0][history[1] - 1])
       return newGlyphSet
     })
+
+    setHistory(oldHistory => [oldHistory[0], oldHistory[1] - 1])
+  }
+
+  const handleRedo = () => {
+    if (activeGlyph === undefined) {
+      return
+    }
+
+    setGlyphSet(oldGlyphSet => {
+      const newGlyphSet = new Map(oldGlyphSet)
+      newGlyphSet.set(activeGlyph, history[0][history[1] + 1])
+      return newGlyphSet
+    })
+
+    setHistory(oldHistory => [oldHistory[0], oldHistory[1] + 1])
   }
 
   const isShapeTool = (tool: TTool) =>
@@ -441,7 +462,11 @@ const Canvas = ({
         icon={icon}
         className={classnames(
           currTool === tool && styles.activeIcon,
-          tool === 'UNDO' && history.length === 1 && styles.disabledIcon,
+          tool === 'CLEAR' && glyphCanvas?.every(v => !v) && styles.disabledIcon,
+          tool === 'UNDO' && history[1] === 0 && styles.disabledIcon,
+          tool === 'REDO' &&
+            history[1] === history[0].length - 1 &&
+            styles.disabledIcon,
           styles.icon,
         )}
         onClick={() => {
@@ -468,6 +493,9 @@ const Canvas = ({
             }
             case 'UNDO': {
               return handleUndo()
+            }
+            case 'REDO': {
+              return handleRedo()
             }
             default:
               return assertUnreachable(tool)
@@ -525,6 +553,7 @@ const Canvas = ({
           <Tool icon={faCircleHalfStroke} tool="INVERT" />
           <Tool icon={faTrashAlt} tool="CLEAR" />
           <Tool icon={faUndo} tool="UNDO" />
+          <Tool icon={faRedo} tool="REDO" />
         </div>
       </div>
       <div
