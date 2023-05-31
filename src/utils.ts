@@ -7,3 +7,5 @@ export const compareArrays = <T>(a: T[], b: T[]) =>
   b !== undefined &&
   a.length === b.length &&
   a.every((v, i) => v === b[i])
+export const initialGlyphState = (bitmapSize: number) =>
+  new Array<boolean>(bitmapSize ** 2).fill(false)

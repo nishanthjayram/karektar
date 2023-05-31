@@ -9,6 +9,7 @@ import {
 } from '../../constants'
 import Canvas from '../Canvas/Canvas'
 import GlyphSet from '../GlyphSet/GlyphSet'
+import {initialGlyphState} from '../../utils'
 
 const App = ({bitmapSize}: {bitmapSize: number}) => {
   const [inputText, setInputText] = useState(DEFAULT_PROMPT)
@@ -18,7 +19,7 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
   const [glyphSet, setGlyphSet] = useState(() => {
     const newGlyphSet = new Map<string, boolean[]>()
     DEFAULT_SYMBOLS.forEach(symbol =>
-      newGlyphSet.set(symbol, new Array<boolean>(bitmapSize ** 2).fill(false)),
+      newGlyphSet.set(symbol, initialGlyphState(bitmapSize)),
     )
     return newGlyphSet
   })
@@ -31,7 +32,7 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
       symbolSet.forEach(symbol => {
         newGlyphSet.set(
           symbol,
-          oldGlyphSet.get(symbol) ?? new Array<boolean>(bitmapSize ** 2).fill(false),
+          oldGlyphSet.get(symbol) ?? initialGlyphState(bitmapSize),
         )
       })
       return newGlyphSet
