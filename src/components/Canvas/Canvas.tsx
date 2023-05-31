@@ -17,25 +17,10 @@ import classnames from 'classnames'
 import {Dispatch, SetStateAction, useState} from 'react'
 import styles from './Canvas.module.scss'
 import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
+import {THistory, TPos, TRange, TRect, TTool} from '../../types'
 import {assertUnreachable} from '../../utils'
 import 'tippy.js/dist/tippy.css'
 import {compareArrays} from '../../utils'
-
-type TTool =
-  | 'DRAW'
-  | 'ERASE'
-  | 'LINE'
-  | 'RECTANGLE'
-  | 'ELLIPSE'
-  | 'FILL'
-  | 'INVERT'
-  | 'CLEAR'
-  | 'UNDO'
-  | 'REDO'
-type TPos = [x: number, y: number]
-type TRect = [x: number, y: number, w: number, h: number]
-type TRange = [startPos: TPos, endPos: TPos]
-type THistory = [states: boolean[][], index: number]
 
 const Canvas = ({
   bitmapSize,
