@@ -37,7 +37,7 @@ const Canvas = ({
   const [captureFlag, setCaptureFlag] = useState(false)
   const [range, setRange] = useState<TRange | undefined>(undefined)
   const [shapeMenuOpen, setShapeMenuOpen] = useState(false)
-  const [history, setHistory] = useState<THistory>(() => [
+  const [canvasHistory, setCanvasHistory] = useState<THistory>(() => [
     [initialGlyphState(bitmapSize)],
     0,
   ])
@@ -270,10 +270,10 @@ const Canvas = ({
 
   const updateHistory = (newState?: boolean[]) => {
     const update = newState ?? glyphCanvas
-    setHistory(oldHistory => {
-      const [oldStates, oldIndex] = oldHistory
+    setCanvasHistory(oldCanvasHistory => {
+      const [oldStates, oldIndex] = oldCanvasHistory
       return update === undefined || compareArrays(oldStates[oldIndex], update)
-        ? oldHistory
+        ? oldCanvasHistory
         : [[...oldStates.slice(0, oldIndex + 1), update], oldIndex + 1]
     })
   }
@@ -417,11 +417,14 @@ const Canvas = ({
 
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
-      newGlyphSet.set(activeGlyph, history[0][history[1] - 1])
+      newGlyphSet.set(activeGlyph, canvasHistory[0][canvasHistory[1] - 1])
       return newGlyphSet
     })
 
-    setHistory(oldHistory => [oldHistory[0], oldHistory[1] - 1])
+    setCanvasHistory(oldCanvasHistory => [
+      oldCanvasHistory[0],
+      oldCanvasHistory[1] - 1,
+    ])
   }
 
   const handleRedo = () => {
@@ -431,11 +434,14 @@ const Canvas = ({
 
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
-      newGlyphSet.set(activeGlyph, history[0][history[1] + 1])
+      newGlyphSet.set(activeGlyph, canvasHistory[0][canvasHistory[1] + 1])
       return newGlyphSet
     })
 
-    setHistory(oldHistory => [oldHistory[0], oldHistory[1] + 1])
+    setCanvasHistory(oldCanvasHistory => [
+      oldCanvasHistory[0],
+      oldCanvasHistory[1] + 1,
+    ])
   }
 
   const isShapeTool = (tool: TTool) =>
@@ -448,9 +454,9 @@ const Canvas = ({
         className={classnames(
           currTool === tool && styles.activeIcon,
           tool === 'CLEAR' && glyphCanvas?.every(v => !v) && styles.disabledIcon,
-          tool === 'UNDO' && history[1] === 0 && styles.disabledIcon,
+          tool === 'UNDO' && canvasHistory[1] === 0 && styles.disabledIcon,
           tool === 'REDO' &&
-            history[1] === history[0].length - 1 &&
+            canvasHistory[1] === canvasHistory[0].length - 1 &&
             styles.disabledIcon,
           styles.icon,
         )}
