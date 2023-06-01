@@ -1,15 +1,9 @@
 import {useState} from 'react'
 import styles from './App.module.scss'
-import {
-  DEFAULT_PROMPT,
-  DEFAULT_SYMBOLS,
-  RX_LETTERS,
-  RX_NON_ALPHANUMERIC,
-  RX_NUMBERS,
-} from '../../constants'
+import {DEFAULT_PROMPT, DEFAULT_SYMBOLS} from '../../constants'
+import {getUniqueCharacters, initialGlyphState} from '../../utils'
 import Canvas from '../Canvas/Canvas'
 import GlyphSet from '../GlyphSet/GlyphSet'
-import {initialGlyphState} from '../../utils'
 
 const App = ({bitmapSize}: {bitmapSize: number}) => {
   const [inputText, setInputText] = useState(DEFAULT_PROMPT)
@@ -79,18 +73,6 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
       </div>
     </div>
   )
-}
-
-const getUniqueCharacters = (input: string) => {
-  const uniqueCharacters = [...new Set<string>(input)]
-
-  const letters = uniqueCharacters.flatMap(c => c.match(RX_LETTERS) ?? [])
-  const numbers = uniqueCharacters.flatMap(c => c.match(RX_NUMBERS) ?? [])
-  const nonAlphaNum = uniqueCharacters.flatMap(
-    c => c.match(RX_NON_ALPHANUMERIC) ?? [],
-  )
-
-  return [letters, numbers, nonAlphaNum].flatMap(c => c.sort())
 }
 
 export default App
