@@ -392,45 +392,73 @@ const Canvas = ({
     })
   }
 
-  const isShapeTool = (tool: TTool) =>
-    tool === 'LINE' || tool === 'RECTANGLE' || tool === 'ELLIPSE'
+  const toolProps = {
+    currTool,
+    setCurrTool,
+    handleInvert,
+    handleClear,
+    captureFlag,
+    setShapeMenuOpen,
+  }
 
-  const Tool = ({icon, tool}: {icon: IconProp; tool: TTool}) => (
-    <Tippy placement={isShapeTool(tool) ? 'right' : 'top'} content={tool}>
-      <FontAwesomeIcon
-        icon={icon}
-        className={classnames(currTool === tool && styles.activeIcon, styles.icon)}
-        onClick={() => {
-          if (captureFlag) {
-            return
-          }
-
-          setShapeMenuOpen(false)
-
-          switch (tool) {
-            case 'DRAW':
-            case 'ERASE':
-            case 'LINE':
-            case 'RECTANGLE':
-            case 'ELLIPSE':
-            case 'FILL': {
-              return setCurrTool(tool)
-            }
-            case 'INVERT': {
-              return handleInvert()
-            }
-            case 'CLEAR': {
-              return handleClear()
-            }
-            default:
-              return assertUnreachable(tool)
-          }
-        }}
-      />
-    </Tippy>
+  return (
+    <div>
+      <div className={styles.header} style={{width: EDITOR_SIZE}}>
+        <div className={styles.text}>{activeGlyph}</div>
+        <div className={styles.separator} />
+        <div className={styles.toolbar}>
+          <Tool icon={faPencil} tool="DRAW" {...toolProps} />
+          <Tool icon={faEraser} tool="ERASE" {...toolProps} />
+          <ShapeMenu
+            currTool="DRAW"
+            shapeMenuOpen={shapeMenuOpen}
+            setShapeMenuOpen={setShapeMenuOpen}
+            icon="function"
+            tool="DRAW"
+            setCurrTool={setCurrTool}
+            handleInvert={handleInvert}
+            handleClear={handleClear}
+            captureFlag={captureFlag}
+          />
+          <Tool icon={faFill} tool="FILL" {...toolProps} />
+          <Tool icon={faCircleHalfStroke} tool="INVERT" {...toolProps} />
+          <Tool icon={faTrashAlt} tool="CLEAR" {...toolProps} />
+        </div>
+      </div>
+      <div
+        className={styles.editor}
+        style={{width: EDITOR_SIZE, height: EDITOR_SIZE}}
+      >
+        <canvas
+          ref={drawCanvas}
+          className={styles.canvas}
+          width={EDITOR_SIZE}
+          height={EDITOR_SIZE}
+          onGotPointerCapture={() => setCaptureFlag(true)}
+          onLostPointerCapture={() => setCaptureFlag(false)}
+          onPointerUp={handlePointerUp}
+          onPointerDown={evt => handlePointerDown(evt)}
+          onPointerMove={evt => handlePointerMove(evt)}
+        />
+      </div>
+    </div>
   )
+}
 
-  const ShapeMenu = () => (
+const isShapeTool = (tool: TTool) =>
+  tool === 'LINE' || tool === 'RECTANGLE' || tool === 'ELLIPSE'
+
+interface IShapeMenuProps extends IToolProps {
+  shapeMenuOpen: boolean
+}
+const ShapeMenu: React.FC<IShapeMenuProps> = ({
+  shapeMenuOpen,
+  icon: _icon,
+  tool: _tool,
+  ...props
+}) => {
+  const {currTool, setShapeMenuOpen} = props
+  return (
     <Tippy placement="top" content={isShapeTool(currTool) ? currTool : 'SHAPES'}>
       <div>
         <FontAwesomeIcon
@@ -457,46 +485,67 @@ const Canvas = ({
             shapeMenuOpen && styles.shapeMenuOpen,
           )}
         >
-          <Tool icon={faSlash} tool="LINE" />
-          <Tool icon={faCircle} tool="ELLIPSE" />
-          <Tool icon={faSquare} tool="RECTANGLE" />
+          <Tool icon={faSlash} tool="LINE" {...props} />
+          <Tool icon={faCircle} tool="ELLIPSE" {...props} />
+          <Tool icon={faSquare} tool="RECTANGLE" {...props} />
         </div>
       </div>
     </Tippy>
   )
-
-  return (
-    <div>
-      <div className={styles.header} style={{width: EDITOR_SIZE}}>
-        <div className={styles.text}>{activeGlyph}</div>
-        <div className={styles.separator} />
-        <div className={styles.toolbar}>
-          <Tool icon={faPencil} tool="DRAW" />
-          <Tool icon={faEraser} tool="ERASE" />
-          <ShapeMenu />
-          <Tool icon={faFill} tool="FILL" />
-          <Tool icon={faCircleHalfStroke} tool="INVERT" />
-          <Tool icon={faTrashAlt} tool="CLEAR" />
-        </div>
-      </div>
-      <div
-        className={styles.editor}
-        style={{width: EDITOR_SIZE, height: EDITOR_SIZE}}
-      >
-        <canvas
-          ref={drawCanvas}
-          className={styles.canvas}
-          width={EDITOR_SIZE}
-          height={EDITOR_SIZE}
-          onGotPointerCapture={() => setCaptureFlag(true)}
-          onLostPointerCapture={() => setCaptureFlag(false)}
-          onPointerUp={handlePointerUp}
-          onPointerDown={evt => handlePointerDown(evt)}
-          onPointerMove={evt => handlePointerMove(evt)}
-        />
-      </div>
-    </div>
-  )
 }
 
+interface IToolProps {
+  icon: IconProp
+  tool: TTool
+  currTool: TTool
+  setCurrTool: React.Dispatch<React.SetStateAction<TTool>>
+  handleInvert: () => void
+  handleClear: () => void
+  captureFlag: boolean
+  setShapeMenuOpen: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const Tool: React.FC<IToolProps> = ({
+  icon,
+  tool,
+  currTool,
+  captureFlag,
+  setShapeMenuOpen,
+  setCurrTool,
+  handleInvert,
+  handleClear,
+}) => (
+  <Tippy placement={isShapeTool(tool) ? 'right' : 'top'} content={tool}>
+    <FontAwesomeIcon
+      icon={icon}
+      className={classnames(currTool === tool && styles.activeIcon, styles.icon)}
+      onClick={() => {
+        if (captureFlag) {
+          return
+        }
+
+        setShapeMenuOpen(false)
+
+        switch (tool) {
+          case 'DRAW':
+          case 'ERASE':
+          case 'LINE':
+          case 'RECTANGLE':
+          case 'ELLIPSE':
+          case 'FILL': {
+            return setCurrTool(tool)
+          }
+          case 'INVERT': {
+            return handleInvert()
+          }
+          case 'CLEAR': {
+            return handleClear()
+          }
+          default:
+            return assertUnreachable(tool)
+        }
+      }}
+    />
+  </Tippy>
+)
 export default Canvas
