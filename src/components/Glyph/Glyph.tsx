@@ -3,31 +3,31 @@ import {memo} from 'react'
 import {Dispatch, SetStateAction} from 'react'
 import styles from './Glyph.module.scss'
 import {EMPTY_CELL, FILLED_CELL, GLYPH_SIZE} from '../../constants'
+import {TFont, TFontAction} from '../../types'
 
 const Glyph = ({
-  bitmapSize,
   glyph,
-  glyphCanvas,
-  active,
-  setActiveGlyph,
+  font,
+  updateFont,
 }: {
-  bitmapSize: number
   glyph: string
-  glyphCanvas: boolean[]
-  active: boolean
-  setActiveGlyph: Dispatch<SetStateAction<string | undefined>>
+  font: TFont
+  updateFont: React.Dispatch<TFontAction>
 }) => {
+  const {activeGlyph, bitmapSize, glyphSet} = font
   const p = GLYPH_SIZE / bitmapSize
+
+  const glyphCanvas = glyphSet.get(glyph)
 
   const updateGlyph = (canvas: HTMLCanvasElement | null) => {
     const ctx = canvas?.getContext('2d')
-    if (!ctx) {
+    if (!ctx || !glyphCanvas) {
       return
     }
 
     ctx.beginPath()
     glyphCanvas.forEach((filled: boolean, idx: number) => {
-      const [x, y] = [idx % bitmapSize, Math.floor(idx / bitmapSize)]
+      const [x, y] = [idx % font.bitmapSize, Math.floor(idx / font.bitmapSize)]
       ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
       ctx.fillRect(x * p, y * p, p, p)
     })
@@ -39,11 +39,16 @@ const Glyph = ({
       className={styles.glyph}
       onMouseDown={evt => {
         if (evt.buttons === 1) {
-          setActiveGlyph(glyph)
+          updateFont({type: 'changeGlyph', newGlyph: glyph})
         }
       }}
     >
-      <div className={classnames(active && styles.activeSymbol, styles.symbol)}>
+      <div
+        className={classnames(
+          glyph === activeGlyph && styles.activeSymbol,
+          styles.symbol,
+        )}
+      >
         {glyph}
       </div>
       <canvas ref={updateGlyph} width={GLYPH_SIZE} height={GLYPH_SIZE} />
@@ -53,7 +58,5 @@ const Glyph = ({
 
 export default memo(
   Glyph,
-  (prevProps, nextProps) =>
-    prevProps.active === nextProps.active &&
-    prevProps.glyphCanvas === nextProps.glyphCanvas,
+  (prevProps, nextProps) => prevProps.font === nextProps.font,
 )

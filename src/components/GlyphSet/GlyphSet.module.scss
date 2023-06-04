@@ -1,6 +1,8 @@
 .glyphSet {
   display: flex;
   flex-flow: column nowrap;
+  width: 450px;
+  margin-left: 48px;
 
   .navBar {
     display: flex;

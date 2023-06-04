@@ -25,5 +25,11 @@ export const getUniqueCharacters = (input: string) => {
   return [letters, numbers, nonAlphaNum].flatMap(c => c.sort())
 }
 
-export const initialGlyphState = (bitmapSize: number) =>
+export const initializeGlyph = (bitmapSize: number) =>
   new Array<boolean>(bitmapSize ** 2).fill(false)
+
+export const initializeGlyphSet = (symbolSet: string[], bitmapSize: number) => {
+  const newGlyphSet = new Map<string, boolean[]>()
+  symbolSet.forEach(symbol => newGlyphSet.set(symbol, initializeGlyph(bitmapSize)))
+  return newGlyphSet
+}
