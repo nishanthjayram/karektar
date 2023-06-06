@@ -8,16 +8,16 @@ import {TFont, TFontAction} from '../../types'
 import Glyph from '../Glyph/Glyph'
 
 const GlyphSet = ({
-  font,
-  updateFont,
+  fontState,
+  fontDispatch,
 }: {
-  font: TFont
-  updateFont: React.Dispatch<TFontAction>
+  fontState: TFont
+  fontDispatch: React.Dispatch<TFontAction>
 }) => {
-  const {glyphSet} = font
+  const {glyphSet} = fontState
   const [page, setPage] = useState(0)
   const minPage = 0
-  const maxPage = Math.ceil(font.glyphSet.size / PAGE_LENGTH) - 1
+  const maxPage = Math.ceil(glyphSet.size / PAGE_LENGTH) - 1
 
   if (glyphSet.size === 0) {
     console.log('glyph set emptied')
@@ -56,7 +56,12 @@ const GlyphSet = ({
         {[...glyphSet.keys()]
           .slice(page * PAGE_LENGTH, page * PAGE_LENGTH + PAGE_LENGTH)
           .map(symbol => (
-            <Glyph key={symbol} glyph={symbol} font={font} updateFont={updateFont} />
+            <Glyph
+              key={symbol}
+              glyph={symbol}
+              fontState={fontState}
+              fontDispatch={fontDispatch}
+            />
           ))}
       </div>
     </div>

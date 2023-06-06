@@ -7,14 +7,14 @@ import {TFont, TFontAction} from '../../types'
 
 const Glyph = ({
   glyph,
-  font,
-  updateFont,
+  fontState,
+  fontDispatch,
 }: {
   glyph: string
-  font: TFont
-  updateFont: React.Dispatch<TFontAction>
+  fontState: TFont
+  fontDispatch: React.Dispatch<TFontAction>
 }) => {
-  const {activeGlyph, bitmapSize, glyphSet} = font
+  const {activeGlyph, bitmapSize, glyphSet} = fontState
   const p = GLYPH_SIZE / bitmapSize
 
   const glyphCanvas = glyphSet.get(glyph)
@@ -27,7 +27,7 @@ const Glyph = ({
 
     ctx.beginPath()
     glyphCanvas.forEach((filled: boolean, idx: number) => {
-      const [x, y] = [idx % font.bitmapSize, Math.floor(idx / font.bitmapSize)]
+      const [x, y] = [idx % bitmapSize, Math.floor(idx / bitmapSize)]
       ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
       ctx.fillRect(x * p, y * p, p, p)
     })
@@ -39,7 +39,11 @@ const Glyph = ({
       className={styles.glyph}
       onMouseDown={evt => {
         if (evt.buttons === 1) {
-          updateFont({type: 'changeGlyph', newGlyph: glyph})
+          fontDispatch({
+            type: 'GLYPH_SET_ACTION',
+            op: 'UPDATE_ACTIVE_GLYPH',
+            newActiveGlyph: glyph,
+          })
         }
       }}
     >
@@ -58,5 +62,5 @@ const Glyph = ({
 
 export default memo(
   Glyph,
-  (prevProps, nextProps) => prevProps.font === nextProps.font,
+  (prevProps, nextProps) => prevProps.fontState === nextProps.fontState,
 )
