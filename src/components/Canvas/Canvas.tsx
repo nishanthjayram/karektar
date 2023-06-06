@@ -9,9 +9,11 @@ import {
   faGear,
   faGripLinesVertical,
   faPencil,
+  faRedo,
   faShapes,
   faSlash,
   faTextHeight,
+  faUndo,
 } from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import Tippy from '@tippy.js/react'
@@ -27,22 +29,12 @@ import {
   HLINE_POS,
   VLINE_POS,
 } from '../../constants'
-import {assertUnreachable} from '../../utils'
+import {THistory, TPos, TRange, TRect, TTool} from '../../types'
+import {assertUnreachable, initialGlyphState} from '../../utils'
 import 'tippy.js/dist/tippy.css'
+import {compareArrays} from '../../utils'
 
-type TTool =
-  | 'DRAW'
-  | 'ERASE'
-  | 'LINE'
-  | 'RECTANGLE'
-  | 'ELLIPSE'
-  | 'FILL'
-  | 'INVERT'
-  | 'CLEAR'
 type TMenu = undefined | 'SHAPES' | 'OPTIONS'
-type TPos = [x: number, y: number]
-type TRect = [x: number, y: number, w: number, h: number]
-type TRange = [startPos: TPos, endPos: TPos]
 
 const Canvas = ({
   bitmapSize,
@@ -61,6 +53,10 @@ const Canvas = ({
   const [activeMenu, setActiveMenu] = useState<TMenu>(undefined)
   const [modelFlag, setModelFlag] = useState(true)
   const [guideFlag, setGuideFlag] = useState(true)
+  const [canvasHistory, setCanvasHistory] = useState<THistory>(() => [
+    [initialGlyphState(bitmapSize)],
+    0,
+  ])
 
   const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
   const p = EDITOR_SIZE / bitmapSize
@@ -144,13 +140,16 @@ const Canvas = ({
       return
     }
 
+    const newGlyphCanvas = [...glyphCanvas]
+    indices.forEach(idx => (newGlyphCanvas[idx] = filled))
+
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
-      const newGlyphCanvas = [...glyphCanvas]
-      indices.forEach(idx => (newGlyphCanvas[idx] = filled))
       newGlyphSet.set(activeGlyph, newGlyphCanvas)
       return newGlyphSet
     })
+
+    return newGlyphCanvas
   }
 
   const checkPos = ([x, y]: TPos) =>
@@ -327,6 +326,16 @@ const Canvas = ({
     )
   }
 
+  const updateHistory = (newState?: boolean[]) => {
+    const update = newState ?? glyphCanvas
+    setCanvasHistory(oldCanvasHistory => {
+      const [oldStates, oldIndex] = oldCanvasHistory
+      return update === undefined || compareArrays(oldStates[oldIndex], update)
+        ? oldCanvasHistory
+        : [[...oldStates.slice(0, oldIndex + 1), update], oldIndex + 1]
+    })
+  }
+
   const handlePointerUp = () => {
     if (range !== undefined) {
       const [startPos, endPos] = range
@@ -340,8 +349,10 @@ const Canvas = ({
           ? plotEllipse(endPos, getDistance(startPos, endPos))
           : []
 
-      updateCells(cells, true)
+      updateHistory(updateCells(cells, true))
       setRange(undefined)
+    } else {
+      updateHistory()
     }
   }
 
@@ -379,7 +390,9 @@ const Canvas = ({
         return fill(mousePos)
       }
       case 'INVERT':
-      case 'CLEAR': {
+      case 'CLEAR':
+      case 'UNDO':
+      case 'REDO': {
         return
       }
       default: {
@@ -416,7 +429,9 @@ const Canvas = ({
       }
       case 'FILL':
       case 'INVERT':
-      case 'CLEAR': {
+      case 'CLEAR':
+      case 'UNDO':
+      case 'REDO': {
         return
       }
       default: {
@@ -429,24 +444,62 @@ const Canvas = ({
     if (activeGlyph === undefined || glyphCanvas === undefined) {
       return
     }
+
+    const newGlyphCanvas = glyphCanvas.map(filled => !filled)
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
-      const newGlyphCanvas = glyphCanvas.map(filled => !filled)
       newGlyphSet.set(activeGlyph, newGlyphCanvas)
       return newGlyphSet
     })
+    updateHistory(newGlyphCanvas)
   }
 
   const handleClear = () => {
-    if (activeGlyph === undefined) {
+    if (activeGlyph === undefined || glyphCanvas === undefined) {
       return
     }
+
+    const newGlyphCanvas = initialGlyphState(bitmapSize)
     setGlyphSet(oldGlyphSet => {
       const newGlyphSet = new Map(oldGlyphSet)
-      const newGlyphCanvas = new Array<boolean>(bitmapSize ** 2).fill(false)
       newGlyphSet.set(activeGlyph, newGlyphCanvas)
       return newGlyphSet
     })
+    updateHistory(newGlyphCanvas)
+  }
+
+  const handleUndo = () => {
+    if (activeGlyph === undefined) {
+      return
+    }
+
+    setGlyphSet(oldGlyphSet => {
+      const newGlyphSet = new Map(oldGlyphSet)
+      newGlyphSet.set(activeGlyph, canvasHistory[0][canvasHistory[1] - 1])
+      return newGlyphSet
+    })
+
+    setCanvasHistory(oldCanvasHistory => [
+      oldCanvasHistory[0],
+      oldCanvasHistory[1] - 1,
+    ])
+  }
+
+  const handleRedo = () => {
+    if (activeGlyph === undefined) {
+      return
+    }
+
+    setGlyphSet(oldGlyphSet => {
+      const newGlyphSet = new Map(oldGlyphSet)
+      newGlyphSet.set(activeGlyph, canvasHistory[0][canvasHistory[1] + 1])
+      return newGlyphSet
+    })
+
+    setCanvasHistory(oldCanvasHistory => [
+      oldCanvasHistory[0],
+      oldCanvasHistory[1] + 1,
+    ])
   }
 
   const isShapeTool = (tool: TTool) =>
@@ -456,7 +509,15 @@ const Canvas = ({
     <Tippy placement={isShapeTool(tool) ? 'right' : 'top'} content={tool}>
       <FontAwesomeIcon
         icon={icon}
-        className={classnames(currTool === tool && styles.activeIcon, styles.icon)}
+        className={classnames(
+          currTool === tool && styles.activeIcon,
+          tool === 'CLEAR' && glyphCanvas?.every(v => !v) && styles.disabledIcon,
+          tool === 'UNDO' && canvasHistory[1] === 0 && styles.disabledIcon,
+          tool === 'REDO' &&
+            canvasHistory[1] === canvasHistory[0].length - 1 &&
+            styles.disabledIcon,
+          styles.icon,
+        )}
         onClick={() => {
           if (captureFlag) {
             return
@@ -478,6 +539,12 @@ const Canvas = ({
             }
             case 'CLEAR': {
               return handleClear()
+            }
+            case 'UNDO': {
+              return handleUndo()
+            }
+            case 'REDO': {
+              return handleRedo()
             }
             default:
               return assertUnreachable(tool)
@@ -583,6 +650,8 @@ const Canvas = ({
           <Tool icon={faCircleHalfStroke} tool="INVERT" />
           <Tool icon={faTrashAlt} tool="CLEAR" />
           <OptionsMenu />
+          <Tool icon={faUndo} tool="UNDO" />
+          <Tool icon={faRedo} tool="REDO" />
         </div>
       </div>
       <div

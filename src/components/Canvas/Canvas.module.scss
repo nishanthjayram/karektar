@@ -68,6 +68,11 @@ $header-height: 48px;
       color: #ffa500;
     }
 
+    .disabledIcon {
+      color: gray;
+      pointer-events: none;
+    }
+
     .menu {
       display: flex;
       flex-flow: column nowrap;

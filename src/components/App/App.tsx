@@ -1,12 +1,7 @@
 import {useState} from 'react'
 import styles from './App.module.scss'
-import {
-  DEFAULT_PROMPT,
-  DEFAULT_SYMBOLS,
-  RX_LETTERS,
-  RX_NON_ALPHANUMERIC,
-  RX_NUMBERS,
-} from '../../constants'
+import {DEFAULT_PROMPT, DEFAULT_SYMBOLS} from '../../constants'
+import {getUniqueCharacters, initialGlyphState} from '../../utils'
 import Canvas from '../Canvas/Canvas'
 import GlyphSet from '../GlyphSet/GlyphSet'
 
@@ -18,7 +13,7 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
   const [glyphSet, setGlyphSet] = useState(() => {
     const newGlyphSet = new Map<string, boolean[]>()
     DEFAULT_SYMBOLS.forEach(symbol =>
-      newGlyphSet.set(symbol, new Array<boolean>(bitmapSize ** 2).fill(false)),
+      newGlyphSet.set(symbol, initialGlyphState(bitmapSize)),
     )
     return newGlyphSet
   })
@@ -31,7 +26,7 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
       symbolSet.forEach(symbol => {
         newGlyphSet.set(
           symbol,
-          oldGlyphSet.get(symbol) ?? new Array<boolean>(bitmapSize ** 2).fill(false),
+          oldGlyphSet.get(symbol) ?? initialGlyphState(bitmapSize),
         )
       })
       return newGlyphSet
@@ -78,18 +73,6 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
       </div>
     </div>
   )
-}
-
-const getUniqueCharacters = (input: string) => {
-  const uniqueCharacters = [...new Set<string>(input)]
-
-  const letters = uniqueCharacters.flatMap(c => c.match(RX_LETTERS) ?? [])
-  const numbers = uniqueCharacters.flatMap(c => c.match(RX_NUMBERS) ?? [])
-  const nonAlphaNum = uniqueCharacters.flatMap(
-    c => c.match(RX_NON_ALPHANUMERIC) ?? [],
-  )
-
-  return [letters, numbers, nonAlphaNum].flatMap(c => c.sort())
 }
 
 export default App
