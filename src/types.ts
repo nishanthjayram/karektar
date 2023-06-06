@@ -5,30 +5,14 @@ export type TCanvasTool =
   | 'LINE'
   | 'RECTANGLE'
   | 'ELLIPSE'
-export type TCanvasAction = 'INVERT' | 'CLEAR' | 'UNDO' | 'REDO'
-export type TCanvasButton = TCanvasTool | TCanvasAction
+export type TCanvasButton = TCanvasTool | 'INVERT' | 'CLEAR' | 'UNDO' | 'REDO'
 
 export type TPos = [x: number, y: number]
 export type TRect = [x: number, y: number, w: number, h: number]
 export type TShapeRange = [startPos: TPos, endPos: TPos] | undefined
 
-export type TCanvas = {
-  bitmapSize: number
-  canvasHistory: boolean[][]
-  captureFlag: boolean
-  currentTool: TCanvasTool
-  historyIndex: number
-  shapeRange: TShapeRange
-}
-
-export type TGlyphSet = {
-  activeGlyph: string | undefined
-  bitmapSize: number
-  glyphSet: Map<string, boolean[]>
-}
-
 export type TFont = {
-  activeGlyph: string | undefined
+  activeGlyph: string
   bitmapSize: number
   canvasHistory: boolean[][]
   captureFlag: boolean
@@ -36,17 +20,22 @@ export type TFont = {
   glyphSet: Map<string, boolean[]>
   historyIndex: number
   shapeRange: TShapeRange
+  symbolSet: string[]
 }
 
-export type TFontAction =
-  | {type: 'change'}
-  | {type: 'changeGlyph'; newGlyph: string}
-  | {type: 'changeTool'; newTool: TCanvasTool}
-  | {type: 'updateCanvas'; newGlyphCanvas: boolean[]}
-  | {type: 'updateHistory'; newGlyphCanvas: boolean[]}
-  | {type: 'updateShapeRange'; newShapeRange: TShapeRange}
-  | {type: 'undo'}
-  | {type: 'redo'}
-  | {type: 'updateCaptureFlag'; newCaptureFlag: boolean}
-  | {type: 'updateGlyphSet'; symbolSet?: string[]; newBitmapSize?: number}
-  | {type: 'clearGlyphSet'}
+export type TCanvasAction = {type: 'CANVAS_ACTION'} & (
+  | {op: 'UPDATE_CANVAS_HISTORY'; newGlyphCanvas: boolean[]}
+  | {op: 'UPDATE_CAPTURE_FLAG'; newCaptureFlag: boolean}
+  | {op: 'UPDATE_CURRENT_TOOL'; newCurrentTool: TCanvasTool}
+  | {op: 'UPDATE_SHAPE_RANGE'; newShapeRange: TShapeRange}
+  | {op: 'UNDO'}
+  | {op: 'REDO'}
+)
+export type TGlyphSetAction = {type: 'GLYPH_SET_ACTION'} & (
+  | {op: 'CLEAR_GLYPH_SET'}
+  | {op: 'UPDATE_ACTIVE_GLYPH'; newActiveGlyph: string}
+  | {op: 'UPDATE_GLYPH_CANVAS'; newGlyphCanvas: boolean[]}
+  | {op: 'UPDATE_SYMBOL_SET'; newSymbolSet: string[]}
+)
+
+export type TFontAction = TCanvasAction | TGlyphSetAction
