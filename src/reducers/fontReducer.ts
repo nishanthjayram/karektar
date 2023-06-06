@@ -15,18 +15,6 @@ export const fontReducer = (state: TFont, action: TFontAction): TFont => {
   }
 }
 
-// export type TFont = {
-//   activeGlyph: string
-//   bitmapSize: number
-//   canvasHistory: boolean[][]
-//   captureFlag: boolean
-//   currentTool: TCanvasTool
-//   glyphSet: Map<string, boolean[]>
-//   historyIndex: number
-//   shapeRange: TShapeRange
-//   symbolSet: string[]
-// }
-
 export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont => {
   switch (action.op) {
     case 'UPDATE_ACTIVE_GLYPH': {
