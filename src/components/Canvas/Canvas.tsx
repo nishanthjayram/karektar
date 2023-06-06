@@ -7,7 +7,6 @@ import {
   faEraser,
   faFill,
   faGear,
-  faGripLinesVertical,
   faPencil,
   faRedo,
   faShapes,
