@@ -554,7 +554,7 @@ const Canvas = ({
             styles.icon,
           )}
           onClick={() =>
-            setActiveMenu(activeMenu === 'OPTIONS' ? undefined : 'OPTIONS')
+            setActiveMenu(activeMenu === 'SHAPES' ? undefined : 'SHAPES')
           }
         />
         <div
@@ -563,26 +563,9 @@ const Canvas = ({
             activeMenu === 'SHAPES' && styles.menuOpen,
           )}
         >
-          <Tippy placement="left" content="MODEL">
-            <FontAwesomeIcon
-              icon={faA}
-              className={classnames(
-                modelFlag && styles.activeIcon,
-                styles.optionIcon,
-              )}
-              onClick={() => setModelFlag(!modelFlag)}
-            />
-          </Tippy>
-          <Tippy placement="left" content="GUIDELINES">
-            <FontAwesomeIcon
-              icon={faTextHeight}
-              className={classnames(
-                guideFlag && styles.activeIcon,
-                styles.optionIcon,
-              )}
-              onClick={() => setGuideFlag(!guideFlag)}
-            />
-          </Tippy>
+          <Button icon={faSlash} button="LINE" />
+          <Button icon={faCircle} button="ELLIPSE" />
+          <Button icon={faSquare} button="RECTANGLE" />
         </div>
       </div>
     </Tippy>
@@ -646,9 +629,9 @@ const Canvas = ({
           <ShapeMenu />
           <Button icon={faCircleHalfStroke} button="INVERT" />
           <Button icon={faTrashAlt} button="CLEAR" />
-          <OptionsMenu />
           <Button icon={faUndo} button="UNDO" />
           <Button icon={faRedo} button="REDO" />
+          <OptionsMenu />
         </div>
       </div>
       <div
@@ -658,6 +641,7 @@ const Canvas = ({
         <canvas
           ref={drawCanvas}
           className={styles.canvas}
+          style={{opacity: modelFlag ? '0.95' : '1'}}
           width={EDITOR_SIZE}
           height={EDITOR_SIZE}
           onGotPointerCapture={() =>
