@@ -13,6 +13,25 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
     initializeFont(bitmapSize, DEFAULT_SYMBOLS),
   )
 
+  const {symbolSet} = fontState
+
+  const handleSubmit = () => {
+    const newSymbolSet = getUniqueCharacters(inputText)
+    if (
+      symbolSet.some(symbol => !newSymbolSet.includes(symbol)) &&
+      !confirm(
+        'You are about to remove some of the existing glyphs in your set. Are you sure you want to continue?',
+      )
+    ) {
+      return
+    }
+    fontDispatch({
+      type: 'GLYPH_SET_ACTION',
+      op: 'UPDATE_SYMBOL_SET',
+      newSymbolSet: newSymbolSet,
+    })
+  }
+
   return (
     <div>
       <h1>Karektar</h1>
@@ -26,20 +45,10 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
           className={styles.input}
         />
         <div className={styles.buttonRow}>
-          <button
-            onClick={() => {
-              const symbolSet = getUniqueCharacters(inputText)
-              fontDispatch({
-                type: 'GLYPH_SET_ACTION',
-                op: 'UPDATE_SYMBOL_SET',
-                newSymbolSet: symbolSet,
-              })
-            }}
-            className={styles.button}
-          >
+          <button onClick={handleSubmit} className={styles.button}>
             Submit
           </button>
-          <button
+          <button // TODO: Potentially rename this operation to make its meaning clearer.
             onClick={() =>
               fontDispatch({
                 type: 'GLYPH_SET_ACTION',
