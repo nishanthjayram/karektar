@@ -32,7 +32,7 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
       return {...state, glyphSet: newGlyphSet}
     }
     case 'UPDATE_SYMBOL_SET': {
-      const newGlyphSet = new Map(state.glyphSet)
+      const newGlyphSet = new Map<string, boolean[]>()
       action.newSymbolSet.forEach(symbol =>
         newGlyphSet.set(
           symbol,
