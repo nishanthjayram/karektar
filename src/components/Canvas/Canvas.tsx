@@ -2,13 +2,16 @@
 import {IconProp} from '@fortawesome/fontawesome-svg-core'
 import {faCircle, faSquare, faTrashAlt} from '@fortawesome/free-regular-svg-icons'
 import {
+  faA,
   faCircleHalfStroke,
   faEraser,
   faFill,
+  faGear,
   faPencil,
   faRedo,
   faShapes,
   faSlash,
+  faTextHeight,
   faUndo,
 } from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
@@ -16,7 +19,15 @@ import Tippy from '@tippy.js/react'
 import classnames from 'classnames'
 import {useState} from 'react'
 import styles from './Canvas.module.scss'
-import {EDITOR_SIZE, EMPTY_CELL, FILLED_CELL} from '../../constants'
+import {
+  EDITOR_SIZE,
+  EMPTY_CELL,
+  FILLED_CELL,
+  GRIDLINE_COLOR,
+  GUIDELINE_COLOR,
+  HLINE_POS,
+  VLINE_POS,
+} from '../../constants'
 import {
   TCanvasButton,
   TCanvasTool,
@@ -27,6 +38,9 @@ import {
 } from '../../types'
 import {assertUnreachable, initializeGlyph} from '../../utils'
 import 'tippy.js/dist/tippy.css'
+import {compareArrays} from '../../utils'
+
+type TMenu = undefined | 'SHAPES' | 'OPTIONS'
 
 const Canvas = ({
   fontState,
@@ -46,7 +60,9 @@ const Canvas = ({
     captureFlag,
   } = fontState
 
-  const [shapeMenuOpen, setShapeMenuOpen] = useState(false)
+  const [activeMenu, setActiveMenu] = useState<TMenu>(undefined)
+  const [modelFlag, setModelFlag] = useState(true)
+  const [guideFlag, setGuideFlag] = useState(true)
   const p = EDITOR_SIZE / bitmapSize
   const glyphCanvas = glyphSet.get(activeGlyph)
 
@@ -61,6 +77,31 @@ const Canvas = ({
       return
     }
 
+    // Draw the gridlines of the canvas.
+    ctx.beginPath()
+    ctx.strokeStyle = GRIDLINE_COLOR
+    Array.from({length: bitmapSize - 1}, (_, i) => i + 1).forEach(i => {
+      ctx.moveTo(i * p + 0.5, 1)
+      ctx.lineTo(i * p + 0.5, EDITOR_SIZE)
+      ctx.moveTo(1, i * p + 0.5)
+      ctx.lineTo(EDITOR_SIZE, i * p + 0.5)
+    })
+    ctx.closePath()
+    ctx.stroke()
+
+    if (guideFlag) {
+      // Draw the horizontal and vertical guidelines of the canvas.
+      ctx.beginPath()
+      ctx.strokeStyle = GUIDELINE_COLOR
+      ctx.moveTo(VLINE_POS + 0.5, 1)
+      ctx.lineTo(VLINE_POS + 0.5, EDITOR_SIZE)
+      ctx.moveTo(1, HLINE_POS + 0.5)
+      ctx.lineTo(EDITOR_SIZE, HLINE_POS + 0.5)
+      ctx.closePath()
+      ctx.stroke()
+    }
+
+    // Draw the cells of the canvas with either an "empty" or "filled" state.
     ctx.beginPath()
     glyphCanvas.forEach((filled: boolean, idx: number) => {
       ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
@@ -73,6 +114,23 @@ const Canvas = ({
       ctx.fillStyle = FILLED_CELL
       ctx.beginPath()
       shapeCells.forEach(idx => ctx.fillRect(...getRect(idx)))
+      ctx.closePath()
+    }
+  }
+
+  const drawModel = (canvas: HTMLCanvasElement | null) => {
+    const ctx = canvas?.getContext('2d')
+    if (!ctx || !activeGlyph) {
+      return
+    }
+
+    ctx.clearRect(0, 0, EDITOR_SIZE, EDITOR_SIZE)
+
+    if (modelFlag) {
+      ctx.beginPath()
+      ctx.font = '512px Arial'
+
+      ctx.fillText(activeGlyph, VLINE_POS, HLINE_POS)
       ctx.closePath()
     }
   }
@@ -310,8 +368,8 @@ const Canvas = ({
       return
     }
 
-    if (shapeMenuOpen) {
-      setShapeMenuOpen(!shapeMenuOpen)
+    if (activeMenu) {
+      setActiveMenu(undefined)
       return
     }
 
@@ -427,7 +485,7 @@ const Canvas = ({
             return
           }
 
-          setShapeMenuOpen(false)
+          setActiveMenu(undefined)
 
           switch (button) {
             case 'DRAW':
@@ -491,12 +549,14 @@ const Canvas = ({
               : faShapes
           }
           className={classnames(
-            currentTool === 'LINE' && styles.activeIcon,
-            currentTool === 'RECTANGLE' && styles.activeIcon,
-            currentTool === 'ELLIPSE' && styles.activeIcon,
+            currTool === 'LINE' && styles.activeIcon,
+            currTool === 'RECTANGLE' && styles.activeIcon,
+            currTool === 'ELLIPSE' && styles.activeIcon,
             styles.icon,
           )}
-          onClick={() => setShapeMenuOpen(!shapeMenuOpen)}
+          onClick={() =>
+            setActiveMenu(activeMenu === 'OPTIONS' ? undefined : 'OPTIONS')
+          }
         />
         <div
           className={classnames(
@@ -504,9 +564,72 @@ const Canvas = ({
             shapeMenuOpen && styles.shapeMenuOpen,
           )}
         >
-          <Button icon={faSlash} button="LINE" />
-          <Button icon={faCircle} button="ELLIPSE" />
-          <Button icon={faSquare} button="RECTANGLE" />
+          <Tippy placement="left" content="MODEL">
+            <FontAwesomeIcon
+              icon={faA}
+              className={classnames(
+                modelFlag && styles.activeIcon,
+                styles.optionIcon,
+              )}
+              onClick={() => setModelFlag(!modelFlag)}
+            />
+          </Tippy>
+          <Tippy placement="left" content="GUIDELINES">
+            <FontAwesomeIcon
+              icon={faTextHeight}
+              className={classnames(
+                guideFlag && styles.activeIcon,
+                styles.optionIcon,
+              )}
+              onClick={() => setGuideFlag(!guideFlag)}
+            />
+          </Tippy>
+        </div>
+      </div>
+    </Tippy>
+  )
+
+  const OptionsMenu = () => (
+    <Tippy placement="top" content="OPTIONS">
+      <div>
+        <FontAwesomeIcon
+          icon={faGear}
+          className={classnames(
+            currTool === 'LINE' && styles.activeIcon,
+            currTool === 'RECTANGLE' && styles.activeIcon,
+            currTool === 'ELLIPSE' && styles.activeIcon,
+            styles.icon,
+          )}
+          onClick={() =>
+            setActiveMenu(activeMenu === 'OPTIONS' ? undefined : 'OPTIONS')
+          }
+        />
+        <div
+          className={classnames(
+            activeMenu !== 'OPTIONS' && styles.menu,
+            activeMenu === 'OPTIONS' && styles.menuOpen,
+          )}
+        >
+          <Tippy placement="left" content="MODEL">
+            <FontAwesomeIcon
+              icon={faA}
+              className={classnames(
+                modelFlag && styles.activeIcon,
+                styles.optionIcon,
+              )}
+              onClick={() => setModelFlag(!modelFlag)}
+            />
+          </Tippy>
+          <Tippy placement="left" content="GUIDELINES">
+            <FontAwesomeIcon
+              icon={faTextHeight}
+              className={classnames(
+                guideFlag && styles.activeIcon,
+                styles.optionIcon,
+              )}
+              onClick={() => setGuideFlag(!guideFlag)}
+            />
+          </Tippy>
         </div>
       </div>
     </Tippy>
@@ -524,6 +647,7 @@ const Canvas = ({
           <ShapeMenu />
           <Button icon={faCircleHalfStroke} button="INVERT" />
           <Button icon={faTrashAlt} button="CLEAR" />
+          <OptionsMenu />
           <Button icon={faUndo} button="UNDO" />
           <Button icon={faRedo} button="REDO" />
         </div>
@@ -554,6 +678,12 @@ const Canvas = ({
           onPointerUp={handlePointerUp}
           onPointerDown={evt => handlePointerDown(evt)}
           onPointerMove={evt => handlePointerMove(evt)}
+        />
+        <canvas
+          ref={drawModel}
+          className={styles.model}
+          width={EDITOR_SIZE}
+          height={EDITOR_SIZE}
         />
       </div>
     </div>
