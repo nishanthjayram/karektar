@@ -38,7 +38,6 @@ import {
 } from '../../types'
 import {assertUnreachable, initializeGlyph} from '../../utils'
 import 'tippy.js/dist/tippy.css'
-import {compareArrays} from '../../utils'
 
 type TMenu = undefined | 'SHAPES' | 'OPTIONS'
 
@@ -549,9 +548,9 @@ const Canvas = ({
               : faShapes
           }
           className={classnames(
-            currTool === 'LINE' && styles.activeIcon,
-            currTool === 'RECTANGLE' && styles.activeIcon,
-            currTool === 'ELLIPSE' && styles.activeIcon,
+            currentTool === 'LINE' && styles.activeIcon,
+            currentTool === 'RECTANGLE' && styles.activeIcon,
+            currentTool === 'ELLIPSE' && styles.activeIcon,
             styles.icon,
           )}
           onClick={() =>
@@ -560,8 +559,8 @@ const Canvas = ({
         />
         <div
           className={classnames(
-            !shapeMenuOpen && styles.shapeMenu,
-            shapeMenuOpen && styles.shapeMenuOpen,
+            activeMenu !== 'SHAPES' && styles.menu,
+            activeMenu === 'SHAPES' && styles.menuOpen,
           )}
         >
           <Tippy placement="left" content="MODEL">
@@ -595,9 +594,9 @@ const Canvas = ({
         <FontAwesomeIcon
           icon={faGear}
           className={classnames(
-            currTool === 'LINE' && styles.activeIcon,
-            currTool === 'RECTANGLE' && styles.activeIcon,
-            currTool === 'ELLIPSE' && styles.activeIcon,
+            currentTool === 'LINE' && styles.activeIcon,
+            currentTool === 'RECTANGLE' && styles.activeIcon,
+            currentTool === 'ELLIPSE' && styles.activeIcon,
             styles.icon,
           )}
           onClick={() =>
