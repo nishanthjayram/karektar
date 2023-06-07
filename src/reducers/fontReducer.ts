@@ -18,10 +18,11 @@ export const fontReducer = (state: TFont, action: TFontAction): TFont => {
 export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont => {
   switch (action.op) {
     case 'UPDATE_ACTIVE_GLYPH': {
+      const newGlyphCanvas = state.glyphSet.get(action.newActiveGlyph)
       return {
         ...state,
         activeGlyph: action.newActiveGlyph,
-        canvasHistory: [initializeGlyph(state.bitmapSize)],
+        canvasHistory: [newGlyphCanvas ?? initializeGlyph(state.bitmapSize)],
         historyIndex: 0,
       }
     }
