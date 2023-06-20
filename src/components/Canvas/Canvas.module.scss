@@ -1,4 +1,4 @@
-$header-height: 48px;
+@import '../../variables.scss';
 
 .editor {
   position: relative;
@@ -6,7 +6,6 @@ $header-height: 48px;
   .canvas {
     position: absolute;
     z-index: 20;
-    opacity: 0.95;
     top: 0;
     left: 0;
   }
@@ -86,7 +85,7 @@ $header-height: 48px;
       position: absolute;
       visibility: visible;
       border-radius: 2px;
-      background-color: black;
+      background-color: #6d6d6d;
       opacity: 0.7;
       z-index: 30;
       overflow: visible;

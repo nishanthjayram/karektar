@@ -1,6 +1,5 @@
-export const RX_LETTERS = /[A-Za-z]/g
-export const RX_NUMBERS = /[0-9]/g
-export const RX_NON_ALPHANUMERIC = /[^A-Za-z0-9\s]/g
+import {RX_LETTERS, RX_NON_ALPHANUMERIC, RX_NUMBERS} from './constants'
+import {TFont} from './types'
 
 export const assertUnreachable = (x: never): never => {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -25,5 +24,24 @@ export const getUniqueCharacters = (input: string) => {
   return [letters, numbers, nonAlphaNum].flatMap(c => c.sort())
 }
 
-export const initialGlyphState = (bitmapSize: number) =>
+export const initializeFont = (bitmapSize: number, symbolSet: string[]): TFont => {
+  const newGlyphSet = new Map<string, boolean[]>()
+  symbolSet.forEach(symbol => newGlyphSet.set(symbol, initializeGlyph(bitmapSize)))
+  return {
+    activeGlyph: symbolSet[0],
+    activeMenu: undefined,
+    bitmapSize: bitmapSize,
+    canvasHistory: [initializeGlyph(bitmapSize)],
+    captureFlag: false,
+    currentTool: 'DRAW',
+    glyphSet: newGlyphSet,
+    guidelinesFlag: true,
+    historyIndex: 0,
+    modelFlag: true,
+    shapeRange: undefined,
+    symbolSet: symbolSet,
+  }
+}
+
+export const initializeGlyph = (bitmapSize: number) =>
   new Array<boolean>(bitmapSize ** 2).fill(false)

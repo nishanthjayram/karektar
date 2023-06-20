@@ -1,35 +1,34 @@
-import {useState} from 'react'
+import {useReducer, useState} from 'react'
 import styles from './App.module.scss'
 import {DEFAULT_PROMPT, DEFAULT_SYMBOLS} from '../../constants'
-import {getUniqueCharacters, initialGlyphState} from '../../utils'
+import {fontReducer} from '../../reducers/fontReducer'
+import {getUniqueCharacters, initializeFont} from '../../utils'
 import Canvas from '../Canvas/Canvas'
 import GlyphSet from '../GlyphSet/GlyphSet'
 
 const App = ({bitmapSize}: {bitmapSize: number}) => {
   const [inputText, setInputText] = useState(DEFAULT_PROMPT)
-  const [activeGlyph, setActiveGlyph] = useState<string | undefined>(
-    DEFAULT_SYMBOLS[0],
+  const [fontState, fontDispatch] = useReducer(
+    fontReducer,
+    initializeFont(bitmapSize, DEFAULT_SYMBOLS),
   )
-  const [glyphSet, setGlyphSet] = useState(() => {
-    const newGlyphSet = new Map<string, boolean[]>()
-    DEFAULT_SYMBOLS.forEach(symbol =>
-      newGlyphSet.set(symbol, initialGlyphState(bitmapSize)),
-    )
-    return newGlyphSet
-  })
+
+  const {symbolSet} = fontState
 
   const handleSubmit = () => {
-    const symbolSet = getUniqueCharacters(inputText)
-    setActiveGlyph(symbolSet[0])
-    setGlyphSet(oldGlyphSet => {
-      const newGlyphSet = new Map<string, boolean[]>()
-      symbolSet.forEach(symbol => {
-        newGlyphSet.set(
-          symbol,
-          oldGlyphSet.get(symbol) ?? initialGlyphState(bitmapSize),
-        )
-      })
-      return newGlyphSet
+    const newSymbolSet = getUniqueCharacters(inputText)
+    if (
+      symbolSet.some(symbol => !newSymbolSet.includes(symbol)) &&
+      !confirm(
+        'You are about to remove some of the existing glyphs in your set. Are you sure you want to continue?',
+      )
+    ) {
+      return
+    }
+    fontDispatch({
+      type: 'GLYPH_SET_ACTION',
+      op: 'UPDATE_SYMBOL_SET',
+      newSymbolSet: newSymbolSet,
     })
   }
 
@@ -49,27 +48,23 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
           <button onClick={handleSubmit} className={styles.button}>
             Submit
           </button>
-          <button onClick={() => setInputText('')} className={styles.button}>
+          <button // TODO: Potentially rename this operation to make its meaning clearer.
+            onClick={() =>
+              fontDispatch({
+                type: 'GLYPH_SET_ACTION',
+                op: 'CLEAR_GLYPH_SET',
+              })
+            }
+            className={styles.button}
+          >
             Clear
           </button>
         </div>
       </div>
       <br />
       <div className={styles.appRow}>
-        <Canvas
-          bitmapSize={bitmapSize}
-          glyphSet={glyphSet}
-          setGlyphSet={setGlyphSet}
-          activeGlyph={activeGlyph}
-        />
-        <div className={styles.glyph}>
-          <GlyphSet
-            bitmapSize={bitmapSize}
-            glyphSet={glyphSet}
-            activeGlyph={activeGlyph}
-            setActiveGlyph={setActiveGlyph}
-          />
-        </div>
+        <Canvas fontState={fontState} fontDispatch={fontDispatch} />
+        <GlyphSet fontState={fontState} fontDispatch={fontDispatch} />
       </div>
     </div>
   )

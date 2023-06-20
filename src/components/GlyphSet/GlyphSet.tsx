@@ -1,26 +1,28 @@
 import classnames from 'classnames'
-import {Dispatch, SetStateAction, useState} from 'react'
+import {useState} from 'react'
 import styles from './GlyphSet.module.scss'
 import {ReactComponent as Next} from '../../assets/next.svg'
 import {ReactComponent as Previous} from '../../assets/previous.svg'
 import {PAGE_LENGTH} from '../../constants'
+import {TFont, TFontAction} from '../../types'
 import Glyph from '../Glyph/Glyph'
 
 const GlyphSet = ({
-  bitmapSize,
-  glyphSet,
-  activeGlyph,
-  setActiveGlyph,
+  fontState,
+  fontDispatch,
 }: {
-  bitmapSize: number
-  glyphSet: Map<string, boolean[]>
-  activeGlyph: string | undefined
-  setActiveGlyph: Dispatch<SetStateAction<string | undefined>>
+  fontState: TFont
+  fontDispatch: React.Dispatch<TFontAction>
 }) => {
+  const {glyphSet} = fontState
   const [page, setPage] = useState(0)
   const minPage = 0
   const maxPage = Math.ceil(glyphSet.size / PAGE_LENGTH) - 1
 
+  if (glyphSet.size === 0) {
+    console.log('glyph set emptied')
+    return <div className={styles.glyphSet} />
+  }
   return (
     <div className={styles.glyphSet}>
       <div className={styles.navBar}>
@@ -51,16 +53,14 @@ const GlyphSet = ({
         </div>
       </div>
       <div className={styles.gallery}>
-        {[...glyphSet.entries()]
+        {[...glyphSet.keys()]
           .slice(page * PAGE_LENGTH, page * PAGE_LENGTH + PAGE_LENGTH)
-          .map(([symbol, glyphCanvas]) => (
+          .map(symbol => (
             <Glyph
               key={symbol}
-              bitmapSize={bitmapSize}
               glyph={symbol}
-              glyphCanvas={glyphCanvas}
-              active={activeGlyph === symbol}
-              setActiveGlyph={setActiveGlyph}
+              fontState={fontState}
+              fontDispatch={fontDispatch}
             />
           ))}
       </div>

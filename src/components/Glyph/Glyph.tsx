@@ -3,25 +3,25 @@ import {memo} from 'react'
 import {Dispatch, SetStateAction} from 'react'
 import styles from './Glyph.module.scss'
 import {EMPTY_CELL, FILLED_CELL, GLYPH_SIZE} from '../../constants'
+import {TFont, TFontAction} from '../../types'
 
 const Glyph = ({
-  bitmapSize,
   glyph,
-  glyphCanvas,
-  active,
-  setActiveGlyph,
+  fontState,
+  fontDispatch,
 }: {
-  bitmapSize: number
   glyph: string
-  glyphCanvas: boolean[]
-  active: boolean
-  setActiveGlyph: Dispatch<SetStateAction<string | undefined>>
+  fontState: TFont
+  fontDispatch: React.Dispatch<TFontAction>
 }) => {
+  const {activeGlyph, bitmapSize, glyphSet} = fontState
   const p = GLYPH_SIZE / bitmapSize
+
+  const glyphCanvas = glyphSet.get(glyph)
 
   const updateGlyph = (canvas: HTMLCanvasElement | null) => {
     const ctx = canvas?.getContext('2d')
-    if (!ctx) {
+    if (!ctx || !glyphCanvas) {
       return
     }
 
@@ -39,11 +39,20 @@ const Glyph = ({
       className={styles.glyph}
       onMouseDown={evt => {
         if (evt.buttons === 1) {
-          setActiveGlyph(glyph)
+          fontDispatch({
+            type: 'GLYPH_SET_ACTION',
+            op: 'UPDATE_ACTIVE_GLYPH',
+            newActiveGlyph: glyph,
+          })
         }
       }}
     >
-      <div className={classnames(active && styles.activeSymbol, styles.symbol)}>
+      <div
+        className={classnames(
+          glyph === activeGlyph && styles.activeSymbol,
+          styles.symbol,
+        )}
+      >
         {glyph}
       </div>
       <canvas ref={updateGlyph} width={GLYPH_SIZE} height={GLYPH_SIZE} />
@@ -53,7 +62,5 @@ const Glyph = ({
 
 export default memo(
   Glyph,
-  (prevProps, nextProps) =>
-    prevProps.active === nextProps.active &&
-    prevProps.glyphCanvas === nextProps.glyphCanvas,
+  (prevProps, nextProps) => prevProps.fontState === nextProps.fontState,
 )

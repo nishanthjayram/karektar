@@ -1,24 +1,20 @@
-// A canvas for drawing individual glyphs.
-import {IconProp} from '@fortawesome/fontawesome-svg-core'
 import {faCircle, faSquare, faTrashAlt} from '@fortawesome/free-regular-svg-icons'
 import {
   faA,
-  faCircleHalfStroke,
   faEraser,
   faFill,
   faGear,
-  faPencil,
+  faPen,
   faRedo,
   faShapes,
   faSlash,
   faTextHeight,
   faUndo,
 } from '@fortawesome/free-solid-svg-icons'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import Tippy from '@tippy.js/react'
-import classnames from 'classnames'
-import {Dispatch, SetStateAction, useState} from 'react'
+import Button from './Button/Button'
 import styles from './Canvas.module.scss'
+import OptionsMenu from './OptionsMenu/OptionsMenu'
+import ShapesMenu from './ShapesMenu/ShapesMenu'
 import {
   EDITOR_SIZE,
   EMPTY_CELL,
@@ -28,41 +24,51 @@ import {
   HLINE_POS,
   VLINE_POS,
 } from '../../constants'
-import {THistory, TPos, TRange, TRect, TTool} from '../../types'
-import {assertUnreachable, initialGlyphState} from '../../utils'
+import {
+  TAction,
+  TFont,
+  TFontAction,
+  TMenuHeader,
+  TOption,
+  TPos,
+  TRect,
+  TTool,
+  TToolLabel,
+} from '../../types'
+import {assertUnreachable} from '../../utils'
 import 'tippy.js/dist/tippy.css'
-import {compareArrays} from '../../utils'
 
-type TMenu = undefined | 'SHAPES' | 'OPTIONS'
+type TCanvasProps = {
+  fontState: TFont
+  fontDispatch: React.Dispatch<TFontAction>
+}
 
-const Canvas = ({
-  bitmapSize,
-  glyphSet,
-  setGlyphSet,
-  activeGlyph,
-}: {
-  bitmapSize: number
-  glyphSet: Map<string, boolean[]>
-  setGlyphSet: Dispatch<SetStateAction<Map<string, boolean[]>>>
-  activeGlyph: string | undefined
-}) => {
-  const [currTool, setCurrTool] = useState<TTool>('DRAW')
-  const [captureFlag, setCaptureFlag] = useState(false)
-  const [range, setRange] = useState<TRange | undefined>(undefined)
-  const [activeMenu, setActiveMenu] = useState<TMenu>(undefined)
-  const [modelFlag, setModelFlag] = useState(true)
-  const [guideFlag, setGuideFlag] = useState(true)
-  const [canvasHistory, setCanvasHistory] = useState<THistory>(() => [
-    [initialGlyphState(bitmapSize)],
-    0,
-  ])
+const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
+  const {
+    activeMenu,
+    bitmapSize,
+    activeGlyph,
+    canvasHistory,
+    currentTool,
+    glyphSet,
+    guidelinesFlag,
+    historyIndex,
+    modelFlag,
+    shapeRange,
+    captureFlag,
+  } = fontState
 
-  const glyphCanvas = activeGlyph ? glyphSet.get(activeGlyph) : undefined
   const p = EDITOR_SIZE / bitmapSize
+  const glyphCanvas = glyphSet.get(activeGlyph)
+
+  // TODO: Replace this empty div container with a loading animation.
+  if (!glyphCanvas) {
+    return <div />
+  }
 
   const drawCanvas = (canvas: HTMLCanvasElement | null) => {
     const ctx = canvas?.getContext('2d')
-    if (!ctx || !glyphCanvas) {
+    if (!ctx) {
       return
     }
 
@@ -78,7 +84,7 @@ const Canvas = ({
     ctx.closePath()
     ctx.stroke()
 
-    if (guideFlag) {
+    if (guidelinesFlag) {
       // Draw the horizontal and vertical guidelines of the canvas.
       ctx.beginPath()
       ctx.strokeStyle = GUIDELINE_COLOR
@@ -98,21 +104,11 @@ const Canvas = ({
     })
     ctx.closePath()
 
-    if (range !== undefined) {
-      const [startPos, endPos] = range
+    const shapeCells = plotShape(currentTool)
+    if (shapeCells) {
       ctx.fillStyle = FILLED_CELL
-
-      const cells =
-        currTool === 'LINE'
-          ? plotLine(startPos, endPos)
-          : currTool === 'RECTANGLE'
-          ? plotRect(startPos, endPos)
-          : currTool === 'ELLIPSE'
-          ? plotEllipse(endPos, getDistance(startPos, endPos))
-          : []
-
       ctx.beginPath()
-      cells.forEach(idx => ctx.fillRect(...getRect(idx)))
+      shapeCells.forEach(idx => ctx.fillRect(...getRect(idx)))
       ctx.closePath()
     }
   }
@@ -132,23 +128,6 @@ const Canvas = ({
       ctx.fillText(activeGlyph, VLINE_POS, HLINE_POS)
       ctx.closePath()
     }
-  }
-
-  const updateCells = (indices: number[], filled: boolean) => {
-    if (activeGlyph === undefined || glyphCanvas === undefined) {
-      return
-    }
-
-    const newGlyphCanvas = [...glyphCanvas]
-    indices.forEach(idx => (newGlyphCanvas[idx] = filled))
-
-    setGlyphSet(oldGlyphSet => {
-      const newGlyphSet = new Map(oldGlyphSet)
-      newGlyphSet.set(activeGlyph, newGlyphCanvas)
-      return newGlyphSet
-    })
-
-    return newGlyphCanvas
   }
 
   const checkPos = ([x, y]: TPos) =>
@@ -175,6 +154,33 @@ const Canvas = ({
   const getRect = (idx: number): TRect => {
     const [x, y] = indexToPos(idx)
     return [x * p + 1, y * p + 1, p - 1, p - 1]
+  }
+
+  const plotShape = (shapeTool: TToolLabel) => {
+    if (!shapeRange) {
+      return
+    }
+
+    const [startPos, endPos] = shapeRange
+    switch (shapeTool) {
+      case 'LINE': {
+        return plotLine(startPos, endPos)
+      }
+      case 'RECTANGLE': {
+        return plotRect(startPos, endPos)
+      }
+      case 'ELLIPSE': {
+        return plotEllipse(endPos, getDistance(startPos, endPos))
+      }
+      case 'DRAW':
+      case 'ERASE':
+      case 'FILL': {
+        return
+      }
+      default: {
+        return assertUnreachable(shapeTool)
+      }
+    }
   }
 
   const plotLine = ([x0, y0]: TPos, [x1, y1]: TPos) => {
@@ -285,7 +291,7 @@ const Canvas = ({
   }
 
   const fill = (start: TPos) => {
-    if (glyphCanvas === undefined || glyphCanvas[posToIndex(start)]) {
+    if (glyphCanvas[posToIndex(start)]) {
       return
     }
 
@@ -319,39 +325,36 @@ const Canvas = ({
       })
     }
 
-    updateCells(
-      visited.map(c => posToIndex(c)),
-      true,
-    )
-  }
-
-  const updateHistory = (newState?: boolean[]) => {
-    const update = newState ?? glyphCanvas
-    setCanvasHistory(oldCanvasHistory => {
-      const [oldStates, oldIndex] = oldCanvasHistory
-      return update === undefined || compareArrays(oldStates[oldIndex], update)
-        ? oldCanvasHistory
-        : [[...oldStates.slice(0, oldIndex + 1), update], oldIndex + 1]
-    })
+    return visited.map(c => posToIndex(c))
   }
 
   const handlePointerUp = () => {
-    if (range !== undefined) {
-      const [startPos, endPos] = range
+    const shapeCells = plotShape(currentTool)
 
-      const cells =
-        currTool === 'LINE'
-          ? plotLine(startPos, endPos)
-          : currTool === 'RECTANGLE'
-          ? plotRect(startPos, endPos)
-          : currTool === 'ELLIPSE'
-          ? plotEllipse(endPos, getDistance(startPos, endPos))
-          : []
-
-      updateHistory(updateCells(cells, true))
-      setRange(undefined)
+    if (!shapeCells) {
+      fontDispatch({
+        type: 'CANVAS_ACTION',
+        op: 'UPDATE_CANVAS_HISTORY',
+        newGlyphCanvas: glyphCanvas,
+      })
     } else {
-      updateHistory()
+      const newGlyphCanvas = [...glyphCanvas]
+      shapeCells.forEach(idx => (newGlyphCanvas[idx] = true))
+      fontDispatch({
+        type: 'GLYPH_SET_ACTION',
+        op: 'UPDATE_GLYPH_CANVAS',
+        newGlyphCanvas: newGlyphCanvas,
+      })
+      fontDispatch({
+        type: 'CANVAS_ACTION',
+        op: 'UPDATE_SHAPE_RANGE',
+        newShapeRange: undefined,
+      })
+      fontDispatch({
+        type: 'CANVAS_ACTION',
+        op: 'UPDATE_CANVAS_HISTORY',
+        newGlyphCanvas: newGlyphCanvas,
+      })
     }
   }
 
@@ -361,7 +364,11 @@ const Canvas = ({
     }
 
     if (activeMenu) {
-      setActiveMenu(undefined)
+      fontDispatch({
+        type: 'CANVAS_ACTION',
+        op: 'UPDATE_ACTIVE_MENU',
+        newActiveMenu: undefined,
+      })
       return
     }
 
@@ -370,32 +377,44 @@ const Canvas = ({
       return
     }
 
-    const idx = posToIndex(mousePos)
+    const currIdx = posToIndex(mousePos)
     evt.currentTarget.setPointerCapture(evt.pointerId)
 
-    switch (currTool) {
-      case 'DRAW': {
-        return updateCells([idx], true)
-      }
+    switch (currentTool) {
+      case 'DRAW':
       case 'ERASE': {
-        return updateCells([idx], false)
+        const newGlyphCanvas = [...glyphCanvas]
+        newGlyphCanvas[currIdx] = currentTool === 'DRAW' ? true : false
+        return fontDispatch({
+          type: 'GLYPH_SET_ACTION',
+          op: 'UPDATE_GLYPH_CANVAS',
+          newGlyphCanvas: newGlyphCanvas,
+        })
       }
       case 'LINE':
       case 'RECTANGLE':
       case 'ELLIPSE': {
-        return setRange([mousePos, mousePos])
+        return fontDispatch({
+          type: 'CANVAS_ACTION',
+          op: 'UPDATE_SHAPE_RANGE',
+          newShapeRange: [mousePos, mousePos],
+        })
       }
       case 'FILL': {
-        return fill(mousePos)
-      }
-      case 'INVERT':
-      case 'CLEAR':
-      case 'UNDO':
-      case 'REDO': {
-        return
+        const fillCells = fill(mousePos)
+        if (!fillCells) {
+          return
+        }
+        const newGlyphCanvas = [...glyphCanvas]
+        fillCells.forEach(idx => (newGlyphCanvas[idx] = true))
+        return fontDispatch({
+          type: 'GLYPH_SET_ACTION',
+          op: 'UPDATE_GLYPH_CANVAS',
+          newGlyphCanvas: newGlyphCanvas,
+        })
       }
       default: {
-        return assertUnreachable(currTool)
+        return assertUnreachable(currentTool)
       }
     }
   }
@@ -410,231 +429,121 @@ const Canvas = ({
       return
     }
 
-    const idx = posToIndex(mousePos)
+    const currIdx = posToIndex(mousePos)
 
-    switch (currTool) {
-      case 'DRAW': {
-        return updateCells([idx], true)
-      }
+    switch (currentTool) {
+      case 'DRAW':
       case 'ERASE': {
-        return updateCells([idx], false)
+        const newGlyphCanvas = [...glyphCanvas]
+        newGlyphCanvas[currIdx] = currentTool === 'DRAW' ? true : false
+        return fontDispatch({
+          type: 'GLYPH_SET_ACTION',
+          op: 'UPDATE_GLYPH_CANVAS',
+          newGlyphCanvas: newGlyphCanvas,
+        })
       }
       case 'LINE':
       case 'RECTANGLE':
       case 'ELLIPSE': {
-        return setRange(oldRange =>
-          oldRange !== undefined ? [oldRange[0], mousePos] : oldRange,
-        )
+        if (!shapeRange) {
+          return
+        }
+        return fontDispatch({
+          type: 'CANVAS_ACTION',
+          op: 'UPDATE_SHAPE_RANGE',
+          newShapeRange: [shapeRange[0], mousePos],
+        })
       }
-      case 'FILL':
-      case 'INVERT':
-      case 'CLEAR':
-      case 'UNDO':
-      case 'REDO': {
+      case 'FILL': {
         return
       }
       default: {
-        return assertUnreachable(currTool)
+        return assertUnreachable(currentTool)
       }
     }
   }
 
-  const handleInvert = () => {
-    if (activeGlyph === undefined || glyphCanvas === undefined) {
-      return
-    }
+  const drawTools: TTool[] = [
+    {
+      type: 'tool',
+      label: 'DRAW',
+      icon: faPen,
+    },
+    {
+      type: 'tool',
+      label: 'ERASE',
+      icon: faEraser,
+    },
+    {
+      type: 'tool',
+      label: 'FILL',
+      icon: faFill,
+    },
+  ]
 
-    const newGlyphCanvas = glyphCanvas.map(filled => !filled)
-    setGlyphSet(oldGlyphSet => {
-      const newGlyphSet = new Map(oldGlyphSet)
-      newGlyphSet.set(activeGlyph, newGlyphCanvas)
-      return newGlyphSet
-    })
-    updateHistory(newGlyphCanvas)
+  const shapeTools: TTool[] = [
+    {
+      type: 'tool',
+      label: 'LINE',
+      icon: faSlash,
+    },
+    {
+      type: 'tool',
+      label: 'RECTANGLE',
+      icon: faSquare,
+    },
+    {
+      type: 'tool',
+      label: 'ELLIPSE',
+      icon: faCircle,
+    },
+  ]
+
+  const actions: TAction[] = [
+    {
+      type: 'action',
+      label: 'CLEAR',
+      icon: faTrashAlt,
+      disabled: glyphCanvas.every(v => !v),
+    },
+    {
+      type: 'action',
+      label: 'UNDO',
+      icon: faUndo,
+      disabled: historyIndex === 0,
+    },
+    {
+      type: 'action',
+      label: 'REDO',
+      icon: faRedo,
+      disabled: historyIndex === canvasHistory.length - 1,
+    },
+  ]
+
+  const options: TOption[] = [
+    {
+      type: 'option',
+      label: 'GUIDELINES',
+      icon: faTextHeight,
+      active: guidelinesFlag,
+    },
+    {
+      type: 'option',
+      label: 'MODEL',
+      icon: faA,
+      active: modelFlag,
+    },
+  ]
+
+  const shapesMenuHeader: TMenuHeader = {
+    defaultLabel: 'SHAPES',
+    defaultIcon: faShapes,
   }
 
-  const handleClear = () => {
-    if (activeGlyph === undefined || glyphCanvas === undefined) {
-      return
-    }
-
-    const newGlyphCanvas = initialGlyphState(bitmapSize)
-    setGlyphSet(oldGlyphSet => {
-      const newGlyphSet = new Map(oldGlyphSet)
-      newGlyphSet.set(activeGlyph, newGlyphCanvas)
-      return newGlyphSet
-    })
-    updateHistory(newGlyphCanvas)
+  const optionsMenuHeader: TMenuHeader = {
+    defaultLabel: 'OPTIONS',
+    defaultIcon: faGear,
   }
-
-  const handleUndo = () => {
-    if (activeGlyph === undefined) {
-      return
-    }
-
-    setGlyphSet(oldGlyphSet => {
-      const newGlyphSet = new Map(oldGlyphSet)
-      newGlyphSet.set(activeGlyph, canvasHistory[0][canvasHistory[1] - 1])
-      return newGlyphSet
-    })
-
-    setCanvasHistory(oldCanvasHistory => [
-      oldCanvasHistory[0],
-      oldCanvasHistory[1] - 1,
-    ])
-  }
-
-  const handleRedo = () => {
-    if (activeGlyph === undefined) {
-      return
-    }
-
-    setGlyphSet(oldGlyphSet => {
-      const newGlyphSet = new Map(oldGlyphSet)
-      newGlyphSet.set(activeGlyph, canvasHistory[0][canvasHistory[1] + 1])
-      return newGlyphSet
-    })
-
-    setCanvasHistory(oldCanvasHistory => [
-      oldCanvasHistory[0],
-      oldCanvasHistory[1] + 1,
-    ])
-  }
-
-  const isShapeTool = (tool: TTool) =>
-    tool === 'LINE' || tool === 'RECTANGLE' || tool === 'ELLIPSE'
-
-  const Tool = ({icon, tool}: {icon: IconProp; tool: TTool}) => (
-    <Tippy placement={isShapeTool(tool) ? 'right' : 'top'} content={tool}>
-      <FontAwesomeIcon
-        icon={icon}
-        className={classnames(
-          currTool === tool && styles.activeIcon,
-          tool === 'CLEAR' && glyphCanvas?.every(v => !v) && styles.disabledIcon,
-          tool === 'UNDO' && canvasHistory[1] === 0 && styles.disabledIcon,
-          tool === 'REDO' &&
-            canvasHistory[1] === canvasHistory[0].length - 1 &&
-            styles.disabledIcon,
-          styles.icon,
-        )}
-        onClick={() => {
-          if (captureFlag) {
-            return
-          }
-
-          setActiveMenu(undefined)
-
-          switch (tool) {
-            case 'DRAW':
-            case 'ERASE':
-            case 'LINE':
-            case 'RECTANGLE':
-            case 'ELLIPSE':
-            case 'FILL': {
-              return setCurrTool(tool)
-            }
-            case 'INVERT': {
-              return handleInvert()
-            }
-            case 'CLEAR': {
-              return handleClear()
-            }
-            case 'UNDO': {
-              return handleUndo()
-            }
-            case 'REDO': {
-              return handleRedo()
-            }
-            default:
-              return assertUnreachable(tool)
-          }
-        }}
-      />
-    </Tippy>
-  )
-
-  const ShapeMenu = () => (
-    <Tippy placement="top" content={isShapeTool(currTool) ? currTool : 'SHAPES'}>
-      <div>
-        <FontAwesomeIcon
-          icon={
-            currTool === 'LINE'
-              ? faSlash
-              : currTool === 'RECTANGLE'
-              ? faSquare
-              : currTool === 'ELLIPSE'
-              ? faCircle
-              : faShapes
-          }
-          className={classnames(
-            currTool === 'LINE' && styles.activeIcon,
-            currTool === 'RECTANGLE' && styles.activeIcon,
-            currTool === 'ELLIPSE' && styles.activeIcon,
-            styles.icon,
-          )}
-          onClick={() =>
-            setActiveMenu(activeMenu === 'SHAPES' ? undefined : 'SHAPES')
-          }
-        />
-        <div
-          className={classnames(
-            activeMenu !== 'SHAPES' && styles.menu,
-            activeMenu === 'SHAPES' && styles.menuOpen,
-          )}
-        >
-          <Tool icon={faSlash} tool="LINE" />
-          <Tool icon={faCircle} tool="ELLIPSE" />
-          <Tool icon={faSquare} tool="RECTANGLE" />
-        </div>
-      </div>
-    </Tippy>
-  )
-
-  const OptionsMenu = () => (
-    <Tippy placement="top" content="OPTIONS">
-      <div>
-        <FontAwesomeIcon
-          icon={faGear}
-          className={classnames(
-            currTool === 'LINE' && styles.activeIcon,
-            currTool === 'RECTANGLE' && styles.activeIcon,
-            currTool === 'ELLIPSE' && styles.activeIcon,
-            styles.icon,
-          )}
-          onClick={() =>
-            setActiveMenu(activeMenu === 'OPTIONS' ? undefined : 'OPTIONS')
-          }
-        />
-        <div
-          className={classnames(
-            activeMenu !== 'OPTIONS' && styles.menu,
-            activeMenu === 'OPTIONS' && styles.menuOpen,
-          )}
-        >
-          <Tippy placement="left" content="MODEL">
-            <FontAwesomeIcon
-              icon={faA}
-              className={classnames(
-                modelFlag && styles.activeIcon,
-                styles.optionIcon,
-              )}
-              onClick={() => setModelFlag(!modelFlag)}
-            />
-          </Tippy>
-          <Tippy placement="left" content="GUIDELINES">
-            <FontAwesomeIcon
-              icon={faTextHeight}
-              className={classnames(
-                guideFlag && styles.activeIcon,
-                styles.optionIcon,
-              )}
-              onClick={() => setGuideFlag(!guideFlag)}
-            />
-          </Tippy>
-        </div>
-      </div>
-    </Tippy>
-  )
 
   return (
     <div>
@@ -642,15 +551,37 @@ const Canvas = ({
         <div className={styles.text}>{activeGlyph}</div>
         <div className={styles.separator} />
         <div className={styles.toolbar}>
-          <Tool icon={faPencil} tool="DRAW" />
-          <Tool icon={faEraser} tool="ERASE" />
-          <ShapeMenu />
-          <Tool icon={faFill} tool="FILL" />
-          <Tool icon={faCircleHalfStroke} tool="INVERT" />
-          <Tool icon={faTrashAlt} tool="CLEAR" />
-          <OptionsMenu />
-          <Tool icon={faUndo} tool="UNDO" />
-          <Tool icon={faRedo} tool="REDO" />
+          {drawTools.map((props, index) => (
+            <Button
+              key={index}
+              {...props}
+              active={currentTool === props.label}
+              fontState={fontState}
+              fontDispatch={fontDispatch}
+            />
+          ))}
+          <ShapesMenu
+            defaultLabel={shapesMenuHeader.defaultLabel}
+            defaultIcon={shapesMenuHeader.defaultIcon}
+            shapeTools={shapeTools}
+            fontState={fontState}
+            fontDispatch={fontDispatch}
+          />
+          {actions.map((props, index) => (
+            <Button
+              key={index}
+              {...props}
+              fontState={fontState}
+              fontDispatch={fontDispatch}
+            />
+          ))}
+          <OptionsMenu
+            defaultLabel={optionsMenuHeader.defaultLabel}
+            defaultIcon={optionsMenuHeader.defaultIcon}
+            options={options}
+            fontState={fontState}
+            fontDispatch={fontDispatch}
+          />
         </div>
       </div>
       <div
@@ -660,10 +591,23 @@ const Canvas = ({
         <canvas
           ref={drawCanvas}
           className={styles.canvas}
+          style={{opacity: modelFlag ? '0.95' : '1'}}
           width={EDITOR_SIZE}
           height={EDITOR_SIZE}
-          onGotPointerCapture={() => setCaptureFlag(true)}
-          onLostPointerCapture={() => setCaptureFlag(false)}
+          onGotPointerCapture={() =>
+            fontDispatch({
+              type: 'CANVAS_ACTION',
+              op: 'UPDATE_CAPTURE_FLAG',
+              newCaptureFlag: true,
+            })
+          }
+          onLostPointerCapture={() =>
+            fontDispatch({
+              type: 'CANVAS_ACTION',
+              op: 'UPDATE_CAPTURE_FLAG',
+              newCaptureFlag: false,
+            })
+          }
           onPointerUp={handlePointerUp}
           onPointerDown={evt => handlePointerDown(evt)}
           onPointerMove={evt => handlePointerMove(evt)}
