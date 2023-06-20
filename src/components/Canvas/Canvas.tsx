@@ -1,24 +1,20 @@
-// A canvas for drawing individual glyphs.
-import {IconProp} from '@fortawesome/fontawesome-svg-core'
 import {faCircle, faSquare, faTrashAlt} from '@fortawesome/free-regular-svg-icons'
 import {
   faA,
-  faCircleHalfStroke,
   faEraser,
   faFill,
   faGear,
-  faPencil,
+  faPen,
   faRedo,
   faShapes,
   faSlash,
   faTextHeight,
   faUndo,
 } from '@fortawesome/free-solid-svg-icons'
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
-import Tippy from '@tippy.js/react'
-import classnames from 'classnames'
-import {useState} from 'react'
+import Button from './Button/Button'
 import styles from './Canvas.module.scss'
+import OptionsMenu from './OptionsMenu/OptionsMenu'
+import ShapesMenu from './ShapesMenu/ShapesMenu'
 import {
   EDITOR_SIZE,
   EMPTY_CELL,
@@ -29,39 +25,39 @@ import {
   VLINE_POS,
 } from '../../constants'
 import {
-  TCanvasButton,
-  TCanvasTool,
+  TAction,
   TFont,
   TFontAction,
+  TMenuHeader,
+  TOption,
   TPos,
   TRect,
+  TTool,
+  TToolLabel,
 } from '../../types'
-import {assertUnreachable, initializeGlyph} from '../../utils'
+import {assertUnreachable} from '../../utils'
 import 'tippy.js/dist/tippy.css'
 
-type TMenu = undefined | 'SHAPES' | 'OPTIONS'
-
-const Canvas = ({
-  fontState,
-  fontDispatch,
-}: {
+type TCanvasProps = {
   fontState: TFont
   fontDispatch: React.Dispatch<TFontAction>
-}) => {
+}
+
+const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
   const {
+    activeMenu,
     bitmapSize,
     activeGlyph,
-    glyphSet,
-    currentTool,
-    shapeRange,
     canvasHistory,
+    currentTool,
+    glyphSet,
+    guidelinesFlag,
     historyIndex,
+    modelFlag,
+    shapeRange,
     captureFlag,
   } = fontState
 
-  const [activeMenu, setActiveMenu] = useState<TMenu>(undefined)
-  const [modelFlag, setModelFlag] = useState(true)
-  const [guideFlag, setGuideFlag] = useState(true)
   const p = EDITOR_SIZE / bitmapSize
   const glyphCanvas = glyphSet.get(activeGlyph)
 
@@ -88,7 +84,7 @@ const Canvas = ({
     ctx.closePath()
     ctx.stroke()
 
-    if (guideFlag) {
+    if (guidelinesFlag) {
       // Draw the horizontal and vertical guidelines of the canvas.
       ctx.beginPath()
       ctx.strokeStyle = GUIDELINE_COLOR
@@ -160,7 +156,7 @@ const Canvas = ({
     return [x * p + 1, y * p + 1, p - 1, p - 1]
   }
 
-  const plotShape = (shapeTool: TCanvasTool) => {
+  const plotShape = (shapeTool: TToolLabel) => {
     if (!shapeRange) {
       return
     }
@@ -368,7 +364,11 @@ const Canvas = ({
     }
 
     if (activeMenu) {
-      setActiveMenu(undefined)
+      fontDispatch({
+        type: 'CANVAS_ACTION',
+        op: 'UPDATE_ACTIVE_MENU',
+        newActiveMenu: undefined,
+      })
       return
     }
 
@@ -463,159 +463,87 @@ const Canvas = ({
     }
   }
 
-  const isShapeTool = (button: TCanvasButton) =>
-    button === 'LINE' || button === 'RECTANGLE' || button === 'ELLIPSE'
+  const drawTools: TTool[] = [
+    {
+      type: 'tool',
+      label: 'DRAW',
+      icon: faPen,
+    },
+    {
+      type: 'tool',
+      label: 'ERASE',
+      icon: faEraser,
+    },
+    {
+      type: 'tool',
+      label: 'FILL',
+      icon: faFill,
+    },
+  ]
 
-  const Button = ({icon, button}: {icon: IconProp; button: TCanvasButton}) => (
-    <Tippy placement={isShapeTool(button) ? 'right' : 'top'} content={button}>
-      <FontAwesomeIcon
-        icon={icon}
-        className={classnames(
-          currentTool === button && styles.activeIcon,
-          button === 'CLEAR' && glyphCanvas?.every(v => !v) && styles.disabledIcon,
-          button === 'UNDO' && historyIndex === 0 && styles.disabledIcon,
-          button === 'REDO' &&
-            historyIndex === canvasHistory.length - 1 &&
-            styles.disabledIcon,
-          styles.icon,
-        )}
-        onClick={() => {
-          if (captureFlag) {
-            return
-          }
+  const shapeTools: TTool[] = [
+    {
+      type: 'tool',
+      label: 'LINE',
+      icon: faSlash,
+    },
+    {
+      type: 'tool',
+      label: 'RECTANGLE',
+      icon: faSquare,
+    },
+    {
+      type: 'tool',
+      label: 'ELLIPSE',
+      icon: faCircle,
+    },
+  ]
 
-          setActiveMenu(undefined)
+  const actions: TAction[] = [
+    {
+      type: 'action',
+      label: 'CLEAR',
+      icon: faTrashAlt,
+      disabled: glyphCanvas.every(v => !v),
+    },
+    {
+      type: 'action',
+      label: 'UNDO',
+      icon: faUndo,
+      disabled: historyIndex === 0,
+    },
+    {
+      type: 'action',
+      label: 'REDO',
+      icon: faRedo,
+      disabled: historyIndex === canvasHistory.length - 1,
+    },
+  ]
 
-          switch (button) {
-            case 'DRAW':
-            case 'ERASE':
-            case 'LINE':
-            case 'RECTANGLE':
-            case 'ELLIPSE':
-            case 'FILL': {
-              return fontDispatch({
-                type: 'CANVAS_ACTION',
-                op: 'UPDATE_CURRENT_TOOL',
-                newCurrentTool: button,
-              })
-            }
-            case 'INVERT':
-            case 'CLEAR': {
-              const newGlyphCanvas =
-                button === 'CLEAR'
-                  ? initializeGlyph(bitmapSize)
-                  : [...glyphCanvas].map(filled => !filled)
-              fontDispatch({
-                type: 'GLYPH_SET_ACTION',
-                op: 'UPDATE_GLYPH_CANVAS',
-                newGlyphCanvas: newGlyphCanvas,
-              })
-              fontDispatch({
-                type: 'CANVAS_ACTION',
-                op: 'UPDATE_CANVAS_HISTORY',
-                newGlyphCanvas: newGlyphCanvas,
-              })
-              return
-            }
-            case 'UNDO': {
-              return fontDispatch({type: 'CANVAS_ACTION', op: 'UNDO'})
-            }
-            case 'REDO': {
-              return fontDispatch({type: 'CANVAS_ACTION', op: 'REDO'})
-            }
-            default:
-              return assertUnreachable(button)
-          }
-        }}
-      />
-    </Tippy>
-  )
+  const options: TOption[] = [
+    {
+      type: 'option',
+      label: 'GUIDELINES',
+      icon: faTextHeight,
+      active: guidelinesFlag,
+    },
+    {
+      type: 'option',
+      label: 'MODEL',
+      icon: faA,
+      active: modelFlag,
+    },
+  ]
 
-  const ShapeMenu = () => (
-    <Tippy
-      placement="top"
-      content={isShapeTool(currentTool) ? currentTool : 'SHAPES'}
-    >
-      <div>
-        <FontAwesomeIcon
-          icon={
-            currentTool === 'LINE'
-              ? faSlash
-              : currentTool === 'RECTANGLE'
-              ? faSquare
-              : currentTool === 'ELLIPSE'
-              ? faCircle
-              : faShapes
-          }
-          className={classnames(
-            currentTool === 'LINE' && styles.activeIcon,
-            currentTool === 'RECTANGLE' && styles.activeIcon,
-            currentTool === 'ELLIPSE' && styles.activeIcon,
-            styles.icon,
-          )}
-          onClick={() =>
-            setActiveMenu(activeMenu === 'SHAPES' ? undefined : 'SHAPES')
-          }
-        />
-        <div
-          className={classnames(
-            activeMenu !== 'SHAPES' && styles.menu,
-            activeMenu === 'SHAPES' && styles.menuOpen,
-          )}
-        >
-          <Button icon={faSlash} button="LINE" />
-          <Button icon={faCircle} button="ELLIPSE" />
-          <Button icon={faSquare} button="RECTANGLE" />
-        </div>
-      </div>
-    </Tippy>
-  )
+  const shapesMenuHeader: TMenuHeader = {
+    defaultLabel: 'SHAPES',
+    defaultIcon: faShapes,
+  }
 
-  const OptionsMenu = () => (
-    <Tippy placement="top" content="OPTIONS">
-      <div>
-        <FontAwesomeIcon
-          icon={faGear}
-          className={classnames(
-            currentTool === 'LINE' && styles.activeIcon,
-            currentTool === 'RECTANGLE' && styles.activeIcon,
-            currentTool === 'ELLIPSE' && styles.activeIcon,
-            styles.icon,
-          )}
-          onClick={() =>
-            setActiveMenu(activeMenu === 'OPTIONS' ? undefined : 'OPTIONS')
-          }
-        />
-        <div
-          className={classnames(
-            activeMenu !== 'OPTIONS' && styles.menu,
-            activeMenu === 'OPTIONS' && styles.menuOpen,
-          )}
-        >
-          <Tippy placement="left" content="MODEL">
-            <FontAwesomeIcon
-              icon={faA}
-              className={classnames(
-                modelFlag && styles.activeIcon,
-                styles.optionIcon,
-              )}
-              onClick={() => setModelFlag(!modelFlag)}
-            />
-          </Tippy>
-          <Tippy placement="left" content="GUIDELINES">
-            <FontAwesomeIcon
-              icon={faTextHeight}
-              className={classnames(
-                guideFlag && styles.activeIcon,
-                styles.optionIcon,
-              )}
-              onClick={() => setGuideFlag(!guideFlag)}
-            />
-          </Tippy>
-        </div>
-      </div>
-    </Tippy>
-  )
+  const optionsMenuHeader: TMenuHeader = {
+    defaultLabel: 'OPTIONS',
+    defaultIcon: faGear,
+  }
 
   return (
     <div>
@@ -623,15 +551,37 @@ const Canvas = ({
         <div className={styles.text}>{activeGlyph}</div>
         <div className={styles.separator} />
         <div className={styles.toolbar}>
-          <Button icon={faPencil} button="DRAW" />
-          <Button icon={faEraser} button="ERASE" />
-          <Button icon={faFill} button="FILL" />
-          <ShapeMenu />
-          <Button icon={faCircleHalfStroke} button="INVERT" />
-          <Button icon={faTrashAlt} button="CLEAR" />
-          <Button icon={faUndo} button="UNDO" />
-          <Button icon={faRedo} button="REDO" />
-          <OptionsMenu />
+          {drawTools.map((props, index) => (
+            <Button
+              key={index}
+              {...props}
+              active={currentTool === props.label}
+              fontState={fontState}
+              fontDispatch={fontDispatch}
+            />
+          ))}
+          <ShapesMenu
+            defaultLabel={shapesMenuHeader.defaultLabel}
+            defaultIcon={shapesMenuHeader.defaultIcon}
+            shapeTools={shapeTools}
+            fontState={fontState}
+            fontDispatch={fontDispatch}
+          />
+          {actions.map((props, index) => (
+            <Button
+              key={index}
+              {...props}
+              fontState={fontState}
+              fontDispatch={fontDispatch}
+            />
+          ))}
+          <OptionsMenu
+            defaultLabel={optionsMenuHeader.defaultLabel}
+            defaultIcon={optionsMenuHeader.defaultIcon}
+            options={options}
+            fontState={fontState}
+            fontDispatch={fontDispatch}
+          />
         </div>
       </div>
       <div
