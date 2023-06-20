@@ -71,6 +71,9 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
 
 export const canvasReducer = (state: TFont, action: TCanvasAction): TFont => {
   switch (action.op) {
+    case 'UPDATE_ACTIVE_MENU': {
+      return {...state, activeMenu: action.newActiveMenu}
+    }
     case 'UPDATE_CANVAS_HISTORY': {
       return compareArrays(
         state.canvasHistory[state.historyIndex],
@@ -91,6 +94,12 @@ export const canvasReducer = (state: TFont, action: TCanvasAction): TFont => {
     }
     case 'UPDATE_CURRENT_TOOL': {
       return {...state, currentTool: action.newCurrentTool}
+    }
+    case 'UPDATE_GUIDELINES_FLAG': {
+      return {...state, guidelinesFlag: action.newGuidelinesFlag}
+    }
+    case 'UPDATE_MODEL_FLAG': {
+      return {...state, modelFlag: action.newModelFlag}
     }
     case 'UPDATE_SHAPE_RANGE': {
       return {...state, shapeRange: action.newShapeRange}

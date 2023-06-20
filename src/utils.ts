@@ -29,12 +29,15 @@ export const initializeFont = (bitmapSize: number, symbolSet: string[]): TFont =
   symbolSet.forEach(symbol => newGlyphSet.set(symbol, initializeGlyph(bitmapSize)))
   return {
     activeGlyph: symbolSet[0],
+    activeMenu: undefined,
     bitmapSize: bitmapSize,
     canvasHistory: [initializeGlyph(bitmapSize)],
     captureFlag: false,
     currentTool: 'DRAW',
     glyphSet: newGlyphSet,
+    guidelinesFlag: true,
     historyIndex: 0,
+    modelFlag: true,
     shapeRange: undefined,
     symbolSet: symbolSet,
   }
