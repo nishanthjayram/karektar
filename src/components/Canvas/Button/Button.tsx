@@ -10,7 +10,7 @@ import {
   TOptionLabel,
   TToolLabel,
 } from '../../../types'
-import {assertUnreachable, initializeGlyph} from '../../../utils'
+import {assertUnreachable, initializeGlyph} from '../../../utils/helpers/app.helpers'
 
 type TButtonProps = TButtonType & {
   active?: boolean

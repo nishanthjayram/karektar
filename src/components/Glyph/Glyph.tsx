@@ -1,9 +1,9 @@
 import classnames from 'classnames'
 import {memo} from 'react'
-import {Dispatch, SetStateAction} from 'react'
 import styles from './Glyph.module.scss'
-import {EMPTY_CELL, FILLED_CELL, GLYPH_SIZE} from '../../constants'
 import {TFont, TFontAction} from '../../types'
+import {EMPTY_CELL, FILLED_CELL} from '../../utils/constants/canvas.constants'
+import {GLYPH_SIZE} from '../../utils/constants/glyphset.constants'
 
 const Glyph = ({
   glyph,

@@ -1,8 +1,8 @@
 import {useReducer, useState} from 'react'
 import styles from './App.module.scss'
-import {DEFAULT_PROMPT, DEFAULT_SYMBOLS} from '../../constants'
-import {fontReducer} from '../../reducers/fontReducer'
-import {getUniqueCharacters, initializeFont} from '../../utils'
+import {DEFAULT_PROMPT, DEFAULT_SYMBOLS} from '../../utils/constants/app.constants'
+import {getUniqueCharacters, initializeFont} from '../../utils/helpers/app.helpers'
+import {fontReducer} from '../../utils/reducers/fontReducer'
 import Canvas from '../Canvas/Canvas'
 import GlyphSet from '../GlyphSet/GlyphSet'
 

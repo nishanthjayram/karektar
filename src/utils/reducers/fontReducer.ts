@@ -1,5 +1,5 @@
-import {TCanvasAction, TFont, TFontAction, TGlyphSetAction} from '../types'
-import {compareArrays, initializeGlyph} from '../utils'
+import {TCanvasAction, TFont, TFontAction, TGlyphSetAction} from '../../types'
+import {compareArrays, initializeGlyph} from '../helpers/app.helpers'
 
 export const fontReducer = (state: TFont, action: TFontAction): TFont => {
   switch (action.type) {

@@ -3,8 +3,8 @@ import {useState} from 'react'
 import styles from './GlyphSet.module.scss'
 import {ReactComponent as Next} from '../../assets/next.svg'
 import {ReactComponent as Previous} from '../../assets/previous.svg'
-import {PAGE_LENGTH} from '../../constants'
 import {TFont, TFontAction} from '../../types'
+import {PAGE_LENGTH} from '../../utils/constants/glyphset.constants'
 import Glyph from '../Glyph/Glyph'
 
 const GlyphSet = ({

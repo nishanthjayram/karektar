@@ -43,6 +43,7 @@ export type TFont = {
   guidelinesFlag: boolean
   historyIndex: number
   modelFlag: boolean
+  pixelSize: number
   shapeRange: TShapeRange
   symbolSet: string[]
 }

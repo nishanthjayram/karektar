@@ -1,5 +1,10 @@
-import {RX_LETTERS, RX_NON_ALPHANUMERIC, RX_NUMBERS} from './constants'
-import {TFont} from './types'
+import {TFont} from '../../types'
+import {
+  RX_LETTERS,
+  RX_NON_ALPHANUMERIC,
+  RX_NUMBERS,
+} from '../constants/app.constants'
+import {EDITOR_SIZE} from '../constants/canvas.constants'
 
 export const assertUnreachable = (x: never): never => {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -11,7 +16,6 @@ export const compareArrays = <T>(a: T[], b: T[]) =>
   b !== undefined &&
   a.length === b.length &&
   a.every((v, i) => v === b[i])
-
 export const getUniqueCharacters = (input: string) => {
   const uniqueCharacters = [...new Set<string>(input)]
 
@@ -38,6 +42,7 @@ export const initializeFont = (bitmapSize: number, symbolSet: string[]): TFont =
     guidelinesFlag: true,
     historyIndex: 0,
     modelFlag: true,
+    pixelSize: EDITOR_SIZE / bitmapSize,
     shapeRange: undefined,
     symbolSet: symbolSet,
   }
