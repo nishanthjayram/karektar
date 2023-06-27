@@ -32,6 +32,10 @@ export type TPos = [x: number, y: number]
 export type TRect = [x: number, y: number, w: number, h: number]
 export type TShapeRange = [startPos: TPos, endPos: TPos] | undefined
 
+export type TSymbol = string
+export type TGlyph = boolean[]
+export type TGlyphSet = Map<TSymbol, TGlyph>
+
 export type TFont = {
   activeGlyph: string
   activeMenu: TMenuLabel | undefined
@@ -39,9 +43,11 @@ export type TFont = {
   canvasHistory: boolean[][]
   captureFlag: boolean
   currentTool: TToolLabel
-  glyphSet: Map<string, boolean[]>
+  galleryPage: number
+  glyphSet: TGlyphSet
   guidelinesFlag: boolean
   historyIndex: number
+  inputText: string
   modelFlag: boolean
   pixelSize: number
   shapeRange: TShapeRange
@@ -62,7 +68,9 @@ export type TCanvasAction = {type: 'CANVAS_ACTION'} & (
 export type TGlyphSetAction = {type: 'GLYPH_SET_ACTION'} & (
   | {op: 'CLEAR_GLYPH_SET'}
   | {op: 'UPDATE_ACTIVE_GLYPH'; newActiveGlyph: string}
+  | {op: 'UPDATE_GALLERY_PAGE'; newGalleryPage: number}
   | {op: 'UPDATE_GLYPH_CANVAS'; newGlyphCanvas: boolean[]}
+  | {op: 'UPDATE_INPUT_TEXT'; newInputText: string}
   | {op: 'UPDATE_SYMBOL_SET'; newSymbolSet: string[]}
 )
 
