@@ -1,4 +1,12 @@
-import {TCanvasAction, TFont, TFontAction, TGlyphSetAction} from '../../types'
+import {
+  TCanvasAction,
+  TFont,
+  TFontAction,
+  TGlyph,
+  TGlyphSet,
+  TGlyphSetAction,
+  TSymbol,
+} from '../../types'
 import {compareArrays, initializeGlyph} from '../helpers/app.helpers'
 
 export const fontReducer = (state: TFont, action: TFontAction): TFont => {
@@ -18,6 +26,9 @@ export const fontReducer = (state: TFont, action: TFontAction): TFont => {
 export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont => {
   switch (action.op) {
     case 'UPDATE_ACTIVE_GLYPH': {
+      if (state.activeGlyph === action.newActiveGlyph) {
+        return state
+      }
       const newGlyphCanvas = state.glyphSet.get(action.newActiveGlyph)
       return {
         ...state,
@@ -26,13 +37,19 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
         historyIndex: 0,
       }
     }
+    case 'UPDATE_GALLERY_PAGE': {
+      return {...state, galleryPage: action.newGalleryPage}
+    }
     case 'UPDATE_GLYPH_CANVAS': {
       const newGlyphSet = new Map(state.glyphSet)
       newGlyphSet.set(state.activeGlyph, action.newGlyphCanvas)
       return {...state, glyphSet: newGlyphSet}
     }
+    case 'UPDATE_INPUT_TEXT': {
+      return {...state, inputText: action.newInputText}
+    }
     case 'UPDATE_SYMBOL_SET': {
-      const newGlyphSet = new Map<string, boolean[]>()
+      const newGlyphSet: TGlyphSet = new Map<TSymbol, TGlyph>()
       action.newSymbolSet.forEach(symbol =>
         newGlyphSet.set(
           symbol,
