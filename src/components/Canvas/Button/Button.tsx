@@ -88,7 +88,6 @@ const Button: React.FC<TButtonProps> = ({
   const handleOptionClick = (option: TOptionLabel) => {
     switch (option) {
       case 'GUIDELINES': {
-        console.log(guidelinesFlag)
         return fontDispatch({
           type: 'CANVAS_ACTION',
           op: 'UPDATE_GUIDELINES_FLAG',
