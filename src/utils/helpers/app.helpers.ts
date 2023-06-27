@@ -1,5 +1,6 @@
-import {TFont} from '../../types'
+import {TFont, TGlyph, TGlyphSet, TSymbol} from '../../types'
 import {
+  DEFAULT_PROMPT,
   RX_LETTERS,
   RX_NON_ALPHANUMERIC,
   RX_NUMBERS,
@@ -29,7 +30,7 @@ export const getUniqueCharacters = (input: string) => {
 }
 
 export const initializeFont = (bitmapSize: number, symbolSet: string[]): TFont => {
-  const newGlyphSet = new Map<string, boolean[]>()
+  const newGlyphSet: TGlyphSet = new Map<TSymbol, TGlyph>()
   symbolSet.forEach(symbol => newGlyphSet.set(symbol, initializeGlyph(bitmapSize)))
   return {
     activeGlyph: symbolSet[0],
@@ -38,9 +39,11 @@ export const initializeFont = (bitmapSize: number, symbolSet: string[]): TFont =
     canvasHistory: [initializeGlyph(bitmapSize)],
     captureFlag: false,
     currentTool: 'DRAW',
+    galleryPage: 0,
     glyphSet: newGlyphSet,
     guidelinesFlag: true,
     historyIndex: 0,
+    inputText: DEFAULT_PROMPT,
     modelFlag: true,
     pixelSize: EDITOR_SIZE / bitmapSize,
     shapeRange: undefined,
@@ -50,3 +53,5 @@ export const initializeFont = (bitmapSize: number, symbolSet: string[]): TFont =
 
 export const initializeGlyph = (bitmapSize: number) =>
   new Array<boolean>(bitmapSize ** 2).fill(false)
+
+export const isEmptyGlyph = (glyph: TGlyph) => glyph.every(c => !c)
