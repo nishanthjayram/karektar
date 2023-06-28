@@ -68,7 +68,7 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
         historyIndex: activeGlyphFlag ? state.historyIndex : 0,
       }
     }
-    case 'CLEAR_GLYPH_SET': {
+    case 'RESET_GLYPH_SET': {
       const newGlyphSet = new Map(state.glyphSet)
       newGlyphSet.forEach((_, symbol) =>
         newGlyphSet.set(symbol, initializeGlyph(state.bitmapSize)),

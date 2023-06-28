@@ -66,7 +66,7 @@ export type TCanvasAction = {type: 'CANVAS_ACTION'} & (
   | {op: 'REDO'}
 )
 export type TGlyphSetAction = {type: 'GLYPH_SET_ACTION'} & (
-  | {op: 'CLEAR_GLYPH_SET'}
+  | {op: 'RESET_GLYPH_SET'}
   | {op: 'UPDATE_ACTIVE_GLYPH'; newActiveGlyph: string}
   | {op: 'UPDATE_GALLERY_PAGE'; newGalleryPage: number}
   | {op: 'UPDATE_GLYPH_CANVAS'; newGlyphCanvas: boolean[]}
