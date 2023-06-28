@@ -1,9 +1,16 @@
 :root {
   width: 100vw;
-  height: 100vh;
+  height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.appRow {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  margin-top: 30px;
 }
 
 .button {
@@ -17,10 +24,6 @@
     background-color: orange;
     color: black;
   }
-  &:active {
-    background-color: orange;
-    color: black;
-  }
 }
 
 .buttonRow {
@@ -28,8 +31,9 @@
   flex-flow: row nowrap;
 }
 
-.label {
-  font-weight: 600;
+.disabledButton {
+  pointer-events: none;
+  color: gray;
 }
 
 .input {
@@ -38,14 +42,8 @@
   outline: none;
   border: none;
   padding: 6px;
-  width: 400px;
+  width: 500px;
   height: 60px;
-  max-width: 400px;
-  min-width: 400px;
-}
-
-.appRow {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: flex-start;
+  max-width: 500px;
+  min-width: 500px;
 }
