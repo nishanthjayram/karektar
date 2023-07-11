@@ -1,41 +1,31 @@
-import {faCircle, faSquare, faTrashAlt} from '@fortawesome/free-regular-svg-icons'
-import {
-  faA,
-  faEraser,
-  faFill,
-  faGear,
-  faPen,
-  faRedo,
-  faShapes,
-  faSlash,
-  faTextHeight,
-  faUndo,
-} from '@fortawesome/free-solid-svg-icons'
+import {faTrashAlt} from '@fortawesome/free-regular-svg-icons'
+import {faA, faRedo, faTextHeight, faUndo} from '@fortawesome/free-solid-svg-icons'
 import Button from './Button/Button'
 import styles from './Canvas.module.scss'
 import OptionsMenu from './OptionsMenu/OptionsMenu'
 import ShapesMenu from './ShapesMenu/ShapesMenu'
+import {TAction, TFont, TFontAction, TOption} from '../../types'
 import {
+  DRAW_TOOLS,
   EDITOR_SIZE,
   EMPTY_CELL,
   FILLED_CELL,
   GRIDLINE_COLOR,
   GUIDELINE_COLOR,
   HLINE_POS,
+  OPTIONS_MENU_HEADER,
+  SHAPE_TOOLS,
+  SHAPES_MENU_HEADER,
   VLINE_POS,
-} from '../../constants'
+} from '../../utils/constants/canvas.constants'
+import {assertUnreachable} from '../../utils/helpers/app.helpers'
 import {
-  TAction,
-  TFont,
-  TFontAction,
-  TMenuHeader,
-  TOption,
-  TPos,
-  TRect,
-  TTool,
-  TToolLabel,
-} from '../../types'
-import {assertUnreachable} from '../../utils'
+  fill,
+  getMousePos,
+  getRect,
+  plotShape,
+  posToIndex,
+} from '../../utils/helpers/canvas.helpers'
 import 'tippy.js/dist/tippy.css'
 
 type TCanvasProps = {
@@ -54,11 +44,11 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     guidelinesFlag,
     historyIndex,
     modelFlag,
+    pixelSize,
     shapeRange,
     captureFlag,
   } = fontState
 
-  const p = EDITOR_SIZE / bitmapSize
   const glyphCanvas = glyphSet.get(activeGlyph)
 
   // TODO: Replace this empty div container with a loading animation.
@@ -76,10 +66,10 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     ctx.beginPath()
     ctx.strokeStyle = GRIDLINE_COLOR
     Array.from({length: bitmapSize - 1}, (_, i) => i + 1).forEach(i => {
-      ctx.moveTo(i * p + 0.5, 1)
-      ctx.lineTo(i * p + 0.5, EDITOR_SIZE)
-      ctx.moveTo(1, i * p + 0.5)
-      ctx.lineTo(EDITOR_SIZE, i * p + 0.5)
+      ctx.moveTo(i * pixelSize + 0.5, 1)
+      ctx.lineTo(i * pixelSize + 0.5, EDITOR_SIZE)
+      ctx.moveTo(1, i * pixelSize + 0.5)
+      ctx.lineTo(EDITOR_SIZE, i * pixelSize + 0.5)
     })
     ctx.closePath()
     ctx.stroke()
@@ -100,15 +90,15 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     ctx.beginPath()
     glyphCanvas.forEach((filled: boolean, idx: number) => {
       ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
-      ctx.fillRect(...getRect(idx))
+      ctx.fillRect(...getRect(idx, bitmapSize, pixelSize))
     })
     ctx.closePath()
 
-    const shapeCells = plotShape(currentTool)
+    const shapeCells = plotShape(currentTool, bitmapSize, shapeRange)
     if (shapeCells) {
       ctx.fillStyle = FILLED_CELL
       ctx.beginPath()
-      shapeCells.forEach(idx => ctx.fillRect(...getRect(idx)))
+      shapeCells.forEach(idx => ctx.fillRect(...getRect(idx, bitmapSize, pixelSize)))
       ctx.closePath()
     }
   }
@@ -130,206 +120,8 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     }
   }
 
-  const checkPos = ([x, y]: TPos) =>
-    x >= 0 && y >= 0 && x <= bitmapSize - 1 && y <= bitmapSize - 1
-
-  const getMousePos = (evt: React.PointerEvent<HTMLCanvasElement>): TPos | null => {
-    const [x, y] = [
-      Math.floor(evt.nativeEvent.offsetX / p),
-      Math.floor(evt.nativeEvent.offsetY / p),
-    ]
-    return checkPos([x, y]) ? [x, y] : null
-  }
-
-  const posToIndex = (pos: TPos): number => bitmapSize * pos[1] + pos[0]
-  const indexToPos = (idx: number): TPos => [
-    idx % bitmapSize,
-    Math.floor(idx / bitmapSize),
-  ]
-
-  const getDistance = ([x0, y0]: TPos, [x1, y1]: TPos): TPos => [
-    Math.abs(x1 - x0),
-    Math.abs(y1 - y0),
-  ]
-  const getRect = (idx: number): TRect => {
-    const [x, y] = indexToPos(idx)
-    return [x * p + 1, y * p + 1, p - 1, p - 1]
-  }
-
-  const plotShape = (shapeTool: TToolLabel) => {
-    if (!shapeRange) {
-      return
-    }
-
-    const [startPos, endPos] = shapeRange
-    switch (shapeTool) {
-      case 'LINE': {
-        return plotLine(startPos, endPos)
-      }
-      case 'RECTANGLE': {
-        return plotRect(startPos, endPos)
-      }
-      case 'ELLIPSE': {
-        return plotEllipse(endPos, getDistance(startPos, endPos))
-      }
-      case 'DRAW':
-      case 'ERASE':
-      case 'FILL': {
-        return
-      }
-      default: {
-        return assertUnreachable(shapeTool)
-      }
-    }
-  }
-
-  const plotLine = ([x0, y0]: TPos, [x1, y1]: TPos) => {
-    const coords = new Array<TPos>()
-
-    const dx = Math.abs(x1 - x0)
-    const sx = x0 < x1 ? 1 : -1
-    const dy = -Math.abs(y1 - y0)
-    const sy = y0 < y1 ? 1 : -1
-    let error = dx + dy
-
-    while (true) {
-      coords.push([x0, y0])
-      if (x0 === x1 && y0 === y1) {
-        break
-      }
-
-      const e2 = 2 * error
-
-      if (e2 >= dy) {
-        if (x0 === x1) {
-          break
-        }
-        error = error + dy
-        x0 = x0 + sx
-      }
-      if (e2 <= dx) {
-        if (y0 === y1) {
-          break
-        }
-        error = error + dx
-        y0 = y0 + sy
-      }
-    }
-
-    return coords.map(c => posToIndex(c))
-  }
-
-  const plotRect = ([x0, y0]: TPos, [x1, y1]: TPos) => {
-    const coords = new Array<TPos>()
-    for (let i = x0; i <= x1; i++) {
-      coords.push([i, y0])
-      coords.push([i, y1])
-    }
-    for (let j = y0; j <= y1; j++) {
-      coords.push([x0, j])
-      coords.push([x1, j])
-    }
-    return coords.map(c => posToIndex(c))
-  }
-
-  const plotEllipse = ([xc, yc]: TPos, [rx, ry]: TPos) => {
-    const coords = new Array<TPos>()
-    let [x, y] = [0, ry]
-
-    let d1 = ry * ry - rx * rx * ry + 0.25 * rx * rx
-    let dx = 2 * ry * ry * x
-    let dy = 2 * rx * rx * y
-
-    while (dx < dy) {
-      coords.push(
-        [x + xc, y + yc],
-        [-x + xc, y + yc],
-        [x + xc, -y + yc],
-        [-x + xc, -y + yc],
-      )
-
-      if (d1 < 0) {
-        x++
-        dx = dx + 2 * ry * ry
-        d1 = d1 + dx + ry * ry
-      } else {
-        x++
-        y--
-        dx = dx + 2 * ry * ry
-        dy = dy - 2 * rx * rx
-        d1 = d1 + dx - dy + ry * ry
-      }
-    }
-
-    let d2 =
-      ry * ry * ((x + 0.5) * (x + 0.5)) +
-      rx * rx * ((y - 1) * (y - 1)) -
-      rx * rx * ry * ry
-
-    while (y >= 0) {
-      coords.push(
-        [x + xc, y + yc],
-        [-x + xc, y + yc],
-        [x + xc, -y + yc],
-        [-x + xc, -y + yc],
-      )
-
-      if (d2 > 0) {
-        y--
-        dy = dy - 2 * rx * rx
-        d2 = d2 + rx * rx - dy
-      } else {
-        y--
-        x++
-        dx = dx + 2 * ry * ry
-        dy = dy - 2 * rx * rx
-        d2 = d2 + dx - dy + rx * rx
-      }
-    }
-
-    return coords.map(c => posToIndex(c))
-  }
-
-  const fill = (start: TPos) => {
-    if (glyphCanvas[posToIndex(start)]) {
-      return
-    }
-
-    const queue = [start]
-    const visited = new Array<TPos>()
-
-    while (queue.length > 0) {
-      const pos = queue.pop()
-
-      if (pos === undefined) {
-        break
-      }
-
-      const [x, y] = pos
-      const cells: TPos[] = [
-        [x, y],
-        [x + 1, y],
-        [x - 1, y],
-        [x, y + 1],
-        [x, y - 1],
-      ]
-      cells.forEach(c => {
-        if (
-          checkPos(c) &&
-          !visited.some(e => e.join() === c.join()) &&
-          !glyphCanvas[posToIndex(c)]
-        ) {
-          queue.push(c)
-          visited.push(c)
-        }
-      })
-    }
-
-    return visited.map(c => posToIndex(c))
-  }
-
   const handlePointerUp = () => {
-    const shapeCells = plotShape(currentTool)
+    const shapeCells = plotShape(currentTool, bitmapSize, shapeRange)
 
     if (!shapeCells) {
       fontDispatch({
@@ -372,12 +164,12 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
       return
     }
 
-    const mousePos = getMousePos(evt)
+    const mousePos = getMousePos(evt, bitmapSize, pixelSize)
     if (mousePos === null) {
       return
     }
 
-    const currIdx = posToIndex(mousePos)
+    const currIdx = posToIndex(mousePos, bitmapSize)
     evt.currentTarget.setPointerCapture(evt.pointerId)
 
     switch (currentTool) {
@@ -401,7 +193,7 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
         })
       }
       case 'FILL': {
-        const fillCells = fill(mousePos)
+        const fillCells = fill(mousePos, glyphCanvas, bitmapSize)
         if (!fillCells) {
           return
         }
@@ -424,12 +216,12 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
       return
     }
 
-    const mousePos = getMousePos(evt)
+    const mousePos = getMousePos(evt, bitmapSize, pixelSize)
     if (mousePos === null) {
       return
     }
 
-    const currIdx = posToIndex(mousePos)
+    const currIdx = posToIndex(mousePos, bitmapSize)
 
     switch (currentTool) {
       case 'DRAW':
@@ -462,42 +254,6 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
       }
     }
   }
-
-  const drawTools: TTool[] = [
-    {
-      type: 'tool',
-      label: 'DRAW',
-      icon: faPen,
-    },
-    {
-      type: 'tool',
-      label: 'ERASE',
-      icon: faEraser,
-    },
-    {
-      type: 'tool',
-      label: 'FILL',
-      icon: faFill,
-    },
-  ]
-
-  const shapeTools: TTool[] = [
-    {
-      type: 'tool',
-      label: 'LINE',
-      icon: faSlash,
-    },
-    {
-      type: 'tool',
-      label: 'RECTANGLE',
-      icon: faSquare,
-    },
-    {
-      type: 'tool',
-      label: 'ELLIPSE',
-      icon: faCircle,
-    },
-  ]
 
   const actions: TAction[] = [
     {
@@ -535,23 +291,13 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     },
   ]
 
-  const shapesMenuHeader: TMenuHeader = {
-    defaultLabel: 'SHAPES',
-    defaultIcon: faShapes,
-  }
-
-  const optionsMenuHeader: TMenuHeader = {
-    defaultLabel: 'OPTIONS',
-    defaultIcon: faGear,
-  }
-
   return (
     <div>
       <div className={styles.header} style={{width: EDITOR_SIZE}}>
         <div className={styles.text}>{activeGlyph}</div>
         <div className={styles.separator} />
         <div className={styles.toolbar}>
-          {drawTools.map((props, index) => (
+          {DRAW_TOOLS.map((props, index) => (
             <Button
               key={index}
               {...props}
@@ -561,9 +307,9 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
             />
           ))}
           <ShapesMenu
-            defaultLabel={shapesMenuHeader.defaultLabel}
-            defaultIcon={shapesMenuHeader.defaultIcon}
-            shapeTools={shapeTools}
+            defaultLabel={SHAPES_MENU_HEADER.defaultLabel}
+            defaultIcon={SHAPES_MENU_HEADER.defaultIcon}
+            shapeTools={SHAPE_TOOLS}
             fontState={fontState}
             fontDispatch={fontDispatch}
           />
@@ -576,8 +322,8 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
             />
           ))}
           <OptionsMenu
-            defaultLabel={optionsMenuHeader.defaultLabel}
-            defaultIcon={optionsMenuHeader.defaultIcon}
+            defaultLabel={OPTIONS_MENU_HEADER.defaultLabel}
+            defaultIcon={OPTIONS_MENU_HEADER.defaultIcon}
             options={options}
             fontState={fontState}
             fontDispatch={fontDispatch}

@@ -1,5 +1,13 @@
-import {TCanvasAction, TFont, TFontAction, TGlyphSetAction} from '../types'
-import {compareArrays, initializeGlyph} from '../utils'
+import {
+  TCanvasAction,
+  TFont,
+  TFontAction,
+  TGlyph,
+  TGlyphSet,
+  TGlyphSetAction,
+  TSymbol,
+} from '../../types'
+import {compareArrays, initializeGlyph} from '../helpers/app.helpers'
 
 export const fontReducer = (state: TFont, action: TFontAction): TFont => {
   switch (action.type) {
@@ -18,6 +26,9 @@ export const fontReducer = (state: TFont, action: TFontAction): TFont => {
 export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont => {
   switch (action.op) {
     case 'UPDATE_ACTIVE_GLYPH': {
+      if (state.activeGlyph === action.newActiveGlyph) {
+        return state
+      }
       const newGlyphCanvas = state.glyphSet.get(action.newActiveGlyph)
       return {
         ...state,
@@ -26,13 +37,19 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
         historyIndex: 0,
       }
     }
+    case 'UPDATE_GALLERY_PAGE': {
+      return {...state, galleryPage: action.newGalleryPage}
+    }
     case 'UPDATE_GLYPH_CANVAS': {
       const newGlyphSet = new Map(state.glyphSet)
       newGlyphSet.set(state.activeGlyph, action.newGlyphCanvas)
       return {...state, glyphSet: newGlyphSet}
     }
+    case 'UPDATE_INPUT_TEXT': {
+      return {...state, inputText: action.newInputText}
+    }
     case 'UPDATE_SYMBOL_SET': {
-      const newGlyphSet = new Map<string, boolean[]>()
+      const newGlyphSet: TGlyphSet = new Map<TSymbol, TGlyph>()
       action.newSymbolSet.forEach(symbol =>
         newGlyphSet.set(
           symbol,
@@ -44,22 +61,23 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
       return {
         ...state,
         activeGlyph: activeGlyphFlag ? state.activeGlyph : action.newSymbolSet[0],
-        glyphSet: newGlyphSet,
         canvasHistory: activeGlyphFlag
           ? state.canvasHistory
           : [initializeGlyph(state.bitmapSize)],
+        glyphSet: newGlyphSet,
         historyIndex: activeGlyphFlag ? state.historyIndex : 0,
+        symbolSet: action.newSymbolSet,
       }
     }
-    case 'CLEAR_GLYPH_SET': {
+    case 'RESET_GLYPH_SET': {
       const newGlyphSet = new Map(state.glyphSet)
       newGlyphSet.forEach((_, symbol) =>
         newGlyphSet.set(symbol, initializeGlyph(state.bitmapSize)),
       )
       return {
         ...state,
-        glyphSet: newGlyphSet,
         canvasHistory: [initializeGlyph(state.bitmapSize)],
+        glyphSet: newGlyphSet,
         historyIndex: 0,
       }
     }
