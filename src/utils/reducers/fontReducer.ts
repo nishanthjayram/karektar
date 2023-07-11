@@ -61,11 +61,12 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
       return {
         ...state,
         activeGlyph: activeGlyphFlag ? state.activeGlyph : action.newSymbolSet[0],
-        glyphSet: newGlyphSet,
         canvasHistory: activeGlyphFlag
           ? state.canvasHistory
           : [initializeGlyph(state.bitmapSize)],
+        glyphSet: newGlyphSet,
         historyIndex: activeGlyphFlag ? state.historyIndex : 0,
+        symbolSet: action.newSymbolSet,
       }
     }
     case 'RESET_GLYPH_SET': {
@@ -75,8 +76,8 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
       )
       return {
         ...state,
-        glyphSet: newGlyphSet,
         canvasHistory: [initializeGlyph(state.bitmapSize)],
+        glyphSet: newGlyphSet,
         historyIndex: 0,
       }
     }
