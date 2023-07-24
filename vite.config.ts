@@ -4,5 +4,9 @@ import svgr from 'vite-plugin-svgr'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './',
+  build: {
+    sourcemap: true,
+  },
   plugins: [svgr(), react()],
 })
