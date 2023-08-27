@@ -73,12 +73,19 @@ export const plotLine = ([x0, y0]: TPos, [x1, y1]: TPos, bitmapSize: number) => 
 }
 
 export const plotRect = ([x0, y0]: TPos, [x1, y1]: TPos, bitmapSize: number) => {
+  const [xMin, xMax, yMin, yMax] = [
+    Math.min(x0, x1),
+    Math.max(x0, x1),
+    Math.min(y0, y1),
+    Math.max(y0, y1),
+  ]
+
   const coords = new Array<TPos>()
-  for (let i = x0; i <= x1; i++) {
+  for (let i = xMin; i <= xMax; i++) {
     coords.push([i, y0])
     coords.push([i, y1])
   }
-  for (let j = y0; j <= y1; j++) {
+  for (let j = yMin; j <= yMax; j++) {
     coords.push([x0, j])
     coords.push([x1, j])
   }
