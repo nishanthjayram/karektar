@@ -8,6 +8,7 @@
     z-index: 20;
     top: 0;
     left: 0;
+    touch-action: none;
   }
 
   .model {
@@ -19,6 +20,7 @@
 }
 
 .header {
+  position: relative;
   background-color: black;
   color: #efefef;
   display: flex;
@@ -28,8 +30,6 @@
 
   .text {
     font-size: 20px;
-    min-width: 30px;
-    padding: 0 17px; // TODO: Avoid hardcoding this; figure out the formula to compute for proper alignment.
     text-align: center;
   }
 
@@ -50,8 +50,10 @@
       padding: 0 12px;
       position: relative;
 
-      &:hover {
-        color: #ffa500;
+      @media (hover: hover) {
+        &:hover {
+          color: #ffa500;
+        }
       }
     }
 

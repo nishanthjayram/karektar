@@ -1,21 +1,35 @@
 import classnames from 'classnames'
+import Modal from 'react-modal'
 import styles from './GlyphSet.module.scss'
 import {ReactComponent as Next} from '../../assets/next.svg'
 import {ReactComponent as Previous} from '../../assets/previous.svg'
-import {TFont, TFontAction} from '../../types'
-import {PAGE_LENGTH} from '../../utils/constants/glyphset.constants'
+import {TFontProps} from '../../types'
 import Glyph from '../Glyph/Glyph'
 
-const GlyphSet = ({
-  fontState,
-  fontDispatch,
-}: {
-  fontState: TFont
-  fontDispatch: React.Dispatch<TFontAction>
-}) => {
-  const {galleryPage, glyphSet} = fontState
+const GlyphSet: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
+  const {glyphSetModal} = fontState
+
+  if (glyphSetModal === undefined) {
+    return <Gallery fontState={fontState} fontDispatch={fontDispatch} />
+  }
+
+  return (
+    <Modal
+      isOpen={glyphSetModal}
+      className={styles.modal}
+      overlayClassName={styles.modal}
+    >
+      <h2>GALLERY</h2>
+      <Gallery fontState={fontState} fontDispatch={fontDispatch} />
+    </Modal>
+  )
+}
+
+const Gallery: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
+  const {galleryPage, glyphSet, screenFlag} = fontState
+  const pageLength = screenFlag ? 25 : 30
   const minPage = 0
-  const maxPage = Math.ceil(glyphSet.size / PAGE_LENGTH) - 1
+  const maxPage = Math.ceil(glyphSet.size / pageLength) - 1
 
   if (glyphSet.size === 0) {
     return <div className={styles.glyphSet} />
@@ -30,7 +44,7 @@ const GlyphSet = ({
               galleryPage === minPage && styles.navButtonDisabled,
               styles.navButton,
             )}
-            onClick={() =>
+            onPointerUp={() =>
               fontDispatch({
                 type: 'GLYPH_SET_ACTION',
                 op: 'UPDATE_GALLERY_PAGE',
@@ -43,7 +57,7 @@ const GlyphSet = ({
               galleryPage === maxPage && styles.navButtonDisabled,
               styles.navButton,
             )}
-            onClick={() =>
+            onPointerUp={() =>
               fontDispatch({
                 type: 'GLYPH_SET_ACTION',
                 op: 'UPDATE_GALLERY_PAGE',
@@ -55,7 +69,7 @@ const GlyphSet = ({
       </div>
       <div className={styles.gallery}>
         {[...glyphSet.keys()]
-          .slice(galleryPage * PAGE_LENGTH, galleryPage * PAGE_LENGTH + PAGE_LENGTH)
+          .slice(galleryPage * pageLength, galleryPage * pageLength + pageLength)
           .map(symbol => (
             <Glyph
               key={symbol}

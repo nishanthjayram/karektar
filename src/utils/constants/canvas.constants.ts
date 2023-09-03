@@ -9,9 +9,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import {TMenuHeader, TTool} from '../../types'
 
-export const EDITOR_SIZE = 512
-export const VLINE_POS = 64
-export const HLINE_POS = 384
+export const GLYPH_TEXT_WIDTH = 30
 export const GRIDLINE_COLOR = '#ffffff'
 export const GUIDELINE_COLOR = '#ffa500'
 export const EMPTY_CELL = '#efefef'

@@ -5,62 +5,68 @@ import {TFont, TFontAction, TMenuHeader, TTool} from '../../../types'
 import Button from '../Button/Button'
 import styles from '../Canvas.module.scss'
 
-type TShapesMenuProps = TMenuHeader & {
-  shapeTools: TTool[]
+type TToolsMenu = TMenuHeader & {
+  tools: TTool[]
   fontState: TFont
   fontDispatch: React.Dispatch<TFontAction>
 }
 
-const ShapesMenu: React.FC<TShapesMenuProps> = ({
+const ToolsMenu: React.FC<TToolsMenu> = ({
   defaultLabel,
   defaultIcon,
-  shapeTools,
+  tools,
   fontState,
   fontDispatch,
 }) => {
-  const {activeMenu, currentTool} = fontState
+  const {activeMenu, currentTool, screenFlag} = fontState
 
-  const shapeTool = shapeTools.find(tool => currentTool === tool.label)
-  const label = shapeTool ? shapeTool.label : defaultLabel
-  const icon = shapeTool ? shapeTool.icon : defaultIcon
+  const tool = tools.find(t => currentTool === t.label)
+  const label = tool ? tool.label : defaultLabel
+  const icon = tool ? tool.icon : defaultIcon
 
-  return (
-    <Tippy placement="top" content={label} hideOnClick={false}>
-      <div>
-        <FontAwesomeIcon
-          icon={icon}
-          className={classnames(
-            (activeMenu === defaultLabel || currentTool === label) &&
-              styles.activeIcon,
-            styles.icon,
-          )}
-          onClick={() =>
-            fontDispatch({
-              type: 'CANVAS_ACTION',
-              op: 'UPDATE_ACTIVE_MENU',
-              newActiveMenu: activeMenu === defaultLabel ? undefined : defaultLabel,
-            })
-          }
-        />
-        <div
-          className={classnames(
-            activeMenu !== defaultLabel && styles.menu,
-            activeMenu === defaultLabel && styles.menuOpen,
-          )}
-        >
-          {shapeTools.map((props, index) => (
-            <Button
-              key={index}
-              {...props}
-              tooltipPlacement="right"
-              fontState={fontState}
-              fontDispatch={fontDispatch}
-            />
-          ))}
-        </div>
+  const menu = (
+    <div>
+      <FontAwesomeIcon
+        icon={icon}
+        className={classnames(
+          (activeMenu === defaultLabel || currentTool === label) &&
+            styles.activeIcon,
+          styles.icon,
+        )}
+        onPointerUp={() =>
+          fontDispatch({
+            type: 'CANVAS_ACTION',
+            op: 'UPDATE_ACTIVE_MENU',
+            newActiveMenu: activeMenu === defaultLabel ? undefined : defaultLabel,
+          })
+        }
+      />
+      <div
+        className={classnames(
+          activeMenu !== defaultLabel && styles.menu,
+          activeMenu === defaultLabel && styles.menuOpen,
+        )}
+      >
+        {tools.map((props, index) => (
+          <Button
+            key={index}
+            {...props}
+            tooltipPlacement="right"
+            fontState={fontState}
+            fontDispatch={fontDispatch}
+          />
+        ))}
       </div>
+    </div>
+  )
+
+  return screenFlag ? (
+    menu
+  ) : (
+    <Tippy placement="top" content={label} hideOnClick={false}>
+      {menu}
     </Tippy>
   )
 }
 
-export default ShapesMenu
+export default ToolsMenu

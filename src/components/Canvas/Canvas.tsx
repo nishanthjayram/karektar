@@ -3,20 +3,18 @@ import {faA, faRedo, faTextHeight, faUndo} from '@fortawesome/free-solid-svg-ico
 import Button from './Button/Button'
 import styles from './Canvas.module.scss'
 import OptionsMenu from './OptionsMenu/OptionsMenu'
-import ShapesMenu from './ShapesMenu/ShapesMenu'
-import {TAction, TFont, TFontAction, TOption} from '../../types'
+import ToolsMenu from './ShapesMenu/ShapesMenu'
+import {TAction, TFont, TFontAction, TFontProps, TGlyph, TOption} from '../../types'
 import {
   DRAW_TOOLS,
-  EDITOR_SIZE,
   EMPTY_CELL,
   FILLED_CELL,
+  GLYPH_TEXT_WIDTH,
   GRIDLINE_COLOR,
   GUIDELINE_COLOR,
-  HLINE_POS,
   OPTIONS_MENU_HEADER,
   SHAPE_TOOLS,
   SHAPES_MENU_HEADER,
-  VLINE_POS,
 } from '../../utils/constants/canvas.constants'
 import {assertUnreachable} from '../../utils/helpers/app.helpers'
 import {
@@ -38,20 +36,21 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     activeMenu,
     bitmapSize,
     activeGlyph,
-    canvasHistory,
+    canvasSize,
     currentTool,
     glyphSet,
+    glyphSetModal,
     guidelinesFlag,
-    historyIndex,
     modelFlag,
     pixelSize,
     shapeRange,
     captureFlag,
+    vlinePos,
+    hlinePos,
   } = fontState
 
   const glyphCanvas = glyphSet.get(activeGlyph)
 
-  // TODO: Replace this empty div container with a loading animation.
   if (!glyphCanvas) {
     return <div />
   }
@@ -67,9 +66,9 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     ctx.strokeStyle = GRIDLINE_COLOR
     Array.from({length: bitmapSize - 1}, (_, i) => i + 1).forEach(i => {
       ctx.moveTo(i * pixelSize + 0.5, 1)
-      ctx.lineTo(i * pixelSize + 0.5, EDITOR_SIZE)
+      ctx.lineTo(i * pixelSize + 0.5, canvasSize)
       ctx.moveTo(1, i * pixelSize + 0.5)
-      ctx.lineTo(EDITOR_SIZE, i * pixelSize + 0.5)
+      ctx.lineTo(canvasSize, i * pixelSize + 0.5)
     })
     ctx.closePath()
     ctx.stroke()
@@ -78,10 +77,10 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
       // Draw the horizontal and vertical guidelines of the canvas.
       ctx.beginPath()
       ctx.strokeStyle = GUIDELINE_COLOR
-      ctx.moveTo(VLINE_POS + 0.5, 1)
-      ctx.lineTo(VLINE_POS + 0.5, EDITOR_SIZE)
-      ctx.moveTo(1, HLINE_POS + 0.5)
-      ctx.lineTo(EDITOR_SIZE, HLINE_POS + 0.5)
+      ctx.moveTo(vlinePos + 0.5, 1)
+      ctx.lineTo(vlinePos + 0.5, canvasSize)
+      ctx.moveTo(1, hlinePos + 0.5)
+      ctx.lineTo(canvasSize, hlinePos + 0.5)
       ctx.closePath()
       ctx.stroke()
     }
@@ -109,13 +108,13 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
       return
     }
 
-    ctx.clearRect(0, 0, EDITOR_SIZE, EDITOR_SIZE)
+    ctx.clearRect(0, 0, canvasSize, canvasSize)
 
     if (modelFlag) {
       ctx.beginPath()
-      ctx.font = '512px Arial'
+      ctx.font = `${canvasSize}px Arial`
 
-      ctx.fillText(activeGlyph, VLINE_POS, HLINE_POS)
+      ctx.fillText(activeGlyph, 2 * pixelSize, 12 * pixelSize)
       ctx.closePath()
     }
   }
@@ -255,6 +254,89 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     }
   }
 
+  return (
+    <div>
+      <div className={styles.header} style={{width: canvasSize}}>
+        <div
+          className={styles.text}
+          style={{
+            minWidth: `${GLYPH_TEXT_WIDTH}px`,
+            padding: `0 ${(2 * pixelSize - GLYPH_TEXT_WIDTH) / 2}px`,
+          }}
+          onPointerDown={evt => {
+            if (glyphSetModal !== undefined) {
+              fontDispatch({
+                type: 'GLYPH_SET_ACTION',
+                op: 'UPDATE_GLYPH_SET_MODAL',
+                newGlyphSetModal: true,
+              })
+            }
+            evt.preventDefault()
+          }}
+        >
+          {activeGlyph}
+        </div>
+        <div className={styles.separator} />
+        <Toolbar
+          fontState={fontState}
+          fontDispatch={fontDispatch}
+          glyphCanvas={glyphCanvas}
+        />
+      </div>
+      <div className={styles.editor} style={{width: canvasSize, height: canvasSize}}>
+        <canvas
+          ref={drawCanvas}
+          className={styles.canvas}
+          style={{opacity: modelFlag ? '0.95' : '1'}}
+          width={canvasSize}
+          height={canvasSize}
+          onGotPointerCapture={() =>
+            fontDispatch({
+              type: 'CANVAS_ACTION',
+              op: 'UPDATE_CAPTURE_FLAG',
+              newCaptureFlag: true,
+            })
+          }
+          onLostPointerCapture={() =>
+            fontDispatch({
+              type: 'CANVAS_ACTION',
+              op: 'UPDATE_CAPTURE_FLAG',
+              newCaptureFlag: false,
+            })
+          }
+          onPointerUp={handlePointerUp}
+          onPointerDown={evt => handlePointerDown(evt)}
+          onPointerMove={evt => handlePointerMove(evt)}
+        />
+        <canvas
+          ref={drawModel}
+          className={styles.model}
+          width={canvasSize}
+          height={canvasSize}
+        />
+      </div>
+    </div>
+  )
+}
+
+type TToolbarProps = TFontProps & {
+  glyphCanvas: TGlyph
+}
+
+const Toolbar: React.FC<TToolbarProps> = ({
+  fontState,
+  fontDispatch,
+  glyphCanvas,
+}) => {
+  const {
+    canvasHistory,
+    currentTool,
+    guidelinesFlag,
+    historyIndex,
+    modelFlag,
+    screenFlag,
+  } = fontState
+
   const actions: TAction[] = [
     {
       type: 'action',
@@ -292,79 +374,39 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
   ]
 
   return (
-    <div>
-      <div className={styles.header} style={{width: EDITOR_SIZE}}>
-        <div className={styles.text}>{activeGlyph}</div>
-        <div className={styles.separator} />
-        <div className={styles.toolbar}>
-          {DRAW_TOOLS.map((props, index) => (
-            <Button
-              key={index}
-              {...props}
-              active={currentTool === props.label}
-              fontState={fontState}
-              fontDispatch={fontDispatch}
-            />
-          ))}
-          <ShapesMenu
-            defaultLabel={SHAPES_MENU_HEADER.defaultLabel}
-            defaultIcon={SHAPES_MENU_HEADER.defaultIcon}
-            shapeTools={SHAPE_TOOLS}
+    <div className={styles.toolbar}>
+      {!screenFlag &&
+        DRAW_TOOLS.map((props, index) => (
+          <Button
+            key={index}
+            {...props}
+            active={currentTool === props.label}
             fontState={fontState}
             fontDispatch={fontDispatch}
           />
-          {actions.map((props, index) => (
-            <Button
-              key={index}
-              {...props}
-              fontState={fontState}
-              fontDispatch={fontDispatch}
-            />
-          ))}
-          <OptionsMenu
-            defaultLabel={OPTIONS_MENU_HEADER.defaultLabel}
-            defaultIcon={OPTIONS_MENU_HEADER.defaultIcon}
-            options={options}
-            fontState={fontState}
-            fontDispatch={fontDispatch}
-          />
-        </div>
-      </div>
-      <div
-        className={styles.editor}
-        style={{width: EDITOR_SIZE, height: EDITOR_SIZE}}
-      >
-        <canvas
-          ref={drawCanvas}
-          className={styles.canvas}
-          style={{opacity: modelFlag ? '0.95' : '1'}}
-          width={EDITOR_SIZE}
-          height={EDITOR_SIZE}
-          onGotPointerCapture={() =>
-            fontDispatch({
-              type: 'CANVAS_ACTION',
-              op: 'UPDATE_CAPTURE_FLAG',
-              newCaptureFlag: true,
-            })
-          }
-          onLostPointerCapture={() =>
-            fontDispatch({
-              type: 'CANVAS_ACTION',
-              op: 'UPDATE_CAPTURE_FLAG',
-              newCaptureFlag: false,
-            })
-          }
-          onPointerUp={handlePointerUp}
-          onPointerDown={evt => handlePointerDown(evt)}
-          onPointerMove={evt => handlePointerMove(evt)}
+        ))}
+      <ToolsMenu
+        defaultLabel={SHAPES_MENU_HEADER.defaultLabel}
+        defaultIcon={SHAPES_MENU_HEADER.defaultIcon}
+        tools={screenFlag ? [...DRAW_TOOLS, ...SHAPE_TOOLS] : SHAPE_TOOLS}
+        fontState={fontState}
+        fontDispatch={fontDispatch}
+      />
+      {actions.map((props, index) => (
+        <Button
+          key={index}
+          {...props}
+          fontState={fontState}
+          fontDispatch={fontDispatch}
         />
-        <canvas
-          ref={drawModel}
-          className={styles.model}
-          width={EDITOR_SIZE}
-          height={EDITOR_SIZE}
-        />
-      </div>
+      ))}
+      <OptionsMenu
+        defaultLabel={OPTIONS_MENU_HEADER.defaultLabel}
+        defaultIcon={OPTIONS_MENU_HEADER.defaultIcon}
+        options={options}
+        fontState={fontState}
+        fontDispatch={fontDispatch}
+      />
     </div>
   )
 }

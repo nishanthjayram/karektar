@@ -45,6 +45,9 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
       newGlyphSet.set(state.activeGlyph, action.newGlyphCanvas)
       return {...state, glyphSet: newGlyphSet}
     }
+    case 'UPDATE_GLYPH_SET_MODAL': {
+      return {...state, glyphSetModal: action.newGlyphSetModal}
+    }
     case 'UPDATE_INPUT_TEXT': {
       return {...state, inputText: action.newInputText}
     }
@@ -106,6 +109,9 @@ export const canvasReducer = (state: TFont, action: TCanvasAction): TFont => {
             ],
             historyIndex: state.historyIndex + 1,
           }
+    }
+    case 'UPDATE_CANVAS_SIZE': {
+      return {...state, canvasSize: action.newCanvasSize}
     }
     case 'UPDATE_CAPTURE_FLAG': {
       return {...state, captureFlag: action.newCaptureFlag}

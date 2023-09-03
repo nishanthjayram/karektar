@@ -30,7 +30,34 @@ const Button: React.FC<TButtonProps> = ({
   fontState,
   fontDispatch,
 }) => {
-  const {activeMenu, bitmapSize, captureFlag, guidelinesFlag, modelFlag} = fontState
+  const {
+    activeMenu,
+    bitmapSize,
+    captureFlag,
+    guidelinesFlag,
+    modelFlag,
+    screenFlag,
+  } = fontState
+
+  const handleClick = () => {
+    if (captureFlag) {
+      return
+    }
+    switch (type) {
+      case 'tool': {
+        return handleToolClick(label)
+      }
+      case 'action': {
+        return handleActionClick(label)
+      }
+      case 'option': {
+        return handleOptionClick(label)
+      }
+      default: {
+        return assertUnreachable(type)
+      }
+    }
+  }
 
   const handleToolClick = (tool: TToolLabel) => {
     if (activeMenu) {
@@ -107,36 +134,24 @@ const Button: React.FC<TButtonProps> = ({
     }
   }
 
-  return (
+  const button = (
+    <FontAwesomeIcon
+      icon={icon}
+      className={classnames(
+        active && styles.activeIcon,
+        disabled && styles.disabledIcon,
+        type === 'option' && styles.optionIcon,
+        type !== 'option' && styles.icon,
+      )}
+      onPointerUp={handleClick}
+    />
+  )
+
+  return screenFlag ? (
+    button
+  ) : (
     <Tippy content={label} placement={tooltipPlacement} hideOnClick={false}>
-      <FontAwesomeIcon
-        icon={icon}
-        className={classnames(
-          active && styles.activeIcon,
-          disabled && styles.disabledIcon,
-          type === 'option' && styles.optionIcon,
-          type !== 'option' && styles.icon,
-        )}
-        onClick={() => {
-          if (captureFlag) {
-            return
-          }
-          switch (type) {
-            case 'tool': {
-              return handleToolClick(label)
-            }
-            case 'action': {
-              return handleActionClick(label)
-            }
-            case 'option': {
-              return handleOptionClick(label)
-            }
-            default: {
-              return assertUnreachable(type)
-            }
-          }
-        }}
-      />
+      {button}
     </Tippy>
   )
 }

@@ -2,44 +2,88 @@
   display: flex;
   flex-flow: column nowrap;
   width: 450px;
-  margin-left: 48px;
+}
 
-  .navBar {
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-    justify-content: space-between;
-    height: 48px;
+.modal {
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: flex-start;
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(128, 125, 125, 0.8);
+  color: white;
+  outline: none;
+  text-align: center;
+  width: 100vw;
+  padding: 16px;
+}
 
-    .page {
-      font-size: 20px;
-    }
+.navBar {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+}
 
-    .navControls {
-      justify-content: space-between;
-      margin: 0px 0px;
-      width: 50px;
-      display: flex;
+.page {
+  font-size: 20px;
+}
 
-      .navButton {
-        fill: #000000;
-        :hover {
-          fill: #ffa500;
-        }
-      }
+.navControls {
+  justify-content: space-between;
+  margin: 0px 0px;
+  width: 50px;
+  display: flex;
+}
 
-      .navButtonDisabled {
-        fill: #b7b5b5;
-        pointer-events: none;
-      }
-    }
+.navButton {
+  fill: #000000;
+  :hover {
+    fill: #ffa500;
   }
+}
 
+.navButtonDisabled {
+  fill: #b7b5b5;
+  pointer-events: none;
+}
+
+.gallery {
+  display: grid;
+  grid-gap: 18px;
+  grid-template-columns: repeat(6, 1fr);
+  border: none;
+  user-select: none;
+}
+
+@media screen and (max-width: 576px) {
   .gallery {
     display: grid;
-    grid-gap: 18px;
-    grid-template-columns: repeat(6, 1fr);
+    grid-gap: 6px;
+    grid-template-columns: repeat(5, 1fr);
     border: none;
-    user-select: none;
+  }
+
+  .glyphSet {
+    width: calc(100% - 32px);
+  }
+
+  .navControls {
+    justify-content: space-between;
+    align-items: end;
+    margin: 0px 0px;
+    width: 50px;
+    display: flex;
+  }
+
+  .navButton {
+    height: 20px;
+    width: 20px;
+    fill: #ffffff;
   }
 }
