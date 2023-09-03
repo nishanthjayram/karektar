@@ -1,9 +1,8 @@
 :root {
-  width: 100vw;
-  height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  // height: 100%;
 }
 
 .appRow {
@@ -11,10 +10,14 @@
   flex-flow: row nowrap;
   align-items: flex-start;
   margin-top: 30px;
+  gap: 48px;
 }
 
 .button {
   font-family: ChicagoFLF;
+  width: 80px;
+  background-color: rgba(1, 1, 1, 0.87);
+  color: white;
   border-radius: 2px;
   height: 28px;
   margin-right: 8px;
@@ -37,13 +40,31 @@
 }
 
 .input {
+  background-color: rgba(1, 1, 1, 0.87);
   font-family: ChicagoFLF;
+  font-size: 16px;
+  color: white;
   border-radius: 2px;
   outline: none;
   border: none;
   padding: 6px;
-  width: 500px;
   height: 60px;
-  max-width: 500px;
-  min-width: 500px;
+}
+
+@media screen and (max-width: 576px) {
+  .appRow {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-start;
+    margin-top: 30px;
+  }
+
+  .input {
+    font-size: 14px;
+  }
+
+  .noclick {
+    pointer-events: none;
+    cursor: none;
+  }
 }

@@ -1,18 +1,22 @@
 import classnames from 'classnames'
 import opentype from 'opentype.js'
 import {useReducer} from 'react'
+import Modal from 'react-modal'
+import {useMediaQuery} from 'react-responsive'
 import styles from './App.module.scss'
+import {TFontProps} from '../../types'
 import {
   DEFAULT_FONT_NAME,
+  DEFAULT_PROMPT,
   DEFAULT_SYMBOLS,
   EXPORT_ALERT,
   EXPORT_PROMPT,
+  MOBILE_HELP,
   RESET_ALERT,
   SUBMIT_ALERT,
   UNITS_PER_EM,
   WIKI_LINK,
 } from '../../utils/constants/app.constants'
-import {EDITOR_SIZE} from '../../utils/constants/canvas.constants'
 import {
   getUniqueCharacters,
   initializeFont,
@@ -23,12 +27,100 @@ import {fontReducer} from '../../utils/reducers/fontReducer'
 import Canvas from '../Canvas/Canvas'
 import GlyphSet from '../GlyphSet/GlyphSet'
 
+const XS_SCREEN = 576
+
 const App = ({bitmapSize}: {bitmapSize: number}) => {
+  Modal.setAppElement('#root')
+  const screenFlag = useMediaQuery({query: `(max-width: ${XS_SCREEN}px)`})
+
+  const canvasSize = screenFlag ? Math.floor(window.innerWidth / 32) * 32 : 512
+  const glyphSize = 48
+  const glyphSetModal = screenFlag ? false : undefined
+
+  const inputText = DEFAULT_PROMPT + (screenFlag ? MOBILE_HELP : '')
+
   const [fontState, fontDispatch] = useReducer(
     fontReducer,
-    initializeFont(bitmapSize, DEFAULT_SYMBOLS),
+    initializeFont(
+      bitmapSize,
+      canvasSize,
+      glyphSetModal,
+      glyphSize,
+      inputText,
+      screenFlag,
+    ),
   )
-  const {pixelSize, glyphSet, inputText, symbolSet} = fontState
+
+  const fontProps = {
+    fontState: fontState,
+    fontDispatch: fontDispatch,
+  }
+
+  return (
+    <div className={classnames(glyphSetModal && styles.onclick, styles.app)}>
+      <Title />
+      {!screenFlag && (
+        <>
+          <InputField {...fontProps} />
+          <ButtonMenu {...fontProps} />
+        </>
+      )}
+      <div className={styles.appRow}>
+        <Canvas {...fontProps} />
+        <GlyphSet {...fontProps} />
+      </div>
+      {screenFlag && (
+        <>
+          <br />
+          <InputField {...fontProps} />
+          <ButtonMenu {...fontProps} />
+        </>
+      )}
+    </div>
+  )
+}
+
+const Title = () => (
+  <h1>
+    <a href={WIKI_LINK} target="_blank" rel="noreferrer noopener">
+      Kare
+    </a>
+    ktar.
+  </h1>
+)
+
+const InputField: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
+  const {canvasSize, inputText} = fontState
+
+  const fieldSize = canvasSize - 12
+
+  return (
+    <textarea
+      id="queryField"
+      name="queryField"
+      value={inputText}
+      placeholder="Enter prompt"
+      onChange={e =>
+        fontDispatch({
+          type: 'GLYPH_SET_ACTION',
+          op: 'UPDATE_INPUT_TEXT',
+          newInputText: e.target.value,
+        })
+      }
+      className={styles.input}
+      style={{
+        width: `${fieldSize}px`,
+        height: '60px',
+        maxWidth: `${fieldSize}px`,
+        minWidth: `${fieldSize}px`,
+      }}
+    />
+  )
+}
+
+const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
+  const {bitmapSize, canvasSize, glyphSet, inputText, pixelSize, symbolSet} =
+    fontState
 
   const handleSubmit = () => {
     const newSymbolSet = getUniqueCharacters(inputText)
@@ -85,7 +177,7 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
       }),
     )
 
-    const scaleFactor = UNITS_PER_EM / EDITOR_SIZE
+    const scaleFactor = UNITS_PER_EM / canvasSize
     let maxAscender = -Infinity
     let minDescender = Infinity
 
@@ -142,57 +234,29 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
   }
 
   return (
-    <div>
-      <h1>
-        <a href={WIKI_LINK} target="_blank" rel="noreferrer noopener">
-          Kare
-        </a>
-        ktar.
-      </h1>
-      <textarea
-        id="queryField"
-        name="queryField"
-        value={inputText}
-        placeholder="Enter prompt"
-        onChange={e =>
-          fontDispatch({
-            type: 'GLYPH_SET_ACTION',
-            op: 'UPDATE_INPUT_TEXT',
-            newInputText: e.target.value,
-          })
-        }
-        className={styles.input}
-      />
-      <div className={styles.buttonRow}>
-        <button
-          className={classnames(
-            inputText.length === 0 && styles.disabledButton,
-            styles.button,
-          )}
-          onClick={handleSubmit}
-        >
-          Submit
-        </button>
-        <button
-          className={classnames(
-            [...glyphSet.values()].every(glyph => isEmptyGlyph(glyph)) &&
-              styles.disabledButton,
-            styles.button,
-          )}
-          onClick={handleReset}
-        >
-          Reset
-        </button>
-        <button className={styles.button} onClick={handleExport}>
-          Export
-        </button>
-      </div>
-
-      <br />
-      <div className={styles.appRow}>
-        <Canvas fontState={fontState} fontDispatch={fontDispatch} />
-        <GlyphSet fontState={fontState} fontDispatch={fontDispatch} />
-      </div>
+    <div className={styles.buttonRow}>
+      <button
+        className={classnames(
+          inputText.length === 0 && styles.disabledButton,
+          styles.button,
+        )}
+        onClick={handleSubmit}
+      >
+        Submit
+      </button>
+      <button
+        className={classnames(
+          [...glyphSet.values()].every(glyph => isEmptyGlyph(glyph)) &&
+            styles.disabledButton,
+          styles.button,
+        )}
+        onClick={handleReset}
+      >
+        Reset
+      </button>
+      <button className={styles.button} onClick={handleExport}>
+        Export
+      </button>
     </div>
   )
 }

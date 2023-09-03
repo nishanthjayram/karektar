@@ -1,11 +1,9 @@
 import {TFont, TGlyph, TGlyphSet, TSymbol} from '../../types'
 import {
-  DEFAULT_PROMPT,
   RX_LETTERS,
   RX_NON_ALPHANUMERIC,
   RX_NUMBERS,
 } from '../constants/app.constants'
-import {EDITOR_SIZE} from '../constants/canvas.constants'
 
 export const assertUnreachable = (x: never): never => {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -29,7 +27,17 @@ export const getUniqueCharacters = (input: string) => {
   return [letters, numbers, nonAlphaNum].flatMap(c => c.sort())
 }
 
-export const initializeFont = (bitmapSize: number, symbolSet: string[]): TFont => {
+export const initializeFont = (
+  bitmapSize: number,
+  canvasSize: number,
+  glyphSetModal: boolean | undefined,
+  glyphSize: number,
+  inputText: string,
+  screenFlag: boolean,
+): TFont => {
+  const pixelSize = canvasSize / bitmapSize
+  const symbolSet = getUniqueCharacters(inputText)
+
   const newGlyphSet: TGlyphSet = new Map<TSymbol, TGlyph>()
   symbolSet.forEach(symbol => newGlyphSet.set(symbol, initializeGlyph(bitmapSize)))
   return {
@@ -37,17 +45,23 @@ export const initializeFont = (bitmapSize: number, symbolSet: string[]): TFont =
     activeMenu: undefined,
     bitmapSize: bitmapSize,
     canvasHistory: [initializeGlyph(bitmapSize)],
+    canvasSize: canvasSize,
     captureFlag: false,
     currentTool: 'DRAW',
     galleryPage: 0,
     glyphSet: newGlyphSet,
+    glyphSetModal: glyphSetModal,
+    glyphSize: glyphSize,
     guidelinesFlag: true,
     historyIndex: 0,
-    inputText: DEFAULT_PROMPT,
+    hlinePos: pixelSize * 12,
+    inputText: inputText,
     modelFlag: true,
-    pixelSize: EDITOR_SIZE / bitmapSize,
+    pixelSize: pixelSize,
+    screenFlag: screenFlag,
     shapeRange: undefined,
     symbolSet: symbolSet,
+    vlinePos: pixelSize * 2,
   }
 }
 

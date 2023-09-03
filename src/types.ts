@@ -41,22 +41,29 @@ export type TFont = {
   activeMenu: TMenuLabel | undefined
   bitmapSize: number
   canvasHistory: boolean[][]
+  canvasSize: number
   captureFlag: boolean
   currentTool: TToolLabel
   galleryPage: number
   glyphSet: TGlyphSet
+  glyphSetModal: boolean | undefined
+  glyphSize: number
   guidelinesFlag: boolean
   historyIndex: number
+  hlinePos: number
   inputText: string
   modelFlag: boolean
   pixelSize: number
+  screenFlag: boolean
   shapeRange: TShapeRange
   symbolSet: string[]
+  vlinePos: number
 }
 
 export type TCanvasAction = {type: 'CANVAS_ACTION'} & (
   | {op: 'UPDATE_ACTIVE_MENU'; newActiveMenu: TMenuLabel | undefined}
   | {op: 'UPDATE_CANVAS_HISTORY'; newGlyphCanvas: boolean[]}
+  | {op: 'UPDATE_CANVAS_SIZE'; newCanvasSize: number}
   | {op: 'UPDATE_CAPTURE_FLAG'; newCaptureFlag: boolean}
   | {op: 'UPDATE_CURRENT_TOOL'; newCurrentTool: TToolLabel}
   | {op: 'UPDATE_GUIDELINES_FLAG'; newGuidelinesFlag: boolean}
@@ -70,8 +77,14 @@ export type TGlyphSetAction = {type: 'GLYPH_SET_ACTION'} & (
   | {op: 'UPDATE_ACTIVE_GLYPH'; newActiveGlyph: string}
   | {op: 'UPDATE_GALLERY_PAGE'; newGalleryPage: number}
   | {op: 'UPDATE_GLYPH_CANVAS'; newGlyphCanvas: boolean[]}
+  | {op: 'UPDATE_GLYPH_SIZE'; newGlyphSize: number}
+  | {op: 'UPDATE_GLYPH_SET_MODAL'; newGlyphSetModal: boolean | undefined}
   | {op: 'UPDATE_INPUT_TEXT'; newInputText: string}
   | {op: 'UPDATE_SYMBOL_SET'; newSymbolSet: string[]}
 )
 
 export type TFontAction = TCanvasAction | TGlyphSetAction
+export type TFontProps = {
+  fontState: TFont
+  fontDispatch: React.Dispatch<TFontAction>
+}

@@ -3,7 +3,6 @@ import {memo} from 'react'
 import styles from './Glyph.module.scss'
 import {TFont, TFontAction} from '../../types'
 import {EMPTY_CELL, FILLED_CELL} from '../../utils/constants/canvas.constants'
-import {GLYPH_SIZE} from '../../utils/constants/glyphset.constants'
 
 const Glyph = ({
   glyph,
@@ -14,8 +13,8 @@ const Glyph = ({
   fontState: TFont
   fontDispatch: React.Dispatch<TFontAction>
 }) => {
-  const {activeGlyph, bitmapSize, glyphSet} = fontState
-  const p = GLYPH_SIZE / bitmapSize
+  const {activeGlyph, bitmapSize, glyphSet, glyphSetModal, glyphSize} = fontState
+  const p = glyphSize / bitmapSize
 
   const glyphCanvas = glyphSet.get(glyph)
 
@@ -37,13 +36,20 @@ const Glyph = ({
   return (
     <div
       className={styles.glyph}
-      onMouseDown={evt => {
+      onPointerDown={evt => {
         if (evt.buttons === 1) {
           fontDispatch({
             type: 'GLYPH_SET_ACTION',
             op: 'UPDATE_ACTIVE_GLYPH',
             newActiveGlyph: glyph,
           })
+          if (glyphSetModal) {
+            fontDispatch({
+              type: 'GLYPH_SET_ACTION',
+              op: 'UPDATE_GLYPH_SET_MODAL',
+              newGlyphSetModal: false,
+            })
+          }
         }
       }}
     >
@@ -55,7 +61,7 @@ const Glyph = ({
       >
         {glyph}
       </div>
-      <canvas ref={updateGlyph} width={GLYPH_SIZE} height={GLYPH_SIZE} />
+      <canvas ref={updateGlyph} width={glyphSize} height={glyphSize} />
     </div>
   )
 }

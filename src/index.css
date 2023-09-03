@@ -23,6 +23,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  overflow: auto;
 }
 
 a {
@@ -45,20 +46,16 @@ body {
 h1 {
   font-family: Karektar;
   font-size: 4em;
-  margin: 0;
   margin-bottom: 10px;
-  margin-left: -10px;
 }
 
-@media (prefers-color-scheme: light) {
+@media screen and (max-width: 576px) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    overflow: hidden;
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+  h1 {
+    font-family: Karektar;
+    font-size: 3em;
+    margin-bottom: 10px;
   }
 }
