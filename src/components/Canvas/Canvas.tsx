@@ -1,6 +1,5 @@
 import {faTrashAlt} from '@fortawesome/free-regular-svg-icons'
 import {faA, faRedo, faTextHeight, faUndo} from '@fortawesome/free-solid-svg-icons'
-import Modal from 'react-modal'
 import Button from './Button/Button'
 import styles from './Canvas.module.scss'
 import OptionsMenu from './OptionsMenu/OptionsMenu'
@@ -26,11 +25,6 @@ import {
   posToIndex,
 } from '../../utils/helpers/canvas.helpers'
 import 'tippy.js/dist/tippy.css'
-import GlyphSet from '../GlyphSet/GlyphSet'
-import {useState} from 'react'
-
-const isValidTouch = (evt: React.PointerEvent<HTMLCanvasElement>) =>
-  evt.pointerType === 'touch' && evt.pointerId
 
 type TCanvasProps = {
   fontState: TFont
@@ -57,7 +51,6 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
 
   const glyphCanvas = glyphSet.get(activeGlyph)
 
-  // TODO: Replace this empty div container with a loading animation.
   if (!glyphCanvas) {
     return <div />
   }

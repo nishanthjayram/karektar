@@ -21,4 +21,7 @@ export const RX_NUMBERS = /[0-9]/g
 export const SUBMIT_ALERT =
   'You are about to remove some of the existing glyphs in your set. Are you sure you want to continue?'
 export const WIKI_LINK = 'https://en.wikipedia.org/wiki/Susan_Kare'
+export const LOAD_WARNING =
+  'The mobile version of Karektar is still work-in-progress! Be especially careful when ' +
+  'using the Reset button on the iOS Firefox app, as the confirm dialog does not always work. Enjoy!'
 export const UNITS_PER_EM = 1024

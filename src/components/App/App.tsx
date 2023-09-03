@@ -1,6 +1,6 @@
 import classnames from 'classnames'
 import opentype from 'opentype.js'
-import {useReducer} from 'react'
+import {useReducer, useState} from 'react'
 import Modal from 'react-modal'
 import {useMediaQuery} from 'react-responsive'
 import styles from './App.module.scss'
@@ -8,9 +8,9 @@ import {TFontProps} from '../../types'
 import {
   DEFAULT_FONT_NAME,
   DEFAULT_PROMPT,
-  DEFAULT_SYMBOLS,
   EXPORT_ALERT,
   EXPORT_PROMPT,
+  LOAD_WARNING,
   MOBILE_HELP,
   RESET_ALERT,
   SUBMIT_ALERT,
@@ -32,6 +32,13 @@ const XS_SCREEN = 576
 const App = ({bitmapSize}: {bitmapSize: number}) => {
   Modal.setAppElement('#root')
   const screenFlag = useMediaQuery({query: `(max-width: ${XS_SCREEN}px)`})
+
+  const [loadFlag, setLoadFlag] = useState(false)
+
+  if (screenFlag && !loadFlag) {
+    alert(LOAD_WARNING)
+    setLoadFlag(true)
+  }
 
   const canvasSize = screenFlag ? Math.floor(window.innerWidth / 32) * 32 : 512
   const glyphSize = 48
