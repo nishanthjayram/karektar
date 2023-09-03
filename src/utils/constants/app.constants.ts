@@ -23,5 +23,6 @@ export const SUBMIT_ALERT =
 export const WIKI_LINK = 'https://en.wikipedia.org/wiki/Susan_Kare'
 export const LOAD_WARNING =
   'The mobile version of Karektar is still work-in-progress! Be especially careful when ' +
-  'using the Reset button on the iOS Firefox app, as the confirm dialog does not always work. Enjoy!'
+  'using the Reset button on the iOS Firefox app (below v117), as the confirm dialog does ' +
+  'not always work properly, and may reset prematurely. Enjoy!'
 export const UNITS_PER_EM = 1024
