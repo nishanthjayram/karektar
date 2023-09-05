@@ -23,7 +23,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  overflow: auto;
 }
 
 a {
@@ -50,12 +49,13 @@ h1 {
 }
 
 @media screen and (max-width: 576px) {
-  :root {
-    overflow: hidden;
+  body {
+    min-height: 0;
   }
+
   h1 {
     font-family: Karektar;
-    font-size: 3em;
+    font-size: 42px;
     margin-bottom: 10px;
   }
 }
