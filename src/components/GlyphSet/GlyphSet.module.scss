@@ -4,17 +4,25 @@
   width: 450px;
 }
 
-.modal {
+.overlay {
+  width: 100%;
+  position: fixed;
   display: flex;
   flex-flow: column wrap;
   justify-content: flex-start;
+  align-items: center;
+  background-color: rgba(128, 125, 125, 1);
+  z-index: 9999;
+}
+
+.modal {
   position: fixed;
   z-index: 9999;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(128, 125, 125, 0.8);
+  background: rgba(128, 125, 125, 1);
   color: white;
   outline: none;
   text-align: center;

@@ -17,7 +17,7 @@ const GlyphSet: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
     <Modal
       isOpen={glyphSetModal}
       className={styles.modal}
-      overlayClassName={styles.modal}
+      overlayClassName={styles.overlay}
     >
       <h2>GALLERY</h2>
       <Gallery fontState={fontState} fontDispatch={fontDispatch} />

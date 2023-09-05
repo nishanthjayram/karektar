@@ -37,6 +37,9 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
         historyIndex: 0,
       }
     }
+    case 'UPDATE_CONFIRM_MODAL': {
+      return {...state, confirmModal: action.newConfirmModal}
+    }
     case 'UPDATE_GALLERY_PAGE': {
       return {...state, galleryPage: action.newGalleryPage}
     }

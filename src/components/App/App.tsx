@@ -4,19 +4,21 @@ import {useReducer} from 'react'
 import Modal from 'react-modal'
 import {useMediaQuery} from 'react-responsive'
 import styles from './App.module.scss'
-import {TFontProps} from '../../types'
+import {TConfirmModal, TFontProps} from '../../types'
 import {
   DEFAULT_FONT_NAME,
   DEFAULT_PROMPT,
   EXPORT_ALERT,
   EXPORT_PROMPT,
-  MOBILE_HELP,
+  HELP_MESSAGE,
+  MOBILE_HELP_MESSAGE,
   RESET_ALERT,
   SUBMIT_ALERT,
   UNITS_PER_EM,
   WIKI_LINK,
 } from '../../utils/constants/app.constants'
 import {
+  assertUnreachable,
   getUniqueCharacters,
   initializeFont,
   isEmptyGlyph,
@@ -24,6 +26,7 @@ import {
 import {indexToPos} from '../../utils/helpers/canvas.helpers'
 import {fontReducer} from '../../utils/reducers/fontReducer'
 import Canvas from '../Canvas/Canvas'
+import ConfirmModal from '../ConfirmModal/ConfirmModal'
 import GlyphSet from '../GlyphSet/GlyphSet'
 
 const XS_SCREEN = 576
@@ -34,18 +37,15 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
 
   const canvasSize = screenFlag ? Math.floor(window.innerWidth / 32) * 32 : 512
   const glyphSize = 48
-  const glyphSetModal = screenFlag ? false : undefined
-
-  const inputText = DEFAULT_PROMPT + (screenFlag ? MOBILE_HELP : '')
 
   const [fontState, fontDispatch] = useReducer(
     fontReducer,
     initializeFont(
       bitmapSize,
       canvasSize,
-      glyphSetModal,
+      screenFlag ? false : undefined,
       glyphSize,
-      inputText,
+      DEFAULT_PROMPT,
       screenFlag,
     ),
   )
@@ -55,8 +55,15 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
     fontDispatch: fontDispatch,
   }
 
+  const {confirmModal, glyphSetModal} = fontState
+
   return (
-    <div className={classnames(glyphSetModal && styles.onclick, styles.app)}>
+    <div
+      className={classnames(
+        (confirmModal || glyphSetModal) && styles.noclick,
+        styles.app,
+      )}
+    >
       <Title />
       {!screenFlag && (
         <>
@@ -118,28 +125,31 @@ const InputField: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
 }
 
 const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
-  const {bitmapSize, canvasSize, glyphSet, inputText, pixelSize, symbolSet} =
-    fontState
+  const {
+    bitmapSize,
+    canvasSize,
+    glyphSet,
+    inputText,
+    pixelSize,
+    screenFlag,
+    symbolSet,
+  } = fontState
 
-  const handleSubmit = () => {
-    const newSymbolSet = getUniqueCharacters(inputText)
-    if (
-      symbolSet.some(symbol => !newSymbolSet.includes(symbol)) &&
-      !confirm(SUBMIT_ALERT)
-    ) {
-      return
-    }
+  const updateModal = (type: TConfirmModal) =>
+    fontDispatch({
+      type: 'GLYPH_SET_ACTION',
+      op: 'UPDATE_CONFIRM_MODAL',
+      newConfirmModal: type,
+    })
+
+  const handleSubmit = () =>
     fontDispatch({
       type: 'GLYPH_SET_ACTION',
       op: 'UPDATE_SYMBOL_SET',
-      newSymbolSet: newSymbolSet,
+      newSymbolSet: getUniqueCharacters(inputText),
     })
-  }
 
   const handleReset = () => {
-    if (!confirm(RESET_ALERT)) {
-      return
-    }
     fontDispatch({
       type: 'GLYPH_SET_ACTION',
       op: 'RESET_GLYPH_SET',
@@ -147,13 +157,6 @@ const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
   }
 
   const handleExport = () => {
-    if (
-      [...glyphSet.values()].some(glyph => isEmptyGlyph(glyph)) &&
-      !confirm(EXPORT_ALERT)
-    ) {
-      return
-    }
-
     const fontName = prompt(EXPORT_PROMPT, DEFAULT_FONT_NAME)
 
     if (!fontName) {
@@ -232,31 +235,105 @@ const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
     font.download()
   }
 
+  const handlePointerUp = (type: TConfirmModal) => {
+    switch (type) {
+      case 'SUBMIT': {
+        const newSymbolSet = getUniqueCharacters(inputText)
+        if (symbolSet.some(symbol => !newSymbolSet.includes(symbol))) {
+          return updateModal(type)
+        }
+        return fontDispatch({
+          type: 'GLYPH_SET_ACTION',
+          op: 'UPDATE_SYMBOL_SET',
+          newSymbolSet: newSymbolSet,
+        })
+      }
+      case 'RESET': {
+        return updateModal(type)
+      }
+      case 'EXPORT': {
+        if ([...glyphSet.values()].some(glyph => isEmptyGlyph(glyph))) {
+          return updateModal(type)
+        }
+        return handleExport()
+      }
+      case 'HELP': {
+        return updateModal(type)
+      }
+      default: {
+        return assertUnreachable(type)
+      }
+    }
+  }
+
   return (
-    <div className={styles.buttonRow}>
-      <button
-        className={classnames(
-          inputText.length === 0 && styles.disabledButton,
-          styles.button,
-        )}
-        onClick={handleSubmit}
-      >
-        Submit
-      </button>
-      <button
-        className={classnames(
-          [...glyphSet.values()].every(glyph => isEmptyGlyph(glyph)) &&
-            styles.disabledButton,
-          styles.button,
-        )}
-        onClick={handleReset}
-      >
-        Reset
-      </button>
-      <button className={styles.button} onClick={handleExport}>
-        Export
-      </button>
-    </div>
+    <>
+      <ConfirmModal
+        fontState={fontState}
+        fontDispatch={fontDispatch}
+        type="SUBMIT"
+        onConfirm={handleSubmit}
+        message={SUBMIT_ALERT}
+      />
+      <ConfirmModal
+        fontState={fontState}
+        fontDispatch={fontDispatch}
+        type="RESET"
+        onConfirm={handleReset}
+        message={RESET_ALERT}
+      />
+      <ConfirmModal
+        fontState={fontState}
+        fontDispatch={fontDispatch}
+        type="EXPORT"
+        onConfirm={handleExport}
+        message={EXPORT_ALERT}
+      />
+      <ConfirmModal
+        fontState={fontState}
+        fontDispatch={fontDispatch}
+        cancelFlag={false}
+        type="HELP"
+        message={screenFlag ? MOBILE_HELP_MESSAGE : HELP_MESSAGE}
+      />
+      <div className={styles.buttonRow}>
+        <button
+          className={classnames(
+            inputText.length === 0 && styles.disabledButton,
+            styles.button,
+          )}
+          onPointerUp={() => handlePointerUp('SUBMIT')}
+        >
+          Submit
+        </button>
+        <button
+          className={classnames(
+            [...glyphSet.values()].every(glyph => isEmptyGlyph(glyph)) &&
+              styles.disabledButton,
+            styles.button,
+          )}
+          onPointerUp={() => handlePointerUp('RESET')}
+        >
+          Reset
+        </button>
+        <button
+          className={classnames(
+            [...glyphSet.values()].every(glyph => isEmptyGlyph(glyph)) &&
+              styles.disabledButton,
+            styles.button,
+          )}
+          onPointerUp={() => handlePointerUp('EXPORT')}
+        >
+          Export
+        </button>
+        <button
+          className={styles.button}
+          onPointerUp={() => handlePointerUp('HELP')}
+        >
+          Help
+        </button>
+      </div>
+    </>
   )
 }
 

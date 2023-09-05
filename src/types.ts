@@ -22,6 +22,8 @@ export type TOption = {
 }
 export type TButtonType = TTool | TAction | TOption
 
+export type TConfirmModal = 'SUBMIT' | 'RESET' | 'EXPORT' | 'HELP'
+
 export type TMenuLabel = 'SHAPES' | 'OPTIONS'
 export type TMenuHeader = {
   defaultLabel: TMenuLabel
@@ -43,6 +45,7 @@ export type TFont = {
   canvasHistory: boolean[][]
   canvasSize: number
   captureFlag: boolean
+  confirmModal: TConfirmModal | undefined
   currentTool: TToolLabel
   galleryPage: number
   glyphSet: TGlyphSet
@@ -75,6 +78,7 @@ export type TCanvasAction = {type: 'CANVAS_ACTION'} & (
 export type TGlyphSetAction = {type: 'GLYPH_SET_ACTION'} & (
   | {op: 'RESET_GLYPH_SET'}
   | {op: 'UPDATE_ACTIVE_GLYPH'; newActiveGlyph: string}
+  | {op: 'UPDATE_CONFIRM_MODAL'; newConfirmModal: TConfirmModal | undefined}
   | {op: 'UPDATE_GALLERY_PAGE'; newGalleryPage: number}
   | {op: 'UPDATE_GLYPH_CANVAS'; newGlyphCanvas: boolean[]}
   | {op: 'UPDATE_GLYPH_SIZE'; newGlyphSize: number}

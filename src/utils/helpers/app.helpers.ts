@@ -47,6 +47,7 @@ export const initializeFont = (
     canvasHistory: [initializeGlyph(bitmapSize)],
     canvasSize: canvasSize,
     captureFlag: false,
+    confirmModal: undefined,
     currentTool: 'DRAW',
     galleryPage: 0,
     glyphSet: newGlyphSet,
