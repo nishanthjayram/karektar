@@ -23,10 +23,19 @@
   margin-right: 8px;
   font-size: 14px;
 
-  &:hover {
-    background-color: orange;
-    color: black;
+  @media (hover: hover) {
+    &:hover {
+      color: #ffa500;
+    }
   }
+
+  &:active {
+    background-color: #ffa500;
+  }
+}
+
+.controls {
+  display: flex;
 }
 
 .buttonRow {
@@ -62,9 +71,10 @@
   .input {
     font-size: 14px;
   }
+}
 
-  .noclick {
-    pointer-events: none;
-    cursor: none;
-  }
+.noclick {
+  pointer-events: none;
+  cursor: none;
+  overflow: hidden;
 }

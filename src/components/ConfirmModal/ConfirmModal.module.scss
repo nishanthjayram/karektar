@@ -1,0 +1,40 @@
+.overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(128, 125, 125, 0.95);
+  color: white;
+  z-index: 9999;
+  width: 600px;
+}
+
+.modal {
+  outline: none;
+  margin: auto;
+  border-radius: 2px;
+  padding: 10px 20px;
+}
+
+.button {
+  font-family: ChicagoFLF;
+  width: 90px;
+  background-color: rgba(255, 255, 255, 0.87);
+  color: black;
+  border-radius: 2px;
+  height: 28px;
+  margin-right: 8px;
+  font-size: 14px;
+  text-align: center;
+
+  &:hover {
+    background-color: orange;
+    color: black;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .overlay {
+    width: 400px;
+  }
+}
