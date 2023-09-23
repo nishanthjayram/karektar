@@ -82,6 +82,21 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
           <ButtonMenu {...fontProps} />
         </>
       )}
+      <div className={styles.footer}>
+        {' '}
+        © 2023 by Nishanth Jayram. All rights reserved. |{' '}
+        <a
+          href="https://github.com/nishanthjayram/karektar"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Source
+        </a>{' '}
+        |{' '}
+        <a href="https://newtrino.ink" target="_blank" rel="noopener noreferrer">
+          Website
+        </a>
+      </div>
     </div>
   )
 }

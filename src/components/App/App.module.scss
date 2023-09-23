@@ -60,6 +60,16 @@
   height: 60px;
 }
 
+.footer {
+  position: fixed; /* Fixes the position to the viewport */
+  right: 10px; /* 10 pixels from the right edge */
+  bottom: 10px; /* 10 pixels from the bottom edge */
+  padding: 10px;
+  // background-color: #333; /* Dark grey background color */
+  color: rgba(1, 1, 1, 0.87); /* White text color */
+  border-radius: 5px; /* Rounded corners */
+}
+
 @media screen and (max-width: 576px) {
   .appRow {
     display: flex;
@@ -70,6 +80,12 @@
 
   .input {
     font-size: 14px;
+  }
+
+  .footer {
+    bottom: 0;
+    text-align: center;
+    font-size: 11px;
   }
 }
 
