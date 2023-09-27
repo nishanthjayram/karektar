@@ -9,12 +9,13 @@
 }
 
 :root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   font-family: ChicagoFLF, Helvetica, Arial, sans-serif;
   font-size: 16px;
-  line-height: 24px;
-  font-weight: 400;
 
-  color-scheme: light dark;
   color: rgba(1, 1, 1, 0.87);
   background-color: #ffffff;
 
@@ -25,13 +26,35 @@
   -webkit-text-size-adjust: 100%;
 }
 
+button {
+  font-family: ChicagoFLF;
+  width: 80px;
+  background-color: rgba(1, 1, 1, 0.87);
+  color: white;
+  border-radius: 2px;
+  height: 28px;
+  margin-right: 8px;
+  font-size: 14px;
+
+  @media (hover: hover) {
+    &:hover {
+      color: #ffa500;
+    }
+  }
+
+  &:active {
+    background-color: #ffa500;
+    color: #ffffff;
+  }
+}
+
 a {
-  font-weight: 500;
   color: #ffa600;
   text-decoration: inherit;
-}
-a:hover {
-  color: #ffc354;
+
+  &:hover {
+    color: #ffc354;
+  }
 }
 
 body {
@@ -46,6 +69,8 @@ h1 {
   font-family: Karektar;
   font-size: 4em;
   margin-bottom: 10px;
+  margin: 0;
+  padding: 10px 0 0 0;
 }
 
 @media screen and (max-width: 576px) {
