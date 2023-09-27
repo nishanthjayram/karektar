@@ -1,37 +1,17 @@
-:root {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  // height: 100%;
-}
-
 .appRow {
   display: flex;
   flex-flow: row nowrap;
-  align-items: flex-start;
+  align-items: center;
   margin-top: 30px;
   gap: 48px;
 }
 
-.button {
-  font-family: ChicagoFLF;
-  width: 80px;
-  background-color: rgba(1, 1, 1, 0.87);
-  color: white;
-  border-radius: 2px;
-  height: 28px;
-  margin-right: 8px;
-  font-size: 14px;
-
-  @media (hover: hover) {
-    &:hover {
-      color: #ffa500;
-    }
-  }
-
-  &:active {
-    background-color: #ffa500;
-  }
+.page {
+  height: 100vh;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  flex-flow: column nowrap;
 }
 
 .controls {
@@ -61,13 +41,22 @@
 }
 
 .footer {
-  position: fixed; /* Fixes the position to the viewport */
-  right: 10px; /* 10 pixels from the right edge */
-  bottom: 10px; /* 10 pixels from the bottom edge */
-  padding: 10px;
-  // background-color: #333; /* Dark grey background color */
-  color: rgba(1, 1, 1, 0.87); /* White text color */
-  border-radius: 5px; /* Rounded corners */
+  position: absolute;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  bottom: 0px;
+  right: 0px;
+}
+
+.footerIcon {
+  fill: #000;
+  transform: scale(110%);
+  padding: 0 10px 0 10px;
+  transition: all 0.1s ease-in-out;
+  &:hover {
+    fill: #ffa500;
+  }
 }
 
 @media screen and (max-width: 576px) {
@@ -83,9 +72,17 @@
   }
 
   .footer {
+    position: absolute;
     bottom: 0;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     font-size: 11px;
+  }
+
+  .footerIcon {
+    transform: scale(90%);
+    padding: 0px 4px 0px 4px;
   }
 }
 

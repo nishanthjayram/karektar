@@ -1,9 +1,10 @@
 import classnames from 'classnames'
 import opentype from 'opentype.js'
-import {useReducer} from 'react'
+import {useEffect, useReducer, useState} from 'react'
 import Modal from 'react-modal'
 import {useMediaQuery} from 'react-responsive'
 import styles from './App.module.scss'
+import {ReactComponent as GitHub} from '../../assets/github.svg'
 import {TConfirmModal, TFontProps} from '../../types'
 import {
   DEFAULT_FONT_NAME,
@@ -57,48 +58,68 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
 
   const {confirmModal, glyphSetModal} = fontState
 
+  const pageSize = useWindowSize()
+
   return (
     <div
       className={classnames(
         (confirmModal || glyphSetModal) && styles.noclick,
-        styles.app,
+        styles.page,
       )}
+      style={{
+        height: `${pageSize}px`,
+      }}
     >
-      <Title />
-      {!screenFlag && (
-        <>
-          <InputField {...fontProps} />
-          <ButtonMenu {...fontProps} />
-        </>
-      )}
-      <div className={styles.appRow}>
-        <Canvas {...fontProps} />
-        <GlyphSet {...fontProps} />
+      <div>
+        <Title />
+        {!screenFlag && (
+          <>
+            <InputField {...fontProps} />
+            <ButtonMenu {...fontProps} />
+          </>
+        )}
+        <div className={styles.appRow}>
+          <Canvas {...fontProps} />
+          <GlyphSet {...fontProps} />
+        </div>
+        {screenFlag && (
+          <>
+            <br />
+            <InputField {...fontProps} />
+            <ButtonMenu {...fontProps} />
+          </>
+        )}
       </div>
-      {screenFlag && (
-        <>
-          <br />
-          <InputField {...fontProps} />
-          <ButtonMenu {...fontProps} />
-        </>
-      )}
       <div className={styles.footer}>
-        {' '}
-        © 2023 by Nishanth Jayram. All rights reserved. |{' '}
+        <p>
+          © 2023 by{' '}
+          <a href="https://newtrino.ink" target="_blank" rel="noopener noreferrer">
+            Nishanth Jayram
+          </a>
+          . All rights reserved.
+        </p>
         <a
           href="https://github.com/nishanthjayram/karektar"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Source
-        </a>{' '}
-        |{' '}
-        <a href="https://newtrino.ink" target="_blank" rel="noopener noreferrer">
-          Website
+          <GitHub className={styles.footerIcon} />
         </a>
       </div>
     </div>
   )
+}
+
+const useWindowSize = () => {
+  const [size, setSize] = useState(window.innerHeight)
+  const onResize = () => setSize(window.innerHeight)
+
+  useEffect(() => {
+    window.addEventListener('resize', onResize)
+    return window.removeEventListener('resize', onResize)
+  }, [])
+
+  return size
 }
 
 const Title = () => (
