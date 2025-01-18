@@ -7,7 +7,7 @@ import {
   TGlyphSetAction,
   TSymbol,
 } from '../../types'
-import {compareArrays, initializeGlyph} from '../helpers/app.helpers'
+import {compareUint8Arrays, initializeGlyph} from '../helpers/app.helpers'
 
 export const fontReducer = (state: TFont, action: TFontAction): TFont => {
   switch (action.type) {
@@ -99,7 +99,7 @@ export const canvasReducer = (state: TFont, action: TCanvasAction): TFont => {
       return {...state, activeMenu: action.newActiveMenu}
     }
     case 'UPDATE_CANVAS_HISTORY': {
-      return compareArrays(
+      return compareUint8Arrays(
         state.canvasHistory[state.historyIndex],
         action.newGlyphCanvas,
       )

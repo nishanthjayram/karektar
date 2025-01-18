@@ -35,14 +35,14 @@ export type TRect = [x: number, y: number, w: number, h: number]
 export type TShapeRange = [startPos: TPos, endPos: TPos] | undefined
 
 export type TSymbol = string
-export type TGlyph = boolean[]
+export type TGlyph = Uint8Array
 export type TGlyphSet = Map<TSymbol, TGlyph>
 
 export type TFont = {
   activeGlyph: string
   activeMenu: TMenuLabel | undefined
   bitmapSize: number
-  canvasHistory: boolean[][]
+  canvasHistory: Uint8Array[]
   canvasSize: number
   captureFlag: boolean
   confirmModal: TConfirmModal | undefined
@@ -65,7 +65,7 @@ export type TFont = {
 
 export type TCanvasAction = {type: 'CANVAS_ACTION'} & (
   | {op: 'UPDATE_ACTIVE_MENU'; newActiveMenu: TMenuLabel | undefined}
-  | {op: 'UPDATE_CANVAS_HISTORY'; newGlyphCanvas: boolean[]}
+  | {op: 'UPDATE_CANVAS_HISTORY'; newGlyphCanvas: Uint8Array}
   | {op: 'UPDATE_CANVAS_SIZE'; newCanvasSize: number}
   | {op: 'UPDATE_CAPTURE_FLAG'; newCaptureFlag: boolean}
   | {op: 'UPDATE_CURRENT_TOOL'; newCurrentTool: TToolLabel}
@@ -80,7 +80,7 @@ export type TGlyphSetAction = {type: 'GLYPH_SET_ACTION'} & (
   | {op: 'UPDATE_ACTIVE_GLYPH'; newActiveGlyph: string}
   | {op: 'UPDATE_CONFIRM_MODAL'; newConfirmModal: TConfirmModal | undefined}
   | {op: 'UPDATE_GALLERY_PAGE'; newGalleryPage: number}
-  | {op: 'UPDATE_GLYPH_CANVAS'; newGlyphCanvas: boolean[]}
+  | {op: 'UPDATE_GLYPH_CANVAS'; newGlyphCanvas: Uint8Array}
   | {op: 'UPDATE_GLYPH_SIZE'; newGlyphSize: number}
   | {op: 'UPDATE_GLYPH_SET_MODAL'; newGlyphSetModal: boolean | undefined}
   | {op: 'UPDATE_INPUT_TEXT'; newInputText: string}

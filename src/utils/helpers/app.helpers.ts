@@ -15,6 +15,13 @@ export const compareArrays = <T>(a: T[], b: T[]) =>
   b !== undefined &&
   a.length === b.length &&
   a.every((v, i) => v === b[i])
+
+export const compareUint8Arrays = (a: Uint8Array, b: Uint8Array) =>
+  a !== undefined &&
+  b !== undefined &&
+  a.length === b.length &&
+  a.every((v, i) => v === b[i])
+
 export const getUniqueCharacters = (input: string) => {
   const uniqueCharacters = [...new Set<string>(input)]
 
@@ -67,6 +74,6 @@ export const initializeFont = (
 }
 
 export const initializeGlyph = (bitmapSize: number) =>
-  new Array<boolean>(bitmapSize ** 2).fill(false)
+  new Uint8Array(bitmapSize ** 2).fill(0)
 
 export const isEmptyGlyph = (glyph: TGlyph) => glyph.every(c => !c)

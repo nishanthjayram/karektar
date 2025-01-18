@@ -25,9 +25,9 @@ const Glyph = ({
     }
 
     ctx.beginPath()
-    glyphCanvas.forEach((filled: boolean, idx: number) => {
+    glyphCanvas.forEach((value, idx) => {
       const [x, y] = [idx % bitmapSize, Math.floor(idx / bitmapSize)]
-      ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
+      ctx.fillStyle = value === 1 ? FILLED_CELL : EMPTY_CELL
       ctx.fillRect(x * p, y * p, p, p)
     })
     ctx.closePath()

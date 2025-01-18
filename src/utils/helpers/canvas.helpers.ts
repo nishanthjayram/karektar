@@ -1,5 +1,5 @@
 import {assertUnreachable} from './app.helpers'
-import {TPos, TRect, TShapeRange, TToolLabel} from '../../types'
+import {TGlyph, TPos, TRect, TShapeRange, TToolLabel} from '../../types'
 
 export const checkPos = ([x, y]: TPos, bitmapSize: number) =>
   x >= 0 && y >= 0 && x <= bitmapSize - 1 && y <= bitmapSize - 1
@@ -182,7 +182,7 @@ export const plotShape = (
   }
 }
 
-export const fill = (start: TPos, glyphCanvas: boolean[], bitmapSize: number) => {
+export const fill = (start: TPos, glyphCanvas: TGlyph, bitmapSize: number) => {
   if (glyphCanvas[posToIndex(start, bitmapSize)]) {
     return
   }

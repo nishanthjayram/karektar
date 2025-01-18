@@ -87,8 +87,8 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
 
     // Draw the cells of the canvas with either an "empty" or "filled" state.
     ctx.beginPath()
-    glyphCanvas.forEach((filled: boolean, idx: number) => {
-      ctx.fillStyle = filled ? FILLED_CELL : EMPTY_CELL
+    glyphCanvas.forEach((value, idx) => {
+      ctx.fillStyle = value === 1 ? FILLED_CELL : EMPTY_CELL
       ctx.fillRect(...getRect(idx, bitmapSize, pixelSize))
     })
     ctx.closePath()
@@ -129,8 +129,8 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
         newGlyphCanvas: glyphCanvas,
       })
     } else {
-      const newGlyphCanvas = [...glyphCanvas]
-      shapeCells.forEach(idx => (newGlyphCanvas[idx] = true))
+      const newGlyphCanvas = glyphCanvas.slice()
+      shapeCells.forEach(idx => (newGlyphCanvas[idx] = 1))
       fontDispatch({
         type: 'GLYPH_SET_ACTION',
         op: 'UPDATE_GLYPH_CANVAS',
@@ -174,8 +174,8 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     switch (currentTool) {
       case 'DRAW':
       case 'ERASE': {
-        const newGlyphCanvas = [...glyphCanvas]
-        newGlyphCanvas[currIdx] = currentTool === 'DRAW' ? true : false
+        const newGlyphCanvas = glyphCanvas.slice()
+        newGlyphCanvas[currIdx] = currentTool === 'DRAW' ? 1 : 0
         return fontDispatch({
           type: 'GLYPH_SET_ACTION',
           op: 'UPDATE_GLYPH_CANVAS',
@@ -196,8 +196,8 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
         if (!fillCells) {
           return
         }
-        const newGlyphCanvas = [...glyphCanvas]
-        fillCells.forEach(idx => (newGlyphCanvas[idx] = true))
+        const newGlyphCanvas = glyphCanvas.slice()
+        fillCells.forEach(idx => (newGlyphCanvas[idx] = 1))
         return fontDispatch({
           type: 'GLYPH_SET_ACTION',
           op: 'UPDATE_GLYPH_CANVAS',
@@ -225,8 +225,8 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     switch (currentTool) {
       case 'DRAW':
       case 'ERASE': {
-        const newGlyphCanvas = [...glyphCanvas]
-        newGlyphCanvas[currIdx] = currentTool === 'DRAW' ? true : false
+        const newGlyphCanvas = glyphCanvas.slice()
+        newGlyphCanvas[currIdx] = currentTool === 'DRAW' ? 1 : 0
         return fontDispatch({
           type: 'GLYPH_SET_ACTION',
           op: 'UPDATE_GLYPH_CANVAS',
