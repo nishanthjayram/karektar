@@ -1,3 +1,4 @@
+import { compareUint8Arrays, initializeGlyph } from '@/helpers/app.helpers'
 import {
   TCanvasAction,
   TFont,
@@ -6,16 +7,15 @@ import {
   TGlyphSet,
   TGlyphSetAction,
   TSymbol,
-} from '../../types'
-import {compareUint8Arrays, initializeGlyph} from '../helpers/app.helpers'
+} from '@/types'
 
 export const fontReducer = (state: TFont, action: TFontAction): TFont => {
   switch (action.type) {
     case 'CANVAS_ACTION': {
-      return {...state, ...canvasReducer(state, action)}
+      return { ...state, ...canvasReducer(state, action) }
     }
     case 'GLYPH_SET_ACTION': {
-      return {...state, ...glyphSetReducer(state, action)}
+      return { ...state, ...glyphSetReducer(state, action) }
     }
     default: {
       return state
@@ -38,21 +38,21 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
       }
     }
     case 'UPDATE_CONFIRM_MODAL': {
-      return {...state, confirmModal: action.newConfirmModal}
+      return { ...state, confirmModal: action.newConfirmModal }
     }
     case 'UPDATE_GALLERY_PAGE': {
-      return {...state, galleryPage: action.newGalleryPage}
+      return { ...state, galleryPage: action.newGalleryPage }
     }
     case 'UPDATE_GLYPH_CANVAS': {
       const newGlyphSet = new Map(state.glyphSet)
       newGlyphSet.set(state.activeGlyph, action.newGlyphCanvas)
-      return {...state, glyphSet: newGlyphSet}
+      return { ...state, glyphSet: newGlyphSet }
     }
     case 'UPDATE_GLYPH_SET_MODAL': {
-      return {...state, glyphSetModal: action.newGlyphSetModal}
+      return { ...state, glyphSetModal: action.newGlyphSetModal }
     }
     case 'UPDATE_INPUT_TEXT': {
-      return {...state, inputText: action.newInputText}
+      return { ...state, inputText: action.newInputText }
     }
     case 'UPDATE_SYMBOL_SET': {
       const newGlyphSet: TGlyphSet = new Map<TSymbol, TGlyph>()
@@ -96,7 +96,7 @@ export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont =>
 export const canvasReducer = (state: TFont, action: TCanvasAction): TFont => {
   switch (action.op) {
     case 'UPDATE_ACTIVE_MENU': {
-      return {...state, activeMenu: action.newActiveMenu}
+      return { ...state, activeMenu: action.newActiveMenu }
     }
     case 'UPDATE_CANVAS_HISTORY': {
       return compareUint8Arrays(
@@ -114,22 +114,22 @@ export const canvasReducer = (state: TFont, action: TCanvasAction): TFont => {
           }
     }
     case 'UPDATE_CANVAS_SIZE': {
-      return {...state, canvasSize: action.newCanvasSize}
+      return { ...state, canvasSize: action.newCanvasSize }
     }
     case 'UPDATE_CAPTURE_FLAG': {
-      return {...state, captureFlag: action.newCaptureFlag}
+      return { ...state, captureFlag: action.newCaptureFlag }
     }
     case 'UPDATE_CURRENT_TOOL': {
-      return {...state, currentTool: action.newCurrentTool}
+      return { ...state, currentTool: action.newCurrentTool }
     }
     case 'UPDATE_GUIDELINES_FLAG': {
-      return {...state, guidelinesFlag: action.newGuidelinesFlag}
+      return { ...state, guidelinesFlag: action.newGuidelinesFlag }
     }
     case 'UPDATE_MODEL_FLAG': {
-      return {...state, modelFlag: action.newModelFlag}
+      return { ...state, modelFlag: action.newModelFlag }
     }
     case 'UPDATE_SHAPE_RANGE': {
-      return {...state, shapeRange: action.newShapeRange}
+      return { ...state, shapeRange: action.newShapeRange }
     }
 
     case 'UNDO':

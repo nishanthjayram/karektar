@@ -1,9 +1,10 @@
-import {TFont, TGlyph, TGlyphSet, TSymbol} from '../../types'
 import {
   RX_LETTERS,
   RX_NON_ALPHANUMERIC,
   RX_NUMBERS,
-} from '../constants/app.constants'
+} from '@/constants/app.constants'
+import GlyphBitmap from '@/classes/Bitmap'
+import { TFont, TGlyph, TGlyphSet, TSymbol } from '@/types'
 
 export const assertUnreachable = (x: never): never => {
   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -73,7 +74,6 @@ export const initializeFont = (
   }
 }
 
-export const initializeGlyph = (bitmapSize: number) =>
-  new Uint8Array(bitmapSize ** 2).fill(0)
+export const initializeGlyph = (bitmapSize: number) => new GlyphBitmap(bitmapSize)
 
-export const isEmptyGlyph = (glyph: TGlyph) => glyph.every(c => !c)
+export const isEmptyGlyph = (glyph: TGlyph) => glyph.getData().every(c => !c)

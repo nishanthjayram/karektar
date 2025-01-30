@@ -1,7 +1,7 @@
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Tippy from '@tippy.js/react'
 import classnames from 'classnames'
-import {TFont, TFontAction, TMenuHeader, TTool} from '../../../types'
+import { TFont, TFontAction, TMenuHeader, TTool } from '../../../types'
 import Button from '../Button/Button'
 import styles from '../Canvas.module.scss'
 
@@ -18,7 +18,7 @@ const ToolsMenu: React.FC<TToolsMenu> = ({
   fontState,
   fontDispatch,
 }) => {
-  const {activeMenu, currentTool, screenFlag} = fontState
+  const { activeMenu, currentTool, screenFlag } = fontState
 
   const tool = tools.find(t => currentTool === t.label)
   const label = tool ? tool.label : defaultLabel

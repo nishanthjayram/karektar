@@ -1,11 +1,10 @@
 import classnames from 'classnames'
 import opentype from 'opentype.js'
-import {useEffect, useReducer, useState} from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import Modal from 'react-modal'
-import {useMediaQuery} from 'react-responsive'
-import styles from './App.module.scss'
-import {ReactComponent as GitHub} from '../../assets/github.svg'
-import {TConfirmModal, TFontProps} from '../../types'
+import { useMediaQuery } from 'react-responsive'
+import { ReactComponent as GitHub } from '../../assets/github.svg'
+import { TConfirmModal, TFontProps } from '../../types'
 import {
   DEFAULT_FONT_NAME,
   DEFAULT_PROMPT,
@@ -24,17 +23,20 @@ import {
   initializeFont,
   isEmptyGlyph,
 } from '../../utils/helpers/app.helpers'
-import {indexToPos} from '../../utils/helpers/canvas.helpers'
-import {fontReducer} from '../../utils/reducers/fontReducer'
+import { indexToPos } from '../../utils/helpers/canvas.helpers'
+import { fontReducer } from '../../utils/reducers/fontReducer'
+import { testSerialization } from '../../utils/serializer'
 import Canvas from '../Canvas/Canvas'
 import ConfirmModal from '../ConfirmModal/ConfirmModal'
+import CanvasContainer from '../Editor/GridCanvas'
 import GlyphSet from '../GlyphSet/GlyphSet'
+import styles from './App.module.scss'
 
 const XS_SCREEN = 576
 
-const App = ({bitmapSize}: {bitmapSize: number}) => {
+const App = ({ bitmapSize }: { bitmapSize: number }) => {
   Modal.setAppElement('#root')
-  const screenFlag = useMediaQuery({query: `(max-width: ${XS_SCREEN}px)`})
+  const screenFlag = useMediaQuery({ query: `(max-width: ${XS_SCREEN}px)` })
 
   const canvasSize = screenFlag ? Math.floor(window.innerWidth / 32) * 32 : 512
   const glyphSize = 48
@@ -56,7 +58,7 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
     fontDispatch: fontDispatch,
   }
 
-  const {confirmModal, glyphSetModal} = fontState
+  const { confirmModal, glyphSetModal } = fontState
 
   const pageSize = useWindowSize()
 
@@ -79,7 +81,8 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
           </>
         )}
         <div className={styles.appRow}>
-          <Canvas {...fontProps} />
+          {/* <Canvas {...fontProps} /> */}
+          <CanvasContainer {...fontProps} />
           <GlyphSet {...fontProps} />
         </div>
         {screenFlag && (
@@ -131,8 +134,8 @@ const Title = () => (
   </h1>
 )
 
-const InputField: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
-  const {canvasSize, inputText} = fontState
+const InputField: React.FC<TFontProps> = ({ fontState, fontDispatch }) => {
+  const { canvasSize, inputText } = fontState
 
   const fieldSize = canvasSize - 12
 
@@ -160,7 +163,7 @@ const InputField: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
   )
 }
 
-const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
+const ButtonMenu: React.FC<TFontProps> = ({ fontState, fontDispatch }) => {
   const {
     bitmapSize,
     canvasSize,
@@ -190,6 +193,35 @@ const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
       type: 'GLYPH_SET_ACTION',
       op: 'RESET_GLYPH_SET',
     })
+  }
+
+  const handleSave = () => {
+    alert(
+      testSerialization({
+        bitmapSize: bitmapSize,
+        glyphSet: glyphSet,
+        inputText: inputText,
+      })
+        ? 'Serialization test passed'
+        : 'Serialization test failed',
+    )
+    // const saveData = {
+    //   bitmapSize: bitmapSize,
+    //   canvasSize: canvasSize,
+    //   glyphSet: glyphSet,
+    //   inputText: inputText,
+    //   pixelSize: pixelSize,
+    //   symbolSet: symbolSet,
+    // }
+
+    // const blob = new Blob([JSON.stringify(saveData)], {
+    //   type: 'application/json',
+    // })
+    // const url = URL.createObjectURL(blob)
+    // const a = document.createElement('a')
+    // a.href = url
+    // a.download = 'karektar.json'
+    // a.click()
   }
 
   const handleExport = () => {
@@ -250,7 +282,7 @@ const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
         path: path,
       })
 
-      const {xMax, yMin, yMax} = fontGlyph.getMetrics()
+      const { xMax, yMin, yMax } = fontGlyph.getMetrics()
       fontGlyph.advanceWidth = xMax
 
       minDescender = Math.min(minDescender, yMin)
@@ -284,7 +316,9 @@ const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
           newSymbolSet: newSymbolSet,
         })
       }
-      case 'RESET': {
+      case 'RESET':
+      case 'SAVE':
+      case 'LOAD': {
         return updateModal(type)
       }
       case 'EXPORT': {
@@ -318,6 +352,20 @@ const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
         onConfirm={handleReset}
         message={RESET_ALERT}
       />
+      {/* <ConfirmModal
+        fontState={fontState}
+        fontDispatch={fontDispatch}
+        type="SAVE"
+        onConfirm={handleSave}
+        message={SAVE_ALERT}
+      />
+      <ConfirmModal
+        fontState={fontState}
+        fontDispatch={fontDispatch}
+        type="LOAD"
+        onConfirm={handleLoad}
+        message={LOAD_ALERT}
+      /> */}
       <ConfirmModal
         fontState={fontState}
         fontDispatch={fontDispatch}
@@ -351,6 +399,9 @@ const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
           onPointerUp={() => handlePointerUp('RESET')}
         >
           Reset
+        </button>
+        <button className={styles.button} onPointerUp={() => handleSave()}>
+          Save
         </button>
         <button
           className={classnames(

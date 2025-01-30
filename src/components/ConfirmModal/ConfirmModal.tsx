@@ -1,7 +1,7 @@
 import React from 'react'
 import Modal from 'react-modal'
+import { TConfirmModal, TFontProps } from '../../types'
 import styles from './ConfirmModal.module.scss'
-import {TConfirmModal, TFontProps} from '../../types'
 
 type TConfirmModalProps = TFontProps & {
   type: TConfirmModal
@@ -18,7 +18,7 @@ const ConfirmModal: React.FC<TConfirmModalProps> = ({
   message,
   cancelFlag = true,
 }) => {
-  const {confirmModal} = fontState
+  const { confirmModal } = fontState
 
   const onRequestClose = () =>
     fontDispatch({

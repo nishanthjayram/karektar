@@ -1,8 +1,8 @@
 import classnames from 'classnames'
-import {memo} from 'react'
+import { memo } from 'react'
+import { TFont, TFontAction } from '../../types'
+import { EMPTY_CELL, FILLED_CELL } from '../../utils/constants/canvas.constants'
 import styles from './Glyph.module.scss'
-import {TFont, TFontAction} from '../../types'
-import {EMPTY_CELL, FILLED_CELL} from '../../utils/constants/canvas.constants'
 
 const Glyph = ({
   glyph,
@@ -13,7 +13,7 @@ const Glyph = ({
   fontState: TFont
   fontDispatch: React.Dispatch<TFontAction>
 }) => {
-  const {activeGlyph, bitmapSize, glyphSet, glyphSetModal, glyphSize} = fontState
+  const { activeGlyph, bitmapSize, glyphSet, glyphSetModal, glyphSize } = fontState
   const p = glyphSize / bitmapSize
 
   const glyphCanvas = glyphSet.get(glyph)

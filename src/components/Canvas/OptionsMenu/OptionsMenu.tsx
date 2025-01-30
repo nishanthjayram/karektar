@@ -1,7 +1,7 @@
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Tippy from '@tippy.js/react'
 import classnames from 'classnames'
-import {TFont, TFontAction, TMenuHeader, TOption} from '../../../types'
+import { TFont, TFontAction, TMenuHeader, TOption } from '../../../types'
 import Button from '../Button/Button'
 import styles from '../Canvas.module.scss'
 
@@ -18,7 +18,7 @@ const OptionsMenu: React.FC<TOptionsMenuProps> = ({
   fontState,
   fontDispatch,
 }) => {
-  const {activeMenu, screenFlag} = fontState
+  const { activeMenu, screenFlag } = fontState
 
   const menu = (
     <div>

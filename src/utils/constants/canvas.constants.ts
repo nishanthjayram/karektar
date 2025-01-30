@@ -1,4 +1,4 @@
-import {faCircle, faSquare} from '@fortawesome/free-regular-svg-icons'
+import { faCircle, faSquare } from '@fortawesome/free-regular-svg-icons'
 import {
   faEraser,
   faFill,
@@ -7,7 +7,7 @@ import {
   faShapes,
   faSlash,
 } from '@fortawesome/free-solid-svg-icons'
-import {TMenuHeader, TTool} from '../../types'
+import { TMenuHeader, TTool } from '.@/.@/types'
 
 export const GLYPH_TEXT_WIDTH = 30
 export const GRIDLINE_COLOR = '#ffffff'

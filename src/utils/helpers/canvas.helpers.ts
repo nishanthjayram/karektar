@@ -1,5 +1,5 @@
-import {assertUnreachable} from './app.helpers'
-import {TGlyph, TPos, TRect, TShapeRange, TToolLabel} from '../../types'
+import { assertUnreachable } from '@/app.helpers'
+import { TGlyph, TPos, TRect, TShapeRange, TToolLabel } from '.@/.@/types'
 
 export const checkPos = ([x, y]: TPos, bitmapSize: number) =>
   x >= 0 && y >= 0 && x <= bitmapSize - 1 && y <= bitmapSize - 1

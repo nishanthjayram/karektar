@@ -4,8 +4,30 @@
   "quoteProps": "consistent",
   "printWidth": 85,
   "trailingComma": "all",
-  "bracketSpacing": false,
+  "bracketSpacing": true,
   "endOfLine": "lf",
-  "arrowParens": "avoid"
+  "arrowParens": "avoid",
+  "tabWidth": 2,
+  "useTabs": false,
+  "jsxSingleQuote": false,
+  "bracketSameLine": false,
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "importOrderParserPlugins": ["typescript", "jsx"],
+  "importOrder": [
+    "^@/types/(.*)$",
+    "^@/constants/(.*)$",
+    "^@/hooks/(.*)$",
+    "^@/components/(.*)$",
+    "^@/(.*)$",
+    "^[./]"
+  ],
+  "importOrderSortSpecifiers": true,
+  "overrides": [
+    {
+      "files": "*.css",
+      "options": {
+        "parser": "css"
+      }
+    }
+  ]
 }
-

@@ -1,5 +1,16 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@classes/*": ["./src/classes/*"],
+      "@components/*": ["./src/components/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@types/*": ["./src/types/*"],
+      "@constants/*": ["./src/utils/constants/*"]
+    },
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": false,
@@ -22,5 +33,5 @@
     "useUnknownInCatchVariables": true
   },
   "include": ["src", "vite.config.ts"],
-  "references": [{"path": "./tsconfig.node.json"}]
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

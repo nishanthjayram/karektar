@@ -1,13 +1,13 @@
 import classnames from 'classnames'
 import Modal from 'react-modal'
-import styles from './GlyphSet.module.scss'
-import {ReactComponent as Next} from '../../assets/next.svg'
-import {ReactComponent as Previous} from '../../assets/previous.svg'
-import {TFontProps} from '../../types'
+import { ReactComponent as Next } from '../../assets/next.svg'
+import { ReactComponent as Previous } from '../../assets/previous.svg'
+import { TFontProps } from '../../types'
 import Glyph from '../Glyph/Glyph'
+import styles from './GlyphSet.module.scss'
 
-const GlyphSet: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
-  const {glyphSetModal} = fontState
+const GlyphSet: React.FC<TFontProps> = ({ fontState, fontDispatch }) => {
+  const { glyphSetModal } = fontState
 
   if (glyphSetModal === undefined) {
     return <Gallery fontState={fontState} fontDispatch={fontDispatch} />
@@ -25,8 +25,8 @@ const GlyphSet: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
   )
 }
 
-const Gallery: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
-  const {galleryPage, glyphSet, screenFlag} = fontState
+const Gallery: React.FC<TFontProps> = ({ fontState, fontDispatch }) => {
+  const { galleryPage, glyphSet, screenFlag } = fontState
   const pageLength = screenFlag ? 25 : 30
   const minPage = 0
   const maxPage = Math.ceil(glyphSet.size / pageLength) - 1

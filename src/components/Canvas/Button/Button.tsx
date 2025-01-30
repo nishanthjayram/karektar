@@ -1,7 +1,6 @@
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Tippy from '@tippy.js/react'
 import classnames from 'classnames'
-import styles from './Button.module.scss'
 import {
   TActionLabel,
   TButtonType,
@@ -10,7 +9,11 @@ import {
   TOptionLabel,
   TToolLabel,
 } from '../../../types'
-import {assertUnreachable, initializeGlyph} from '../../../utils/helpers/app.helpers'
+import {
+  assertUnreachable,
+  initializeGlyph,
+} from '../../../utils/helpers/app.helpers'
+import styles from './Button.module.scss'
 
 type TButtonProps = TButtonType & {
   active?: boolean
@@ -104,7 +107,7 @@ const Button: React.FC<TButtonProps> = ({
       }
       case 'UNDO':
       case 'REDO': {
-        return fontDispatch({type: 'CANVAS_ACTION', op: action})
+        return fontDispatch({ type: 'CANVAS_ACTION', op: action })
       }
       default: {
         return assertUnreachable(action)

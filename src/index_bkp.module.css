@@ -1,11 +1,15 @@
 @font-face {
   font-family: 'ChicagoFLF';
-  src: local('ChicagoFLF'), url('./fonts/ChicagoFLF.ttf') format('truetype');
+  src:
+    local('ChicagoFLF'),
+    url('./fonts/ChicagoFLF.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'Karektar';
-  src: local('Karketar'), url('./fonts/Karektar.otf') format('opentype');
+  src:
+    local('Karketar'),
+    url('./fonts/Karektar.otf') format('opentype');
 }
 
 :root {
@@ -17,13 +21,22 @@
   font-size: 16px;
 
   color: rgba(1, 1, 1, 0.87);
-  background-color: #ffffff;
+  background-color: 'offwhite';
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  /* min-width: 320px;
+  min-height: 100vh; */
 }
 
 button {

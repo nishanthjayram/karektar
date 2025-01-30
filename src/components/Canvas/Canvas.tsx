@@ -1,10 +1,14 @@
-import {faTrashAlt} from '@fortawesome/free-regular-svg-icons'
-import {faA, faRedo, faTextHeight, faUndo} from '@fortawesome/free-solid-svg-icons'
-import Button from './Button/Button'
-import styles from './Canvas.module.scss'
-import OptionsMenu from './OptionsMenu/OptionsMenu'
-import ToolsMenu from './ShapesMenu/ShapesMenu'
-import {TAction, TFont, TFontAction, TFontProps, TGlyph, TOption} from '../../types'
+import { faTrashAlt } from '@fortawesome/free-regular-svg-icons'
+import { faA, faRedo, faTextHeight, faUndo } from '@fortawesome/free-solid-svg-icons'
+import 'tippy.js/dist/tippy.css'
+import {
+  TAction,
+  TFont,
+  TFontAction,
+  TFontProps,
+  TGlyph,
+  TOption,
+} from '../../types'
 import {
   DRAW_TOOLS,
   EMPTY_CELL,
@@ -13,10 +17,10 @@ import {
   GRIDLINE_COLOR,
   GUIDELINE_COLOR,
   OPTIONS_MENU_HEADER,
-  SHAPE_TOOLS,
   SHAPES_MENU_HEADER,
+  SHAPE_TOOLS,
 } from '../../utils/constants/canvas.constants'
-import {assertUnreachable} from '../../utils/helpers/app.helpers'
+import { assertUnreachable } from '../../utils/helpers/app.helpers'
 import {
   fill,
   getMousePos,
@@ -24,14 +28,17 @@ import {
   plotShape,
   posToIndex,
 } from '../../utils/helpers/canvas.helpers'
-import 'tippy.js/dist/tippy.css'
+import Button from './Button/Button'
+import styles from './Canvas.module.scss'
+import OptionsMenu from './OptionsMenu/OptionsMenu'
+import ToolsMenu from './ShapesMenu/ShapesMenu'
 
 type TCanvasProps = {
   fontState: TFont
   fontDispatch: React.Dispatch<TFontAction>
 }
 
-const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
+const Canvas: React.FC<TCanvasProps> = ({ fontState, fontDispatch }) => {
   const {
     activeMenu,
     bitmapSize,
@@ -64,7 +71,7 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
     // Draw the gridlines of the canvas.
     ctx.beginPath()
     ctx.strokeStyle = GRIDLINE_COLOR
-    Array.from({length: bitmapSize - 1}, (_, i) => i + 1).forEach(i => {
+    Array.from({ length: bitmapSize - 1 }, (_, i) => i + 1).forEach(i => {
       ctx.moveTo(i * pixelSize + 0.5, 1)
       ctx.lineTo(i * pixelSize + 0.5, canvasSize)
       ctx.moveTo(1, i * pixelSize + 0.5)
@@ -256,7 +263,7 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
 
   return (
     <div>
-      <div className={styles.header} style={{width: canvasSize}}>
+      <div className={styles.header} style={{ width: canvasSize }}>
         <div
           className={styles.text}
           style={{
@@ -283,11 +290,14 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
           glyphCanvas={glyphCanvas}
         />
       </div>
-      <div className={styles.editor} style={{width: canvasSize, height: canvasSize}}>
+      <div
+        className={styles.editor}
+        style={{ width: canvasSize, height: canvasSize }}
+      >
         <canvas
           ref={drawCanvas}
           className={styles.canvas}
-          style={{opacity: modelFlag ? '0.95' : '1'}}
+          style={{ opacity: modelFlag ? '0.95' : '1' }}
           width={canvasSize}
           height={canvasSize}
           onGotPointerCapture={() =>
