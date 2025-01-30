@@ -1,0 +1,37 @@
+.editor {
+  position: relative;
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
+}
+
+.canvasContainer {
+  position: relative;
+  height: 100%;
+  width: fit-content;
+}
+
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  image-rendering: pixelated;
+  touch-action: none;
+  user-select: none;
+}
+
+.drawingCanvas {
+  border: 1px solid white;
+  z-index: 100;
+}
+
+.previewCanvas {
+  border: 1px solid white;
+  z-index: 200;
+}
+
+.guidelineCanvas {
+  border: 1px solid white;
+  pointer-events: none;
+  z-index: 300;
+}

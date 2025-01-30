@@ -1,0 +1,115 @@
+.app {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 30px;
+  gap: 48px;
+}
+
+.main {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-around;
+}
+
+.editorContainer {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+}
+
+.header {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.page {
+  height: 100vh;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  flex-flow: column nowrap;
+}
+
+.controls {
+  display: flex;
+}
+
+.buttonRow {
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.disabledButton {
+  pointer-events: none;
+  color: gray;
+}
+
+.input {
+  background-color: rgba(1, 1, 1, 0.87);
+  font-family: ChicagoFLF;
+  font-size: 16px;
+  color: white;
+  border-radius: 2px;
+  outline: none;
+  border: none;
+  padding: 6px;
+  height: 60px;
+}
+
+.footer {
+  position: absolute;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  bottom: 0px;
+  right: 0px;
+}
+
+.footerIcon {
+  fill: #000;
+  transform: scale(110%);
+  padding: 0 10px 0 10px;
+  transition: all 0.1s ease-in-out;
+  &:hover {
+    fill: #ffa500;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .appRow {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-start;
+    margin-top: 30px;
+  }
+
+  .input {
+    font-size: 14px;
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .footerIcon {
+    transform: scale(90%);
+    padding: 0px 4px 0px 4px;
+  }
+}
+
+.noclick {
+  pointer-events: none;
+  cursor: none;
+  overflow: hidden;
+}
