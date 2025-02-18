@@ -1,9 +1,6 @@
 {
   "name": "karektar",
   "private": true,
-  "engines": {
-    "node": ">=18.18.0"
-  },
   "workspaces": [
     "frontend",
     "workers"
