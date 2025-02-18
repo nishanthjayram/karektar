@@ -1,0 +1,35 @@
+.container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  min-height: 100vh;
+  min-width: 100vw;
+  background-color: #9a9a9a;
+  opacity: 0.5;
+}
+
+.content {
+  padding: 2rem;
+}
+
+.card {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 28rem;
+  margin: 0 auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.text {
+  color: #333;
+  line-height: 1.5;
+}

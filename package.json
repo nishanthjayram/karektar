@@ -1,50 +1,20 @@
 {
   "name": "karektar",
   "private": true,
-  "homepage": "https://nishanthjayram.github.io/karektar",
-  "version": "0.0.0",
-  "type": "module",
+  "workspaces": [
+    "frontend",
+    "workers"
+  ],
   "scripts": {
-    "dev": "vite",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx,json}'",
-    "lint:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx,json}'",
-    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc.json"
-  },
-  "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.5.1",
-    "@fortawesome/free-regular-svg-icons": "^6.5.1",
-    "@fortawesome/free-solid-svg-icons": "^6.5.1",
-    "@fortawesome/react-fontawesome": "^0.2.0",
-    "opentype.js": "^1.3.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-modal": "^3.16.1",
-    "react-responsive": "^9.0.2",
-    "vite-plugin-svgr": "^4.2.0"
+    "dev:frontend": "npm run dev -w frontend -- --host",
+    "dev:workers": "npm run dev -w workers",
+    "dev": "npm-run-all --parallel dev:frontend dev:workers",
+    "build": "npm run build --workspaces",
+    "deploy": "npm run deploy --workspaces"
   },
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^5.2.1",
-    "@types/opentype.js": "^1.3.8",
-    "@types/react": "^18.2.55",
-    "@types/react-dom": "^18.2.19",
-    "@types/react-modal": "^3.16.3",
-    "@typescript-eslint/eslint-plugin": "^7.0.1",
-    "@typescript-eslint/parser": "^7.0.1",
-    "@vitejs/plugin-react": "^4.2.1",
-    "classnames": "^2.5.1",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.18",
-    "gh-pages": "^6.1.1",
-    "prettier": "3.2.5",
-    "typescript": "^5.3.3",
-    "vite": "^5.1.1"
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.7.3",
+    "wrangler": "^3.107.0"
   }
 }

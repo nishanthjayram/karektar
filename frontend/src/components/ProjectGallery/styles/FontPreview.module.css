@@ -1,0 +1,10 @@
+.container {
+  position: absolute;
+  display: flex;
+  flex-flow: column nowrap;
+  /* width: 2 */
+  padding: 12px;
+  /* border: 1px solid #ddd; */
+  background: #f9f9f9;
+  font-family: ChicagoFLF, sans-serif;
+}

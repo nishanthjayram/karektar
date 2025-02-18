@@ -1,0 +1,31 @@
+/* Canvas.module.css */
+.canvasWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--color-background-alt);
+  border: var(--border-window);
+  box-shadow: var(--shadow-window);
+  cursor: crosshair;
+  padding: var(--spacing-unit);
+}
+
+.drawingCanvas,
+.previewCanvas,
+.guidelineCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  user-select: none;
+  image-rendering: pixelated;
+  background: var(--color-pixel-off);
+}
+
+.drawingCanvas {
+  border: var(--border-inset);
+  z-index: 100;
+}

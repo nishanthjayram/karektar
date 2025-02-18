@@ -1,0 +1,33 @@
+/* GlyphCanvas.module.css */
+.container {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-unit);
+  background: var(--color-background-alt);
+  border: var(--border-button);
+}
+
+.container:hover {
+  background: var(--color-button-hover);
+}
+
+.container.active {
+  background: var(--color-button-active);
+  box-shadow: inset 1px 1px 0 var(--color-border-dark);
+}
+
+.glyph {
+  background: var(--color-pixel-off);
+  border: var(--border-inset);
+  cursor: pointer;
+}
+
+.char {
+  font-size: 1em;
+  font-weight: bold;
+  color: var(--color-text);
+  text-align: center;
+  margin-top: var(--spacing-half);
+}

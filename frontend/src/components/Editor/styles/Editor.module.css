@@ -1,0 +1,35 @@
+/* Editor.module.css */
+.container {
+  width: 100%;
+  max-width: 1300px;
+  position: relative;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: var(--spacing-double);
+  background: var(--color-background-alt);
+  border: var(--border-window);
+  padding: var(--spacing-double);
+  box-shadow: var(--shadow-window);
+}
+
+.canvasPane {
+  position: relative;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--spacing-double);
+  background: var(--color-background);
+  padding: var(--spacing-unit);
+  border: var(--border-inset);
+}
+
+.glyphPane {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-window);
+  background: var(--color-background-alt);
+  padding: var(--spacing-unit);
+}

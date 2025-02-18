@@ -1,0 +1,21 @@
+/* Window.module.css */
+.container {
+  width: 800px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  position: relative;
+  border: 3px solid black; /* Match the header border width */
+  box-shadow: 2px 2px 0px 0px #000000;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background-color: white;
+  padding: 16px;
+  font-size: 24px;
+}

@@ -1,0 +1,34 @@
+/* LoginWindow.module.css */
+.loginContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  text-align: center;
+}
+
+.welcomeText {
+  font-family: 'ChicagoFLF';
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.button {
+  font-family: 'ChicagoFLF';
+  padding: 5px 10px;
+  width: 200px;
+  background-color: #000;
+  color: white;
+  border: none;
+  box-shadow: 2px 2px 0px 0px #000000;
+  cursor: pointer;
+}

@@ -1,0 +1,38 @@
+/* GlyphBrowser.module.css */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: var(--spacing-unit);
+  padding: var(--spacing-unit);
+  background: var(--color-background);
+  border: var(--border-window);
+  box-shadow: var(--shadow-window);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-unit);
+  margin-top: var(--spacing-unit);
+}
+
+.pageButton {
+  background: var(--color-button);
+  border: var(--border-button);
+  padding: var(--spacing-half) var(--spacing-unit);
+  cursor: pointer;
+  box-shadow: var(--shadow-dropdown);
+  font-family: ChicagoFLF;
+}
+
+.pageButton:active {
+  background: var(--color-button-active);
+  box-shadow: none;
+  transform: translate(1px, 1px);
+}
+
+.pageButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}

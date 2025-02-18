@@ -1,0 +1,59 @@
+/* Project.module.css */
+.container {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  border: var(--border-window);
+  background: var(--color-background-alt);
+  padding: var(--spacing-unit);
+}
+
+.metadata {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  gap: var(--spacing-half);
+}
+
+.metadata h2 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-text);
+}
+
+.metadata p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.pane {
+  width: 100%;
+  border: var(--border-button);
+  background: var(--color-button);
+  padding: var(--spacing-unit);
+  cursor: pointer;
+  box-shadow: var(--shadow-dropdown);
+}
+
+.pane:hover {
+  background: var(--color-button-hover);
+}
+
+.pane:active {
+  background: var(--color-button-active);
+  box-shadow: none;
+  transform: translate(1px, 1px);
+}
+
+.name {
+  width: 100%;
+  display: flex;
+  min-height: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-text);
+  color: var(--color-text-inverse);
+  font-weight: 500;
+  padding: var(--spacing-half);
+}

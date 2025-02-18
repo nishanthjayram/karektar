@@ -1,0 +1,120 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'ChicagoFLF';
+  src:
+    local('ChicagoFLF'),
+    url('/fonts/ChicagoFLF.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Karektar';
+  src:
+    local('Karektar'),
+    url('/fonts/Karektar.otf') format('opentype');
+}
+
+:root {
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  image-rendering: pixelated;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-primary);
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  font-family: var(--font-secondary);
+  border-bottom: 1px dashed transparent;
+  transition:
+    color 0.2s ease,
+    border-bottom-color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-link-hover);
+  border-bottom-color: var(--color-link-hover);
+}
+
+a:visited {
+  color: var(--color-secondary);
+}
+
+/* a {
+  color: #0000ee;
+  text-decoration: none;
+  font-family: var(--font-secondary);
+  border-bottom: 1px dashed transparent;
+  transition:
+    color 0.2s ease,
+    border-bottom-color 0.2s ease;
+}
+
+a:visited {
+  color: #551a8b;
+}
+
+a:hover {
+  color: #000099;
+  border-bottom-color: #000099;
+}
+
+a:active {
+  color: #ff0000;
+} */
+
+/* Focus outline for accessibility */
+/* :focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+} */
+
+/* Media query for reduced motion */
+/* @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+} */
+
+/* Media query for dark mode */
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --color-text: oklch(95% 0.01 240);
+    --color-background: oklch(20% 0.01 240);
+  }
+} */

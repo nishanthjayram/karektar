@@ -1,0 +1,46 @@
+/* CanvasDebug.module.css */
+.debug {
+  position: fixed;
+  bottom: var(--spacing-double);
+  right: var(--spacing-double);
+  background: var(--color-background-alt);
+  padding: var(--spacing-unit);
+  border: var(--border-window);
+  box-shadow: var(--shadow-window);
+  font-family: 'ChicagoFLF';
+  z-index: 1000;
+}
+
+.debugTitle {
+  font-size: 14px;
+  margin-bottom: var(--spacing-unit);
+  color: var(--color-text);
+  font-weight: bold;
+}
+
+.canvasContainer {
+  display: flex;
+  gap: var(--spacing-unit);
+}
+
+.canvasWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-half);
+}
+
+.canvasLabel {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.debugCanvas {
+  border: var(--border-inset);
+  background: var(--color-pixel-off);
+}
+
+.debugStatus {
+  font-size: 12px;
+  margin-top: var(--spacing-unit);
+  color: var(--color-text-muted);
+}
