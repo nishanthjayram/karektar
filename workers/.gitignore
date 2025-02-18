@@ -3,8 +3,7 @@
 logs
 _.log
 npm-debug.log_
-yarn-debug.log*
-yarn-error.log*
+npm-debug.log*
 lerna-debug.log*
 .pnpm-debug.log*
 

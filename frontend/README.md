@@ -11,5 +11,5 @@ https://karektar.newtrino.ink/
 
 ## Setup
 * Clone the repository: `git clone https://github.com/nishanthjayram/karektar.git`.
-* Install project dependencies by running `yarn`.
-* Start the development server by running `yarn dev`. (Run `yarn dev --host` to expose to other devices on your local network.)
+* Install project dependencies by running `npm install`.
+* Start the development server by running `npm run dev`. (Run `npm run dev -- --host` to expose to other devices on your local network.)
