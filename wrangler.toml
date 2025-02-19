@@ -1,6 +1,5 @@
-# Root wrangler.toml
-name = "workers"
-main = "workers/src/index.ts"  # Updated path
+name = "karektar-api"
+main = "workers/src/index.ts"
 compatibility_date = "2025-01-29"
 compatibility_flags = ["nodejs_compat"]
 
@@ -11,6 +10,3 @@ enabled = true
 binding = "MY_KV"
 id = "2484151729704a02be66066ead6e00d5"
 preview_id = "8b231607764f4cd0ac2d637f97883ea4"
-
-# Specify the Pages output directory
-pages_build_output_dir = "frontend/dist"

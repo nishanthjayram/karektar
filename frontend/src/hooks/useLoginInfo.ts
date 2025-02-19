@@ -15,6 +15,14 @@ export type TLoginInfo = {
   navigateToLogin: () => void
 }
 
+const getWorkerUrl = () => {
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://127.0.0.1:8787'
+  }
+  // For production
+  return 'https://karektar-api.workers.dev' // Your worker's production URL
+}
+
 export const useLoginInfo = (): TLoginInfo => {
   const [user, setUser] = useState<TUser | null>(null)
   const loadProjects = useProjectStore(state => state.loadProjects)
@@ -22,7 +30,7 @@ export const useLoginInfo = (): TLoginInfo => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const workerUrl = window.location.origin
+        const workerUrl = getWorkerUrl()
         const response = await fetch(`${workerUrl}/api/auth/check`, {
           credentials: 'include',
         })
@@ -42,14 +50,16 @@ export const useLoginInfo = (): TLoginInfo => {
   }, [loadProjects])
 
   const handleGoogleLogin = () => {
-    const workerUrl = window.location.origin // or your Worker’s URL if it's on a different domain
+    const workerUrl = getWorkerUrl()
     const uiOrigin = encodeURIComponent(window.location.origin)
-    window.location.replace(`${workerUrl}/auth/google?uiOrigin=${uiOrigin}`)
+
+    const authUrl = `${workerUrl}/auth/google?uiOrigin=${uiOrigin}`
+    window.location.href = authUrl
   }
 
   const handleLogout = async () => {
     try {
-      const workerUrl = window.location.origin
+      const workerUrl = getWorkerUrl()
       await fetch(`${workerUrl}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',

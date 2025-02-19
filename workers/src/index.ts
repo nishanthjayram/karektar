@@ -1,17 +1,29 @@
-// workers/src/index.ts
 import { TSession, TProjectMetadata } from '@common/types';
 
 const ALLOWED_ORIGINS = new Set([
-	'https://karektar.pages.dev', // Your Pages preview URL
-	'https://karektar.newtrino.ink', // Your custom domain
+	'http://localhost:5173',
+	'http://172.20.57.51:5173',
+	'http://172.20.56.38:5173',
+	'https://karektar.pages.dev',
+	'https://karektar.newtrino.ink',
 ]);
 
 const getCorsOrigin = (request: Request): string => {
 	const origin = request.headers.get('Origin');
-	if (origin && ALLOWED_ORIGINS.has(origin)) {
-		return origin;
+
+	if (!origin) {
+		const url = new URL(request.url);
+		const uiOrigin = url.searchParams.get('uiOrigin');
+		if (uiOrigin) return uiOrigin;
 	}
-	throw new Error('Invalid origin');
+
+	if (origin) {
+		if (ALLOWED_ORIGINS.has(origin)) return origin;
+
+		if (origin.startsWith('http://localhost:') || origin.startsWith('http://172.')) return origin;
+	}
+
+	return 'http://localhost:5173';
 };
 
 const corsHeaders = (request: Request) => ({
@@ -42,6 +54,12 @@ interface GoogleUserInfo {
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
+		console.log('Incoming request:', {
+			method: request.method,
+			url: request.url,
+			headers: Object.fromEntries(request.headers.entries()),
+		});
+
 		const url = new URL(request.url);
 
 		if (request.method === 'OPTIONS') {
@@ -99,10 +117,24 @@ export default {
 				default:
 					response = new Response('Not found', { status: 404 });
 			}
+
+			console.log('Pre-CORS response:', {
+				status: response.status,
+				headers: Object.fromEntries(response.headers.entries()),
+			});
+
 			return handleResponse(response);
 		} catch (error) {
 			console.error('Request error:', error);
-			return handleResponse(new Response('Internal server error', { status: 500 }));
+			return handleResponse(
+				new Response('Internal server error', {
+					status: 500,
+					headers: {
+						'Content-Type': 'text/plain',
+						...corsHeaders(request),
+					},
+				}),
+			);
 		}
 	},
 };
@@ -111,9 +143,16 @@ async function handleGoogleAuth(request: Request, env: Env): Promise<Response> {
 	const url = new URL(request.url);
 	const workerOrigin = url.origin;
 
-	// Try to get the UI's origin from the Origin header; fallback to workerOrigin if not available.
-	const uiOrigin = url.searchParams.get('uiOrigin') || request.headers.get('Origin') || workerOrigin;
+	const uiOrigin = url.searchParams.get('uiOrigin');
+	if (!uiOrigin) {
+		return new Response('Missing uiOrigin parameter', {
+			status: 400,
+			headers: corsHeaders(request),
+		});
+	}
+
 	const redirectUri = `${workerOrigin}/auth/callback`;
+	console.log('Redirect URI:', redirectUri);
 
 	const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
 	authUrl.searchParams.set('client_id', env.GOOGLE_CLIENT_ID);
@@ -122,13 +161,13 @@ async function handleGoogleAuth(request: Request, env: Env): Promise<Response> {
 	authUrl.searchParams.set('scope', 'email profile');
 	authUrl.searchParams.set('access_type', 'offline');
 	authUrl.searchParams.set('prompt', 'consent');
-	// Pass the UI origin in the state parameter so it can be used on callback.
 	authUrl.searchParams.set('state', uiOrigin);
 
-	return new Response('', {
+	return new Response(null, {
 		status: 302,
 		headers: {
 			Location: authUrl.toString(),
+			...corsHeaders(request),
 			'Cache-Control': 'no-store',
 		},
 	});
@@ -137,6 +176,9 @@ async function handleGoogleAuth(request: Request, env: Env): Promise<Response> {
 async function handleCallback(request: Request, env: Env): Promise<Response> {
 	try {
 		const url = new URL(request.url);
+		console.log('Callback URL:', url.toString());
+		console.log('Request headers:', Object.fromEntries(request.headers.entries()));
+		console.log('State param:', url.searchParams.get('state'));
 		const code = url.searchParams.get('code');
 		if (!code) throw new Error('No code provided');
 
@@ -182,7 +224,10 @@ async function handleCallback(request: Request, env: Env): Promise<Response> {
 			status: 302,
 			headers: {
 				'Set-Cookie': setCookie,
+				'Access-Control-Allow-Origin': uiOrigin,
 				'Access-Control-Allow-Credentials': 'true',
+				'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+				'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 				Location: uiOrigin,
 			},
 		});
@@ -192,6 +237,8 @@ async function handleCallback(request: Request, env: Env): Promise<Response> {
 		return new Response(null, {
 			status: 302,
 			headers: {
+				'Access-Control-Allow-Origin': uiOrigin,
+				'Access-Control-Allow-Credentials': 'true',
 				Location: `${uiOrigin}/login?error=auth_failed&reason=${encodeURIComponent(error.message)}`,
 			},
 		});
@@ -230,7 +277,7 @@ async function handleAuthCheck(request: Request, env: Env): Promise<Response> {
 		}),
 		{
 			headers: { 'Content-Type': 'application/json' },
-		}
+		},
 	);
 }
 
