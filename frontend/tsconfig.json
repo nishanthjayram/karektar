@@ -35,6 +35,6 @@
     "useDefineForClassFields": true,
     "useUnknownInCatchVariables": true
   },
-  "include": ["src/**/*", "../common/**/*", "vite.config.ts"],
+  "include": ["src/**/*", "../common/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
