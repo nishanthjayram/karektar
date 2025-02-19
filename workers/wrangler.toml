@@ -1,0 +1,15 @@
+name = "karektar-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-29"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+WORKER_ORIGIN = "https://karektar-api.workers.dev"
+
+[observability]
+enabled = true
+
+[[kv_namespaces]]
+binding = "MY_KV"
+id = "77bd8aec62324a8e8b721451dc2f0091"
+preview_id = "d7e41fa543954ab99ffde025781b109f"

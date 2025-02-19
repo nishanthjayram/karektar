@@ -58,3 +58,6 @@ _*.ts
 .dynamodb/
 .tern-port
 .fusebox/
+
+build
+dist
