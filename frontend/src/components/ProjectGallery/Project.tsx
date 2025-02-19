@@ -1,4 +1,4 @@
-import { TProjectMetadata } from '@/types/project'
+import { TProjectMetadata } from '@common/types'
 import styles from './styles/Project.module.css'
 
 type TProjectProps = {

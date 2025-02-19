@@ -1,4 +1,4 @@
-import { TBitmapSize } from "./bitmap"
+import { TBitmapSize } from './bitmap'
 
 export type TSerializedBitmap = {
   size: TBitmapSize
@@ -18,9 +18,9 @@ export type TProjectMetadata = {
   fontMap: TSerializedFontMap
 }
 
- export type TSession = {
-    userId: string
-    email: string
-    name: string
-    expiresAt: number
-  }
+export type TSession = {
+  userId: string
+  email: string
+  name: string
+  expiresAt: number
+}

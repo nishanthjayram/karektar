@@ -5,6 +5,7 @@ import { TEditorStore } from '@/types/stores'
 import { MAX_SCALE } from '@/constants/defaults'
 import Bitmap from '@/classes/Bitmap'
 import { useProjectStore } from '@/stores/projectStore'
+import { bitmapConverter } from '@/utils/bitmap'
 import { tools } from '@/utils/editor/tools'
 import { disposeFontMap, disposeOnReplace } from '@/utils/helpers/disposers'
 import { createFontMap } from '@/utils/project/createFontMap'
@@ -205,8 +206,8 @@ export const useEditorStore = create<TEditorStore>((set, get) => ({
 
     // Create new clones for the project's fontMap.
     const newFontMap = new Map<string, Bitmap>()
-    for (const [char, bitmap] of project.fontMap) {
-      newFontMap.set(char, bitmap.clone())
+    for (const [char, bitmap] of Object.entries(project.fontMap)) {
+      newFontMap.set(char, bitmapConverter.toBitmap(bitmap))
     }
 
     // Create a new main layer bitmap.
