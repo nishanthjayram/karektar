@@ -3,10 +3,13 @@ main = "workers/src/index.ts"
 compatibility_date = "2025-01-29"
 compatibility_flags = ["nodejs_compat"]
 
+[vars]
+WORKER_ORIGIN = "https://karektar-api.workers.dev"
+
 [observability]
 enabled = true
 
 [[kv_namespaces]]
 binding = "MY_KV"
-id = "2484151729704a02be66066ead6e00d5"
-preview_id = "8b231607764f4cd0ac2d637f97883ea4"
+id = "77bd8aec62324a8e8b721451dc2f0091"
+preview_id = "d7e41fa543954ab99ffde025781b109f"
