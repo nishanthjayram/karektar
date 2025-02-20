@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"baseUrl": ".",
 		"target": "ES2020",
 		"module": "ES2022",
 		"lib": ["ES2020"],
@@ -10,7 +11,11 @@
 		"esModuleInterop": true,
 		"skipLibCheck": true,
 		"paths": {
-			"@common/*": ["../common/*"]
+			"@/*": ["src/*"],
+			"@common/*": ["../common/*"],
+			"@constants/*": ["src/constants/*"],
+			"@handlers/*": ["src/handlers/*"],
+			"@utils/*": ["src/utils/*"]
 		}
 	},
 	"include": ["src/**/*", "../common/**/*"]
