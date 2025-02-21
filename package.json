@@ -5,6 +5,9 @@
     "frontend",
     "workers"
   ],
+  "engines": {
+    "node": "^20.9.0"
+  },
   "scripts": {
     "dev:frontend": "npm run dev -w frontend -- --host",
     "dev:workers": "npm run dev -w workers",

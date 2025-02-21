@@ -1,5 +1,3 @@
-__NODE_VERSION__ = '20.9.0'
-
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
