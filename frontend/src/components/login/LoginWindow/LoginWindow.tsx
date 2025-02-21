@@ -1,4 +1,4 @@
-// LoginWindow.tsx
+import React from 'react'
 import { TLoginInfo, TUser } from '@/hooks/useLoginInfo'
 import Window, { TWindowConfig } from '../../ui/Window/Window'
 import styles from './LoginWindow.module.css'
@@ -38,7 +38,6 @@ const Login: React.FC<TLoginProps> = ({ user, handleGoogleLogin, handleLogout })
         Welcome to Karektar 2.0, a web app for building and exporting custom bitmap
         fonts.
       </span>
-
       {user ? (
         <div className={styles.userInfo}>
           <p>Logged in as: {user.email}</p>

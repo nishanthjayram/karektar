@@ -17,6 +17,15 @@
 }
 
 :root {
+  --font-primary: 'ChicagoFLF', sans-serif;
+  --font-secondary: 'Karektar', sans-serif;
+
+  --color-primary: oklch(95% 0.01 240);
+  --color-secondary: oklch(20% 0.01 240);
+  --color-text: oklch(95% 0.01 240);
+  --color-background: oklch(20% 0.01 240);
+  --color-link: oklch(95% 0.01 240);
+  --color-link-hover: oklch(95% 0.01 240);
 }
 
 html,
@@ -40,8 +49,8 @@ body {
   align-items: center;
   font-family: var(--font-primary);
   line-height: 1.5;
-  color: var(--color-text);
-  background-color: var(--color-background);
+  /* color: var(--color-text); */
+  /* background-color: var(--color-background); */
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

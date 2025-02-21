@@ -1,4 +1,3 @@
-// useLoginInfo.ts
 import { useEffect, useState } from 'react'
 import { useProjectStore } from '@/stores/projectStore'
 
@@ -19,6 +18,7 @@ export const useLoginInfo = (): TLoginInfo => {
   const [user, setUser] = useState<TUser | null>(null)
   const loadProjects = useProjectStore(state => state.loadProjects)
 
+  // On mount, check if the user is already authenticated.
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -29,7 +29,7 @@ export const useLoginInfo = (): TLoginInfo => {
           const userData = await response.json()
           setUser(userData)
           await loadProjects()
-          console.log('projects ahoy')
+          console.log('Projects loaded')
         } else {
           setUser(null)
         }
@@ -40,13 +40,16 @@ export const useLoginInfo = (): TLoginInfo => {
     checkAuth()
   }, [loadProjects])
 
+  // Initiate OAuth by redirecting to the Worker endpoint.
   const handleGoogleLogin = () => {
+    // Capture the UI's origin for later redirection.
     const uiOrigin = encodeURIComponent(window.location.origin)
-
+    // Redirect to your Worker endpoint (e.g. /auth/google) that builds the Google OAuth URL.
     const authUrl = `/auth/google?uiOrigin=${uiOrigin}`
     window.location.href = authUrl
   }
 
+  // Log out the user by calling the logout endpoint.
   const handleLogout = async () => {
     try {
       await fetch(`/api/auth/logout`, {
@@ -59,6 +62,7 @@ export const useLoginInfo = (): TLoginInfo => {
     }
   }
 
+  // Helper hook to detect if the current route is '/login'.
   const isLoginRoute = useIsLoginRoute()
   const navigateToLogin = () => {
     window.history.pushState({}, '', '/login')
@@ -68,21 +72,17 @@ export const useLoginInfo = (): TLoginInfo => {
 }
 
 const useIsLoginRoute = () => {
-  const [isLoginRoute, setIsLoginRoute] = useState(() => {
-    // Initialize with current path on mount
-    return window.location.pathname === '/login'
-  })
+  const [isLoginRoute, setIsLoginRoute] = useState(
+    () => window.location.pathname === '/login',
+  )
 
   useEffect(() => {
-    // Function to check path
     const checkPath = () => {
       setIsLoginRoute(window.location.pathname === '/login')
     }
 
-    // Listen for URL changes
+    // Listen to URL changes
     window.addEventListener('popstate', checkPath)
-
-    // Handle manual URL changes (like history.pushState)
     const originalPushState = window.history.pushState
     window.history.pushState = function (
       state: any,

@@ -7,7 +7,7 @@ async function handleRequest(request) {
 
   if (url.pathname.startsWith('/auth')) {
     try {
-      const workerUrl = process.env.WORKER_URL
+      const workerUrl = import.meta.env.WORKER_URL
 
       if (!workerUrl) {
         return new Response('Worker URL not configured', { status: 500 })
