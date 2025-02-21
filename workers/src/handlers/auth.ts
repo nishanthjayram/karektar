@@ -37,6 +37,7 @@ export async function handleGoogleAuth(request: Request, env: Env): Promise<Resp
 	});
 
 	const redirectUri = `${workerOrigin}/auth/callback`;
+	console.log(redirectUri);
 	const authUrl = new URL(GOOGLE_AUTH_URL);
 	authUrl.searchParams.set('client_id', env.GOOGLE_CLIENT_ID);
 	authUrl.searchParams.set('redirect_uri', redirectUri);
