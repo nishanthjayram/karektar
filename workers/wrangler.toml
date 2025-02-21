@@ -15,7 +15,7 @@ id = "77bd8aec62324a8e8b721451dc2f0091"
 preview_id = "d7e41fa543954ab99ffde025781b109f"
 
 [env.preview]
-# Override any vars for your preview branch.
+name = "karektar-api-preview"
 vars = { WORKER_ORIGIN = "https://save-importable-bitmap-forma.karektar.pages.dev" }
 
 [[env.preview.kv_namespaces]]
