@@ -5,6 +5,7 @@ export const STATIC_ALLOWED_ORIGINS = new Set([
 	'https://karektar.pages.dev',
 	'https://karektar.newtrino.ink',
 	'https://karektar-api.workers.dev',
+	'https://save-importable-bitmap-forma.karektar.pages.dev/',
 ]);
 
 // HTTP status codes
