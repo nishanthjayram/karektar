@@ -1,0 +1,30 @@
+name: Deploy Worker
+
+on:
+  push:
+    branches:
+      - preview # Deploy to preview on pushes to the 'preview' branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Adjust if needed
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Deploy to Preview
+        run: wrangler publish -c wrangler.preview.toml
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID_PREVIEW }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET_PREVIEW }}

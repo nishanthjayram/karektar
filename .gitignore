@@ -59,5 +59,8 @@ _*.ts
 .tern-port
 .fusebox/
 
+# Dev files
+*.dev.*
+
 build
 dist

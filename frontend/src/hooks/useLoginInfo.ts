@@ -67,7 +67,6 @@ export const useLoginInfo = (): TLoginInfo => {
   return { user, handleGoogleLogin, handleLogout, isLoginRoute, navigateToLogin }
 }
 
-// You probably just want to use a router, but I'm not going for anything that clean
 const useIsLoginRoute = () => {
   const [isLoginRoute, setIsLoginRoute] = useState(() => {
     // Initialize with current path on mount

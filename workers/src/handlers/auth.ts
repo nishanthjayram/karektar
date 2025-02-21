@@ -32,7 +32,7 @@ export async function handleGoogleAuth(request: Request, env: Env): Promise<Resp
 	const stateObj = { uiOrigin, stateToken };
 	const state = btoa(JSON.stringify(stateObj));
 
-	await env.MY_KV.put(`${OAUTH_STATE_PREFIX}${stateToken}`, uiOrigin, {
+	await env.MY_KV.put(`${OAUTH_STATE_PREFIX}${stateToken}`, state, {
 		expirationTtl: OAUTH_STATE_TTL,
 	});
 
@@ -61,6 +61,7 @@ export async function handleCallback(request: Request, env: Env): Promise<Respon
 		const url = new URL(request.url);
 		const code = url.searchParams.get('code');
 		const stateParam = url.searchParams.get('state');
+
 		if (!code || !stateParam) {
 			throw new Error('Missing required parameters');
 		}
@@ -72,10 +73,11 @@ export async function handleCallback(request: Request, env: Env): Promise<Respon
 		} catch (e) {
 			throw new Error('Invalid state parameter format');
 		}
+
 		const { uiOrigin, stateToken } = stateObj;
 
-		const storedOrigin = await env.MY_KV.get(`${OAUTH_STATE_PREFIX}${stateToken}`);
-		if (!storedOrigin || storedOrigin !== uiOrigin) {
+		const storedState = await env.MY_KV.get(`${OAUTH_STATE_PREFIX}${stateToken}`);
+		if (!storedState || storedState !== stateParam) {
 			throw new Error('Invalid state parameter');
 		}
 		// Clean up the used state token.

@@ -4,7 +4,7 @@ compatibility_date = "2025-01-29"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-WORKER_ORIGIN = "https://karektar-api.workers.dev"
+WORKER_ORIGIN = "https://karektar-api.newtrino.ink/auth/callback"
 
 [observability]
 enabled = true
