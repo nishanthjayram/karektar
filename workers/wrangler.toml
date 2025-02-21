@@ -16,7 +16,7 @@ preview_id = "d7e41fa543954ab99ffde025781b109f"
 
 [env.preview]
 name = "karektar-api-preview"
-vars = { WORKER_ORIGIN = "https://save-importable-bitmap-forma.karektar.pages.dev" }
+vars = { WORKER_ORIGIN = "https://save-importable-bitmap-forma.karektar.pages.dev/auth/callback" }
 
 [[env.preview.kv_namespaces]]
 binding = "MY_KV"
