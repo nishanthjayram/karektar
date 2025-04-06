@@ -1,0 +1,116 @@
+/* Dropdown.module.css */
+.dropdown {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  background-color: #fff;
+  border: 2px solid black;
+  min-width: 250px;
+  box-shadow: 2px 2px 0px 0px #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  padding: 0 16px;
+  font-family: 'ChicagoFLF';
+  font-size: 18px;
+  cursor: pointer;
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.menuItem:last-child {
+  border-bottom: none;
+}
+
+.menuItem:hover,
+.menuItem:focus {
+  background-color: #000;
+  color: #fff;
+  outline: none;
+}
+
+.menuLabel {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shortcut {
+  font-size: 16px;
+  color: #777;
+}
+
+.menuItem:hover .shortcut,
+.menuItem:focus .shortcut {
+  color: #fff;
+}
+
+/* Divider styling */
+.divider {
+  height: 1px;
+  background-color: #000;
+  margin: 4px 0;
+}
+
+.dropdownWrapper {
+  position: relative;
+  /* Ensure the dropdown wrapper has sufficient height */
+  height: 30px;
+  margin-right: 5px;
+}
+
+.dropdownWrapper:first-child {
+  margin-left: 0;
+}
+
+.dropdownWrapper:last-child {
+  margin-right: 5px;
+}
+
+.dropdownButton {
+  /* display: flex; */
+  font-family: 'ChicagoFLF';
+  background: #fff;
+  border: none;
+  color: #000;
+  margin: 0px 20px;
+  cursor: pointer;
+  outline: none;
+  text-align: center;
+  width: 100%;
+  font-size: 18px;
+  text-transform: capitalize;
+  box-shadow: 2px 2px 0px 0px #000;
+  transition: background-color 0.1s ease; /* Smooth transition for hover/active states */
+}
+
+.dropdownButton:hover:not(.active) {
+  background: #eee; /* Light gray hover effect when not active */
+}
+
+.dropdownButton:focus {
+  outline: 2px solid #000; /* Visible focus indicator */
+  outline-offset: -2px;
+}
+
+.active {
+  background: #000;
+  color: #fff;
+}
+
+.arrow {
+  width: 0;
+  height: 0;
+  align-self: center;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #000;
+  /* margin-left: 8px; */
+}

@@ -1,0 +1,38 @@
+/* ProjectGallery.module.css */
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 15px;
+  width: 100vw;
+
+  /* padding: var(--spacing-double); */
+  /* background: var(--color-background-alt); */
+  /* border: var(--border-window); */
+  /* box-shadow: var(--shadow-window); */
+}
+
+.projectGrid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 30px;
+  padding: 10px;
+  min-width: 500px;
+  max-width: 100%;
+}
+
+/* 
+.form {
+}
+
+.input {
+}
+
+.button {
+}
+.select {
+}
+*/

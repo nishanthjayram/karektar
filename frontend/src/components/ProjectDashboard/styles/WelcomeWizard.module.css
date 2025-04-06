@@ -1,0 +1,52 @@
+/* WelcomeWizard.module.css */
+.container {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  width: 30vh;
+  background: var(--color-background-alt);
+  border: var(--border-window);
+  box-shadow: var(--shadow-window);
+  padding: var(--spacing-double);
+}
+
+form {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  gap: var(--spacing-double);
+  width: 100%;
+}
+
+form div {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  width: 100%;
+}
+
+form input {
+  font-family: ChicagoFLF;
+  width: 100%;
+  border: var(--border-inset);
+  padding: var(--spacing-unit);
+  background: var(--color-background-alt);
+  color: var(--color-text);
+}
+
+form button {
+  background: var(--color-button);
+  border: var(--border-button);
+  box-shadow: var(--shadow-dropdown);
+  padding: var(--spacing-unit);
+  color: var(--color-text);
+  font-family: ChicagoFLF;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+form button:active {
+  background: var(--color-button-active);
+  box-shadow: none;
+  transform: translate(1px, 1px);
+}

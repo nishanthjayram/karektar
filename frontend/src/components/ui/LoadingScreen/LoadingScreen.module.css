@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 0.5rem;
+}
+
+.letter {
+  font-size: 2.25rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  color: #9ca3af;
+}
+
+.active {
+  color: var(--primary-color);
+  transform: scale(1.25) translateY(-0.5rem);
+}
