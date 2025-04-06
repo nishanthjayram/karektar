@@ -37,15 +37,9 @@ export default defineConfig({
     sourcemap: false,
   },
   server: {
-    host: '0.0.0.0',
-    port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8787',
-        changeOrigin: true,
-      },
-      '/auth': {
-        target: 'http://localhost:8787',
+        target: 'http://localhost:8788',
         changeOrigin: true,
       },
     },

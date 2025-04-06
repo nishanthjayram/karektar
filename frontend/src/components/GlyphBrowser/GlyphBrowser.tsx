@@ -1,4 +1,3 @@
-import Bitmap from '@classes/Bitmap'
 import { useEffect, useRef, useState } from 'react'
 import { useEditorStore } from '@/stores'
 import GlyphCanvas from './GlyphCanvas'
@@ -30,6 +29,7 @@ const GlyphBrowser: React.FC = () => {
   }, [])
 
   const glyphs = Array.from(fontMap.entries()).slice(0, maxGlyphs) // Limit dynamically
+  console.log(glyphs)
 
   return (
     <div ref={containerRef} className={styles.gallery}>

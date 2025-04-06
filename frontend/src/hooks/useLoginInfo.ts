@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useProjectStore } from '@/stores/projectStore'
 
 export type TUser = {
@@ -10,94 +11,80 @@ export type TLoginInfo = {
   user: TUser | null
   handleGoogleLogin: () => void
   handleLogout: () => Promise<void>
-  isLoginRoute: boolean
-  navigateToLogin: () => void
+  loading: boolean
 }
 
 export const useLoginInfo = (): TLoginInfo => {
+  const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<TUser | null>(null)
+
+  const navigate = useNavigate()
   const loadProjects = useProjectStore(state => state.loadProjects)
 
-  // On mount, check if the user is already authenticated.
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch(`/api/auth/check`, {
-          credentials: 'include',
-        })
+        console.log('🔄 Running authentication check...')
+        const response = await fetch(`/api/auth/check`, { credentials: 'include' })
+        console.log('Response status:', response.status)
+
         if (response.ok) {
           const userData = await response.json()
+          console.log('✅ User authenticated:', userData)
           setUser(userData)
+          localStorage.setItem('user', JSON.stringify(userData))
           await loadProjects()
-          console.log('Projects loaded')
         } else {
+          console.log('❌ User not authenticated, clearing session')
           setUser(null)
+          localStorage.removeItem('user')
         }
       } catch (error) {
-        console.error('Failed to fetch user:', error)
+        console.error('⚠️ Auth check failed:', error)
+      } finally {
+        setLoading(false)
       }
     }
+
     checkAuth()
   }, [loadProjects])
 
-  // Initiate OAuth by redirecting to the Worker endpoint.
+  useEffect(() => {
+    console.log('🔍 Checking redirect conditions:')
+    console.log('- loading:', loading)
+    console.log('- user:', user)
+
+    if (!loading && user === null) {
+      console.log('🔄 Redirecting to login page...')
+      navigate('/login', { replace: true }) // Redirect once after loading completes
+    }
+  }, [loading, user])
+
   const handleGoogleLogin = () => {
-    // Capture the UI's origin for later redirection.
+    console.log('🌐 Redirecting to Google Login')
     const uiOrigin = encodeURIComponent(window.location.origin)
-    // Redirect to your Worker endpoint (e.g. /auth/google) that builds the Google OAuth URL.
-    const authUrl = `/auth/google?uiOrigin=${uiOrigin}`
-    window.location.href = authUrl
+    window.location.href = `/api/auth/google?uiOrigin=${uiOrigin}`
   }
 
-  // Log out the user by calling the logout endpoint.
   const handleLogout = async () => {
+    console.log('🚪 Logging out...')
     try {
       await fetch(`/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       })
       setUser(null)
+      localStorage.removeItem('user')
+      navigate('/login', { replace: true })
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error('❌ Logout failed:', error)
     }
   }
 
-  // Helper hook to detect if the current route is '/login'.
-  const isLoginRoute = useIsLoginRoute()
-  const navigateToLogin = () => {
-    window.history.pushState({}, '', '/login')
+  return {
+    user,
+    loading,
+    handleGoogleLogin,
+    handleLogout,
   }
-
-  return { user, handleGoogleLogin, handleLogout, isLoginRoute, navigateToLogin }
-}
-
-const useIsLoginRoute = () => {
-  const [isLoginRoute, setIsLoginRoute] = useState(
-    () => window.location.pathname === '/login',
-  )
-
-  useEffect(() => {
-    const checkPath = () => {
-      setIsLoginRoute(window.location.pathname === '/login')
-    }
-
-    // Listen to URL changes
-    window.addEventListener('popstate', checkPath)
-    const originalPushState = window.history.pushState
-    window.history.pushState = function (
-      state: any,
-      unused: string,
-      url?: string | URL | null,
-    ) {
-      originalPushState.call(this, state, unused, url)
-      checkPath()
-    }
-
-    return () => {
-      window.removeEventListener('popstate', checkPath)
-      window.history.pushState = originalPushState
-    }
-  }, [])
-
-  return isLoginRoute
 }

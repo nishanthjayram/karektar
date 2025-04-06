@@ -4,11 +4,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--color-background-alt);
-  border: var(--border-window);
-  box-shadow: var(--shadow-window);
+  background: #f0f0f0;
   cursor: crosshair;
-  padding: var(--spacing-unit);
 }
 
 .drawingCanvas,
@@ -22,10 +19,17 @@
   touch-action: none;
   user-select: none;
   image-rendering: pixelated;
-  background: var(--color-pixel-off);
+  background: #e0e0e0;
 }
 
 .drawingCanvas {
-  border: var(--border-inset);
-  z-index: 100;
+  z-index: 200;
+}
+
+.guidelineCanvas {
+  z-index: 400; /* Ensure this is above the preview canvas */
+}
+
+.previewCanvas {
+  z-index: 300; /* Ensure this is the bottommost canvas */
 }

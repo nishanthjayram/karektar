@@ -1,6 +1,6 @@
 export const saveDraft = async (draft: any) => {
   try {
-    const response = await fetch('http://localhost:8787/api/save-draft', {
+    const response = await fetch('http://localhost:8787/save-draft', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ export const saveDraft = async (draft: any) => {
 
 export const getDraft = async () => {
   try {
-    const response = await fetch('http://localhost:8787/api/get-draft', {
+    const response = await fetch('http://localhost:8787/get-draft', {
       credentials: 'include', // Important!
     })
     if (!response.ok) {

@@ -6,9 +6,6 @@ import { TProjectStore } from '@/types/stores'
 import Bitmap from '@/classes/Bitmap'
 import { bitmapConverter } from '@/utils/bitmap'
 
-const getWorkerUrl = () =>
-  `${window.location.protocol}//${window.location.hostname}:8787`
-
 export const useProjectStore = create<TProjectStore>((set, get) => ({
   projects: {},
 
@@ -16,7 +13,7 @@ export const useProjectStore = create<TProjectStore>((set, get) => ({
 
   loadProjects: async () => {
     try {
-      const response = await fetch(`${getWorkerUrl()}/api/projects/list`, {
+      const response = await fetch(`api/projects/list`, {
         credentials: 'include',
       })
       if (response.ok) {
@@ -40,7 +37,7 @@ export const useProjectStore = create<TProjectStore>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`${getWorkerUrl()}/api/projects/save`, {
+      const response = await fetch(`api/projects/save`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -59,13 +56,10 @@ export const useProjectStore = create<TProjectStore>((set, get) => ({
 
   deleteProject: async (id: string) => {
     try {
-      const response = await fetch(
-        `${getWorkerUrl()}/api/projects/delete?id=${id}`,
-        {
-          method: 'POST',
-          credentials: 'include',
-        },
-      )
+      const response = await fetch(`api/projects/delete?id=${id}`, {
+        method: 'POST',
+        credentials: 'include',
+      })
 
       if (response.ok) {
         set(state => {
@@ -83,7 +77,7 @@ export const useProjectStore = create<TProjectStore>((set, get) => ({
     if (!project) return
 
     try {
-      await fetch(`${getWorkerUrl()}/api/projects/save`, {
+      await fetch(`api/projects/save`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -116,7 +110,7 @@ export const useProjectStore = create<TProjectStore>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`${getWorkerUrl()}/api/projects/save`, {
+      const response = await fetch(`api/projects/save`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

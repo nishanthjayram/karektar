@@ -1,13 +1,14 @@
 /* Window.module.css */
 .container {
-  width: 800px;
-  height: 600px;
+  width: 1400px;
+  height: 800px;
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
   position: relative;
   border: 3px solid black; /* Match the header border width */
   box-shadow: 2px 2px 0px 0px #000000;
+  z-index: 1;
 }
 
 .content {

@@ -2,6 +2,7 @@ import Bitmap from '@classes/Bitmap'
 import { TProjectMetadata } from '@common/types'
 import { TBitmapSize, TFontMap, TPos, TTool } from '@/types/common'
 import { TPointerState } from '@/types/common'
+import { TModalConfig } from '@/components/ui/Modal/Modal'
 
 export type TProjectState = {
   projects: Record<string, TProjectMetadata>
@@ -59,6 +60,14 @@ export type TEditorActions = {
   // Project operations
   openProject: (id: string) => void
   closeProject: () => void
+}
+
+export type TUIStore = {
+  activeDropdown: string | null
+  activeModal: string | null
+
+  setActiveDropdown: (dropdown: string | null) => void
+  setActiveModal: (modal: string | null) => void
 }
 
 export type TProjectStore = TProjectState & TProjectActions

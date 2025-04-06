@@ -1,82 +1,34 @@
 /* App.module.css */
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  padding-top: 80px; /* Space for the dropdown bar */
+  box-sizing: border-box; /* Include padding in the height calculation */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
 .container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 20px;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  background: #f5f5f5;
-  border-radius: 4px;
-}
-
-.form {
-  display: flex;
-  gap: 10px;
+  justify-content: flex-start;
+  flex: 1;
+  width: 100%;
   padding: 20px;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  box-sizing: border-box;
+  /* Removed margin-top to prevent extra space */
 }
 
-.input,
-.select {
-  font-family: 'ChicagoFLF';
-  padding: 5px 10px;
-  border: 1px solid #000;
-}
+/* Add responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
 
-.button {
-  font-family: 'ChicagoFLF';
-  padding: 5px 10px;
-  background-color: #000;
-  color: white;
-  border: none;
-  box-shadow: 2px 2px 0px 0px #000000;
-  cursor: pointer;
-}
-
-.deleteButton {
-  background-color: #ff4444;
-}
-
-.projectList {
-  padding: 20px;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.projectGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.projectCard {
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #f9f9f9;
-}
-
-.projectInfo {
-  margin: 10px 0;
-  font-size: 14px;
-}
-
-.projectInfo p {
-  margin: 5px 0;
-}
-
-.projectActions {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  .appContainer {
+    padding-top: 40px; /* Less padding on mobile */
+  }
 }

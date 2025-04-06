@@ -17,10 +17,3 @@ export type TProjectMetadata = {
   dateModified: number
   fontMap: TSerializedFontMap
 }
-
-export type TSession = {
-  userId: string
-  email: string
-  name: string
-  expiresAt: number
-}

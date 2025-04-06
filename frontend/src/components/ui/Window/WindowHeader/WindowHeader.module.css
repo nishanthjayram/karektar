@@ -6,30 +6,19 @@
   height: 45px;
   border-bottom: 3px solid black;
   background-color: white;
-}
-
-/* Left fixed section with lines and square */
-.leftFixed {
-  display: flex;
-  align-items: center;
-  padding-left: 5px;
-}
-
-.leftLines {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: 30px;
-  height: 30px;
+  position: relative;
 }
 
 .square {
-  height: 27px;
-  width: 27px;
+  height: 20px;
+  width: 20px;
   border: 3px solid black;
+  outline: 3px solid white;
   background-color: white;
-  margin: 0 5px;
+  margin-left: 25px;
   cursor: pointer;
+  position: relative;
+  z-index: 2;
 }
 
 .square::after {
@@ -51,50 +40,43 @@
   background-color: black;
 }
 
-/* Center section with flexible lines and fixed text */
-.centerSection {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  min-width: 0;
-}
-
 /* Lines container that sits behind the text */
 .linesWrapper {
   position: absolute;
   left: 0;
   right: 0;
+  top: 0;
+  bottom: 0;
   display: flex;
-  pointer-events: none; /* Allows clicking through to header if needed */
-  padding-right: 5px;
+  align-items: center;
+  padding: 0 2px;
 }
 
 .linesContainer {
-  flex: 1;
+  width: 100%;
+  height: 24px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  height: 30px;
+  justify-content: space-between;
+}
+
+.line {
+  height: 2px;
+  width: 100%;
+  background-color: black;
 }
 
 /* Fixed position header text */
 .headerText {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   font-family: 'ChicagoFLF';
-  font-size: 26px;
+  font-size: 2rem;
   white-space: nowrap;
   padding: 0 10px;
-  background-color: white; /* Ensures text is visible over lines */
-  z-index: 1;
-  pointer-events: none;
-}
-
-.line {
-  height: 4px;
-  width: 100%;
-  background-color: black;
+  background-color: white;
+  z-index: 2;
+  line-height: 1;
 }

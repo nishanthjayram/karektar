@@ -197,6 +197,7 @@ export const useEditorStore = create<TEditorStore>((set, get) => ({
   },
 
   openProject: (id: string) => {
+    console.log('Retrieving project')
     // Retrieve the project from the project store.
     const project = useProjectStore.getState().projects[id]
     if (!project) {

@@ -4,12 +4,10 @@
   max-width: 1300px;
   position: relative;
   display: flex;
-  flex-flow: column nowrap;
-  gap: var(--spacing-double);
-  background: var(--color-background-alt);
-  border: var(--border-window);
-  padding: var(--spacing-double);
-  box-shadow: var(--shadow-window);
+  flex-flow: row nowrap;
+  gap: 6px;
+  border: 1px solid #000;
+  padding: 6px;
 }
 
 .canvasPane {

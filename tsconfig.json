@@ -3,6 +3,5 @@
     "composite": true
   },
   "files": [],
-  "references": [{ "path": "./frontend" }, { "path": "./workers" }],
-  
+  "references": [{ "path": "./frontend" }]
 }

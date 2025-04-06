@@ -3,19 +3,21 @@
   "private": true,
   "workspaces": [
     "frontend",
-    "workers"
+    "backend"
   ],
   "engines": {
     "node": "^20.9.0"
   },
   "scripts": {
     "dev:frontend": "npm run dev -w frontend -- --host",
-    "dev:workers": "npm run dev -w workers",
-    "dev": "npm-run-all --parallel dev:frontend dev:workers",
-    "build": "cd frontend && npm install && npm run build",
-    "deploy": "cd workers && npm install && npm run deploy"
+    "dev:backend": "wrangler pages dev frontend/dist",
+    "dev": "npm-run-all --parallel dev:frontend dev:backend",
+    "build": "npm run build -w frontend && npm install -w backend",
+    "deploy": "npm run build && npm run deploy -w backend",
+    "postinstall": "npm install -w frontend && npm install -w backend"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250214.0",
     "npm-run-all": "^4.1.5",
     "typescript": "^5.7.3",
     "wrangler": "^3.107.0"

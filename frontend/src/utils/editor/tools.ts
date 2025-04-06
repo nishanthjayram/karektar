@@ -1,5 +1,5 @@
 import { TPos } from '@/types/common'
-import { TToolOperation } from '@/types/tools'
+import { TToolOperation } from '@/types/tool'
 import Bitmap from '@/classes/Bitmap'
 
 /**
@@ -59,7 +59,6 @@ const eraserTool = createDirectTool((bitmap, from, to) => {
 })
 
 const lineTool = createPreviewTool((bitmap, start, current) => {
-  console.log('drawing a line from', start, 'to', current)
   bitmap.drawLine(start, current)
 })
 

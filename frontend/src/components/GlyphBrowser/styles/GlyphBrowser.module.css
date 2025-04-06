@@ -2,11 +2,12 @@
 .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-  gap: var(--spacing-unit);
-  padding: var(--spacing-unit);
+  gap: 6px;
+  padding: 6px;
   background: var(--color-background);
   border: var(--border-window);
   box-shadow: var(--shadow-window);
+  height: 100%;
 }
 
 .pagination {
