@@ -1,3 +1,36 @@
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.accountMenu {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-end;
+  gap: 6px;
+  margin-top: 12px;
+  max-width: 360px;
+}
+
+.accountText,
+.accountError {
+  margin: 0;
+  font-size: 13px;
+  text-align: right;
+}
+
+.accountError {
+  color: #a32626;
+}
+
+.accountButton {
+  min-width: 84px;
+  width: auto;
+  padding: 0 12px;
+}
+
 .appRow {
   display: flex;
   flex-flow: row nowrap;
@@ -60,6 +93,22 @@
 }
 
 @media screen and (max-width: 576px) {
+  .headerRow {
+    flex-flow: column nowrap;
+    gap: 12px;
+  }
+
+  .accountMenu {
+    align-items: flex-start;
+    margin-top: 0;
+    max-width: 100%;
+  }
+
+  .accountText,
+  .accountError {
+    text-align: left;
+  }
+
   .appRow {
     display: flex;
     flex-flow: row wrap;
