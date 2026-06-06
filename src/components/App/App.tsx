@@ -5,6 +5,12 @@ import Modal from 'react-modal'
 import {useMediaQuery} from 'react-responsive'
 import styles from './App.module.scss'
 import {ReactComponent as GitHub} from '../../assets/github.svg'
+import {
+  AuthUser,
+  beginGoogleLogin,
+  checkAuth,
+  logout as logoutAuth,
+} from '../../services/auth'
 import {TConfirmModal, TFontProps} from '../../types'
 import {
   DEFAULT_FONT_NAME,
@@ -59,6 +65,53 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
   const {confirmModal, glyphSetModal} = fontState
 
   const pageSize = useWindowSize()
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [authError, setAuthError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadSession = async () => {
+      try {
+        const user = await checkAuth()
+
+        if (!cancelled) {
+          setAuthUser(user)
+          setAuthError(null)
+        }
+      } catch {
+        if (!cancelled) {
+          setAuthUser(null)
+          setAuthError(null)
+        }
+      } finally {
+        if (!cancelled) {
+          setAuthLoading(false)
+        }
+      }
+    }
+
+    void loadSession()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const handleLogout = async () => {
+    setAuthLoading(true)
+    setAuthError(null)
+
+    try {
+      await logoutAuth()
+      setAuthUser(null)
+    } catch {
+      setAuthError('Logout failed')
+    } finally {
+      setAuthLoading(false)
+    }
+  }
 
   return (
     <div
@@ -71,7 +124,16 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
       }}
     >
       <div>
-        <Title />
+        <div className={styles.headerRow}>
+          <Title />
+          <AccountMenu
+            authError={authError}
+            authLoading={authLoading}
+            user={authUser}
+            onLogin={beginGoogleLogin}
+            onLogout={handleLogout}
+          />
+        </div>
         {!screenFlag && (
           <>
             <InputField {...fontProps} />
@@ -116,7 +178,7 @@ const useWindowSize = () => {
 
   useEffect(() => {
     window.addEventListener('resize', onResize)
-    return window.removeEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
   }, [])
 
   return size
@@ -129,6 +191,50 @@ const Title = () => (
     </a>
     ktar.
   </h1>
+)
+
+type AccountMenuProps = {
+  authError: string | null
+  authLoading: boolean
+  user: AuthUser | null
+  onLogin: () => void
+  onLogout: () => Promise<void>
+}
+
+const AccountMenu: React.FC<AccountMenuProps> = ({
+  authError,
+  authLoading,
+  user,
+  onLogin,
+  onLogout,
+}) => (
+  <div className={styles.accountMenu}>
+    <p className={styles.accountText}>
+      {authLoading
+        ? 'Checking session...'
+        : user
+          ? `${user.name} (${user.email})`
+          : 'Local draft mode'}
+    </p>
+    {authError && <p className={styles.accountError}>{authError}</p>}
+    {user ? (
+      <button
+        className={styles.accountButton}
+        disabled={authLoading}
+        onClick={() => void onLogout()}
+      >
+        Logout
+      </button>
+    ) : (
+      <button
+        className={styles.accountButton}
+        disabled={authLoading}
+        onClick={onLogin}
+      >
+        Sign In
+      </button>
+    )}
+  </div>
 )
 
 const InputField: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
