@@ -1,6 +1,6 @@
 import classnames from 'classnames'
 import opentype from 'opentype.js'
-import {useEffect, useReducer, useState} from 'react'
+import {useEffect, useReducer, useRef, useState} from 'react'
 import Modal from 'react-modal'
 import {useMediaQuery} from 'react-responsive'
 import styles from './App.module.scss'
@@ -55,6 +55,9 @@ const hasLocalEditorWork = ({
   symbolSet.some((symbol, index) => symbol !== DEFAULT_SYMBOL_SET[index]) ||
   [...glyphSet.values()].some(glyph => !isEmptyGlyph(glyph))
 
+const hasDraftableGlyphSet = ({symbolSet}: TFontProps['fontState']) =>
+  symbolSet.length > 0
+
 const App = ({bitmapSize}: {bitmapSize: number}) => {
   Modal.setAppElement('#root')
   const screenFlag = useMediaQuery({query: `(max-width: ${XS_SCREEN}px)`})
@@ -73,6 +76,8 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
       screenFlag,
     ),
   )
+  const latestFontStateRef = useRef(fontState)
+  latestFontStateRef.current = fontState
 
   const fontProps = {
     fontState: fontState,
@@ -154,19 +159,21 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
         return
       }
 
-      if (areFontDraftsEqual(result.draft, serializeFontDraft(fontState))) {
+      const latestFontState = latestFontStateRef.current
+
+      if (areFontDraftsEqual(result.draft, serializeFontDraft(latestFontState))) {
         setDraftStatus(options?.silent ? null : 'Draft already loaded')
         return
       }
 
-      if (options?.deferIfLocalWork && hasLocalEditorWork(fontState)) {
+      if (options?.deferIfLocalWork && hasLocalEditorWork(latestFontState)) {
         setDraftStatus('Signed in. Load Draft will replace local work.')
         return
       }
 
       if (
         options?.confirmReplace &&
-        hasLocalEditorWork(fontState) &&
+        hasLocalEditorWork(latestFontState) &&
         !window.confirm('Load your saved draft? This will replace local work.')
       ) {
         setDraftStatus('Draft load canceled')
@@ -187,6 +194,11 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
   }
 
   const handleSaveDraft = async () => {
+    if (!hasDraftableGlyphSet(fontState)) {
+      setDraftStatus('No glyphs to save')
+      return
+    }
+
     setDraftLoading(true)
     setDraftStatus('Saving draft...')
 
