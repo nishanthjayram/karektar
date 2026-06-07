@@ -16,6 +16,16 @@ export const checkAuth = async () => {
     throw new Error('Failed to check session')
   }
 
+  const contentType = response.headers.get('Content-Type') ?? ''
+
+  if (!contentType.includes('application/json')) {
+    if (import.meta.env.DEV) {
+      return null
+    }
+
+    throw new Error('Invalid session response')
+  }
+
   return (await response.json()) as AuthUser
 }
 

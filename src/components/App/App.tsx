@@ -11,6 +11,12 @@ import {
   checkAuth,
   logout as logoutAuth,
 } from '../../services/auth'
+import {
+  areFontDraftsEqual,
+  loadCurrentDraft,
+  saveCurrentDraft,
+  serializeFontDraft,
+} from '../../services/draft'
 import {TConfirmModal, TFontProps} from '../../types'
 import {
   DEFAULT_FONT_NAME,
@@ -37,6 +43,17 @@ import ConfirmModal from '../ConfirmModal/ConfirmModal'
 import GlyphSet from '../GlyphSet/GlyphSet'
 
 const XS_SCREEN = 576
+const DEFAULT_SYMBOL_SET = getUniqueCharacters(DEFAULT_PROMPT)
+
+const hasLocalEditorWork = ({
+  glyphSet,
+  inputText,
+  symbolSet,
+}: TFontProps['fontState']) =>
+  inputText !== DEFAULT_PROMPT ||
+  symbolSet.length !== DEFAULT_SYMBOL_SET.length ||
+  symbolSet.some((symbol, index) => symbol !== DEFAULT_SYMBOL_SET[index]) ||
+  [...glyphSet.values()].some(glyph => !isEmptyGlyph(glyph))
 
 const App = ({bitmapSize}: {bitmapSize: number}) => {
   Modal.setAppElement('#root')
@@ -68,6 +85,8 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [authError, setAuthError] = useState<string | null>(null)
+  const [draftStatus, setDraftStatus] = useState<string | null>(null)
+  const [draftLoading, setDraftLoading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -83,7 +102,7 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
       } catch {
         if (!cancelled) {
           setAuthUser(null)
-          setAuthError(null)
+          setAuthError('Session check failed. Using local draft mode.')
         }
       } finally {
         if (!cancelled) {
@@ -113,6 +132,91 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
     }
   }
 
+  const handleLoadDraft = async (options?: {
+    confirmReplace?: boolean
+    deferIfLocalWork?: boolean
+    silent?: boolean
+  }) => {
+    setDraftLoading(true)
+    setDraftStatus(options?.silent ? null : 'Loading draft...')
+
+    try {
+      const result = await loadCurrentDraft()
+
+      if (result.status === 'unauthorized') {
+        setAuthUser(null)
+        setDraftStatus('Sign in to load a draft')
+        return
+      }
+
+      if (result.status === 'empty') {
+        setDraftStatus(options?.silent ? null : 'No saved draft yet')
+        return
+      }
+
+      if (areFontDraftsEqual(result.draft, serializeFontDraft(fontState))) {
+        setDraftStatus(options?.silent ? null : 'Draft already loaded')
+        return
+      }
+
+      if (options?.deferIfLocalWork && hasLocalEditorWork(fontState)) {
+        setDraftStatus('Signed in. Load Draft will replace local work.')
+        return
+      }
+
+      if (
+        options?.confirmReplace &&
+        hasLocalEditorWork(fontState) &&
+        !window.confirm('Load your saved draft? This will replace local work.')
+      ) {
+        setDraftStatus('Draft load canceled')
+        return
+      }
+
+      fontDispatch({
+        type: 'GLYPH_SET_ACTION',
+        op: 'LOAD_DRAFT',
+        draft: result.draft,
+      })
+      setDraftStatus(options?.silent ? null : 'Draft loaded')
+    } catch {
+      setDraftStatus('Draft load failed')
+    } finally {
+      setDraftLoading(false)
+    }
+  }
+
+  const handleSaveDraft = async () => {
+    setDraftLoading(true)
+    setDraftStatus('Saving draft...')
+
+    try {
+      const result = await saveCurrentDraft(fontState)
+
+      if (result.status === 'unauthorized') {
+        setAuthUser(null)
+        setDraftStatus('Sign in to save a draft')
+        return
+      }
+
+      setDraftStatus('Draft saved')
+    } catch {
+      setDraftStatus('Draft save failed')
+    } finally {
+      setDraftLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!authUser) {
+      return
+    }
+
+    void handleLoadDraft({deferIfLocalWork: true, silent: true})
+    // Load only when the authenticated account changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser?.email])
+
   return (
     <div
       className={classnames(
@@ -129,9 +233,13 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
           <AccountMenu
             authError={authError}
             authLoading={authLoading}
+            draftLoading={draftLoading}
+            draftStatus={draftStatus}
             user={authUser}
+            onLoadDraft={() => handleLoadDraft({confirmReplace: true})}
             onLogin={beginGoogleLogin}
             onLogout={handleLogout}
+            onSaveDraft={handleSaveDraft}
           />
         </div>
         {!screenFlag && (
@@ -196,17 +304,25 @@ const Title = () => (
 type AccountMenuProps = {
   authError: string | null
   authLoading: boolean
+  draftLoading: boolean
+  draftStatus: string | null
   user: AuthUser | null
+  onLoadDraft: () => Promise<void>
   onLogin: () => void
   onLogout: () => Promise<void>
+  onSaveDraft: () => Promise<void>
 }
 
 const AccountMenu: React.FC<AccountMenuProps> = ({
   authError,
   authLoading,
+  draftLoading,
+  draftStatus,
   user,
+  onLoadDraft,
   onLogin,
   onLogout,
+  onSaveDraft,
 }) => (
   <div className={styles.accountMenu}>
     <p className={styles.accountText}>
@@ -216,15 +332,30 @@ const AccountMenu: React.FC<AccountMenuProps> = ({
           ? `${user.name} (${user.email})`
           : 'Local draft mode'}
     </p>
-    {authError && <p className={styles.accountError}>{authError}</p>}
     {user ? (
-      <button
-        className={styles.accountButton}
-        disabled={authLoading}
-        onClick={() => void onLogout()}
-      >
-        Logout
-      </button>
+      <div className={styles.accountButtonRow}>
+        <button
+          className={styles.accountButton}
+          disabled={authLoading || draftLoading}
+          onClick={() => void onSaveDraft()}
+        >
+          Save Draft
+        </button>
+        <button
+          className={styles.accountButton}
+          disabled={authLoading || draftLoading}
+          onClick={() => void onLoadDraft()}
+        >
+          Load Draft
+        </button>
+        <button
+          className={styles.accountButton}
+          disabled={authLoading}
+          onClick={() => void onLogout()}
+        >
+          Logout
+        </button>
+      </div>
     ) : (
       <button
         className={styles.accountButton}
@@ -234,6 +365,9 @@ const AccountMenu: React.FC<AccountMenuProps> = ({
         Sign In
       </button>
     )}
+    <p className={classnames(styles.accountStatus, authError && styles.accountError)}>
+      {authError ?? draftStatus ?? '\u00a0'}
+    </p>
   </div>
 )
 

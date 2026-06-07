@@ -63,6 +63,16 @@ export type TFont = {
   vlinePos: number
 }
 
+export type TSerializedFontDraft = {
+  version: 1
+  bitmapSize: number
+  activeGlyph: string
+  glyphs: Record<string, boolean[]>
+  inputText: string
+  symbolSet: string[]
+  updatedAt: number
+}
+
 export type TCanvasAction = {type: 'CANVAS_ACTION'} & (
   | {op: 'UPDATE_ACTIVE_MENU'; newActiveMenu: TMenuLabel | undefined}
   | {op: 'UPDATE_CANVAS_HISTORY'; newGlyphCanvas: boolean[]}
@@ -76,6 +86,7 @@ export type TCanvasAction = {type: 'CANVAS_ACTION'} & (
   | {op: 'REDO'}
 )
 export type TGlyphSetAction = {type: 'GLYPH_SET_ACTION'} & (
+  | {op: 'LOAD_DRAFT'; draft: TSerializedFontDraft}
   | {op: 'RESET_GLYPH_SET'}
   | {op: 'UPDATE_ACTIVE_GLYPH'; newActiveGlyph: string}
   | {op: 'UPDATE_CONFIRM_MODAL'; newConfirmModal: TConfirmModal | undefined}
