@@ -25,6 +25,31 @@ export const fontReducer = (state: TFont, action: TFontAction): TFont => {
 
 export const glyphSetReducer = (state: TFont, action: TGlyphSetAction): TFont => {
   switch (action.op) {
+    case 'LOAD_DRAFT': {
+      const {draft} = action
+
+      if (draft.bitmapSize !== state.bitmapSize) {
+        return state
+      }
+
+      const glyphSet: TGlyphSet = new Map<TSymbol, TGlyph>()
+      draft.symbolSet.forEach(symbol => glyphSet.set(symbol, draft.glyphs[symbol]))
+
+      const activeGlyph = draft.symbolSet.includes(draft.activeGlyph)
+        ? draft.activeGlyph
+        : draft.symbolSet[0]
+      const activeCanvas = glyphSet.get(activeGlyph) ?? initializeGlyph(state.bitmapSize)
+
+      return {
+        ...state,
+        activeGlyph,
+        canvasHistory: [activeCanvas],
+        glyphSet,
+        historyIndex: 0,
+        inputText: draft.inputText,
+        symbolSet: draft.symbolSet,
+      }
+    }
     case 'UPDATE_ACTIVE_GLYPH': {
       if (state.activeGlyph === action.newActiveGlyph) {
         return state

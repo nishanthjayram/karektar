@@ -15,10 +15,16 @@
 }
 
 .accountText,
-.accountError {
+.accountStatus {
   margin: 0;
   font-size: 13px;
   text-align: right;
+}
+
+.accountStatus {
+  min-height: 16px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .accountError {
@@ -29,6 +35,13 @@
   min-width: 84px;
   width: auto;
   padding: 0 12px;
+}
+
+.accountButtonRow {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 .appRow {
@@ -105,8 +118,12 @@
   }
 
   .accountText,
-  .accountError {
+  .accountStatus {
     text-align: left;
+  }
+
+  .accountButtonRow {
+    justify-content: flex-start;
   }
 
   .appRow {

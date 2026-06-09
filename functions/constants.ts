@@ -11,6 +11,7 @@ export const HTTP_STATUS = {
   FOUND: 302,
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
+  NOT_FOUND: 404,
   METHOD_NOT_ALLOWED: 405,
 } as const
 
@@ -19,8 +20,11 @@ export const CONTENT_TYPE = {
 } as const
 
 export const RESPONSE_MESSAGES = {
+  INVALID_DRAFT_PAYLOAD: 'Invalid draft payload',
+  INVALID_REQUEST: 'Invalid request',
   METHOD_NOT_ALLOWED: 'Method not allowed',
   NOT_AUTHENTICATED: 'Not authenticated',
+  NOT_FOUND: 'Not found',
 } as const
 
 export const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -29,6 +33,7 @@ export const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinf
 
 export const OAUTH_STATE_PREFIX = 'oauth_state:'
 export const SESSION_PREFIX = 'session:'
+export const CURRENT_DRAFT_PREFIX = 'current_draft:'
 
 export const OAUTH_STATE_TTL_SECONDS = 60 * 5
 export const SESSION_EXPIRY_DAYS = 7
