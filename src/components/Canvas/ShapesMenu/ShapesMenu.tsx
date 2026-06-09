@@ -28,6 +28,10 @@ const ToolsMenu: React.FC<TToolsMenu> = ({
     <div>
       <FontAwesomeIcon
         icon={icon}
+        role="button"
+        tabIndex={0}
+        aria-label={label}
+        data-testid="menu-shapes"
         className={classnames(
           (activeMenu === defaultLabel || currentTool === label) &&
             styles.activeIcon,

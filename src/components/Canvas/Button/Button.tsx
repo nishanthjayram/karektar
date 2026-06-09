@@ -137,6 +137,11 @@ const Button: React.FC<TButtonProps> = ({
   const button = (
     <FontAwesomeIcon
       icon={icon}
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled}
+      aria-label={label}
+      data-testid={`${type}-${label.toLowerCase()}`}
       className={classnames(
         active && styles.activeIcon,
         disabled && styles.disabledIcon,

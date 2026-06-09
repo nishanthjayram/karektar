@@ -32,10 +32,10 @@ const Gallery: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
   const maxPage = Math.ceil(glyphSet.size / pageLength) - 1
 
   if (glyphSet.size === 0) {
-    return <div className={styles.glyphSet} />
+    return <div className={styles.glyphSet} data-testid="glyph-set" />
   }
   return (
-    <div className={styles.glyphSet}>
+    <div className={styles.glyphSet} data-testid="glyph-set">
       <div className={styles.navBar}>
         <div className={styles.page}>{`${galleryPage + 1}/${maxPage + 1}`}</div>
         <div className={styles.navControls}>

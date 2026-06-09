@@ -24,6 +24,10 @@ const OptionsMenu: React.FC<TOptionsMenuProps> = ({
     <div>
       <FontAwesomeIcon
         icon={defaultIcon}
+        role="button"
+        tabIndex={0}
+        aria-label={defaultLabel}
+        data-testid="menu-options"
         className={classnames(
           activeMenu === defaultLabel && styles.activeIcon,
           styles.icon,

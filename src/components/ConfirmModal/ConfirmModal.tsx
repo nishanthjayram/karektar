@@ -32,10 +32,12 @@ const ConfirmModal: React.FC<TConfirmModalProps> = ({
       className={styles.modal}
       overlayClassName={styles.overlay}
       isOpen={confirmModal === type}
+      contentLabel={`${type} confirmation`}
     >
-      <p>{message}</p>
+      <p data-testid="confirm-message">{message}</p>
       <button
         className={styles.button}
+        data-testid="confirm-button"
         onClick={() => {
           onConfirm()
           onRequestClose()
@@ -44,7 +46,11 @@ const ConfirmModal: React.FC<TConfirmModalProps> = ({
         Confirm
       </button>
       {cancelFlag && (
-        <button className={styles.button} onClick={onRequestClose}>
+        <button
+          className={styles.button}
+          data-testid="cancel-button"
+          onClick={onRequestClose}
+        >
           Cancel
         </button>
       )}

@@ -235,6 +235,7 @@ const App = ({bitmapSize}: {bitmapSize: number}) => {
         (confirmModal || glyphSetModal) && styles.noclick,
         styles.page,
       )}
+      data-testid="app-page"
       style={{
         height: `${pageSize}px`,
       }}
@@ -336,8 +337,8 @@ const AccountMenu: React.FC<AccountMenuProps> = ({
   onLogout,
   onSaveDraft,
 }) => (
-  <div className={styles.accountMenu}>
-    <p className={styles.accountText}>
+  <div className={styles.accountMenu} data-testid="account-menu">
+    <p className={styles.accountText} data-testid="account-user">
       {authLoading
         ? 'Checking session...'
         : user
@@ -392,6 +393,7 @@ const InputField: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
     <textarea
       id="queryField"
       name="queryField"
+      data-testid="prompt-input"
       value={inputText}
       placeholder="Enter prompt"
       onChange={e =>
@@ -590,6 +592,7 @@ const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
             inputText.length === 0 && styles.disabledButton,
             styles.button,
           )}
+          data-testid="submit-button"
           onPointerUp={() => handlePointerUp('SUBMIT')}
         >
           Submit
@@ -600,6 +603,7 @@ const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
               styles.disabledButton,
             styles.button,
           )}
+          data-testid="reset-button"
           onPointerUp={() => handlePointerUp('RESET')}
         >
           Reset
@@ -610,12 +614,14 @@ const ButtonMenu: React.FC<TFontProps> = ({fontState, fontDispatch}) => {
               styles.disabledButton,
             styles.button,
           )}
+          data-testid="export-button"
           onPointerUp={() => handlePointerUp('EXPORT')}
         >
           Export
         </button>
         <button
           className={styles.button}
+          data-testid="help-button"
           onPointerUp={() => handlePointerUp('HELP')}
         >
           Help
