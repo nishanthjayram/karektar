@@ -36,6 +36,8 @@ const Glyph = ({
   return (
     <div
       className={styles.glyph}
+      data-testid={`glyph-${glyph}`}
+      aria-label={`Glyph ${glyph}`}
       onPointerDown={evt => {
         if (evt.buttons === 1) {
           fontDispatch({

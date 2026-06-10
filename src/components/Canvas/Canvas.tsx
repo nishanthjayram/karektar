@@ -259,6 +259,7 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
       <div className={styles.header} style={{width: canvasSize}}>
         <div
           className={styles.text}
+          data-testid="active-glyph"
           style={{
             minWidth: `${GLYPH_TEXT_WIDTH}px`,
             padding: `0 ${(2 * pixelSize - GLYPH_TEXT_WIDTH) / 2}px`,
@@ -287,6 +288,8 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
         <canvas
           ref={drawCanvas}
           className={styles.canvas}
+          data-testid="editor-canvas"
+          aria-label="Editor canvas"
           style={{opacity: modelFlag ? '0.95' : '1'}}
           width={canvasSize}
           height={canvasSize}
@@ -311,6 +314,8 @@ const Canvas: React.FC<TCanvasProps> = ({fontState, fontDispatch}) => {
         <canvas
           ref={drawModel}
           className={styles.model}
+          data-testid="model-canvas"
+          aria-label="Model canvas"
           width={canvasSize}
           height={canvasSize}
         />
