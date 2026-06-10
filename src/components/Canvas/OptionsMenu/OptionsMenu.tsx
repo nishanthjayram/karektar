@@ -19,6 +19,21 @@ const OptionsMenu: React.FC<TOptionsMenuProps> = ({
   fontDispatch,
 }) => {
   const {activeMenu, screenFlag} = fontState
+  const toggleMenu = () =>
+    fontDispatch({
+      type: 'CANVAS_ACTION',
+      op: 'UPDATE_ACTIVE_MENU',
+      newActiveMenu: activeMenu === defaultLabel ? undefined : defaultLabel,
+    })
+
+  const handleKeyDown = (evt: React.KeyboardEvent<SVGSVGElement>) => {
+    if (evt.key !== 'Enter' && evt.key !== ' ') {
+      return
+    }
+
+    evt.preventDefault()
+    toggleMenu()
+  }
 
   const menu = (
     <div>
@@ -32,13 +47,8 @@ const OptionsMenu: React.FC<TOptionsMenuProps> = ({
           activeMenu === defaultLabel && styles.activeIcon,
           styles.icon,
         )}
-        onPointerUp={() =>
-          fontDispatch({
-            type: 'CANVAS_ACTION',
-            op: 'UPDATE_ACTIVE_MENU',
-            newActiveMenu: activeMenu === defaultLabel ? undefined : defaultLabel,
-          })
-        }
+        onPointerUp={toggleMenu}
+        onKeyDown={handleKeyDown}
       />
       <div
         className={classnames(

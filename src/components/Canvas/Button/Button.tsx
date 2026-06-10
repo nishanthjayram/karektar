@@ -40,7 +40,7 @@ const Button: React.FC<TButtonProps> = ({
   } = fontState
 
   const handleClick = () => {
-    if (captureFlag) {
+    if (captureFlag || disabled) {
       return
     }
     switch (type) {
@@ -57,6 +57,15 @@ const Button: React.FC<TButtonProps> = ({
         return assertUnreachable(type)
       }
     }
+  }
+
+  const handleKeyDown = (evt: React.KeyboardEvent<SVGSVGElement>) => {
+    if (evt.key !== 'Enter' && evt.key !== ' ') {
+      return
+    }
+
+    evt.preventDefault()
+    handleClick()
   }
 
   const handleToolClick = (tool: TToolLabel) => {
@@ -149,6 +158,7 @@ const Button: React.FC<TButtonProps> = ({
         type !== 'option' && styles.icon,
       )}
       onPointerUp={handleClick}
+      onKeyDown={handleKeyDown}
     />
   )
 

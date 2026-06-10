@@ -23,6 +23,21 @@ const ToolsMenu: React.FC<TToolsMenu> = ({
   const tool = tools.find(t => currentTool === t.label)
   const label = tool ? tool.label : defaultLabel
   const icon = tool ? tool.icon : defaultIcon
+  const toggleMenu = () =>
+    fontDispatch({
+      type: 'CANVAS_ACTION',
+      op: 'UPDATE_ACTIVE_MENU',
+      newActiveMenu: activeMenu === defaultLabel ? undefined : defaultLabel,
+    })
+
+  const handleKeyDown = (evt: React.KeyboardEvent<SVGSVGElement>) => {
+    if (evt.key !== 'Enter' && evt.key !== ' ') {
+      return
+    }
+
+    evt.preventDefault()
+    toggleMenu()
+  }
 
   const menu = (
     <div>
@@ -37,13 +52,8 @@ const ToolsMenu: React.FC<TToolsMenu> = ({
             styles.activeIcon,
           styles.icon,
         )}
-        onPointerUp={() =>
-          fontDispatch({
-            type: 'CANVAS_ACTION',
-            op: 'UPDATE_ACTIVE_MENU',
-            newActiveMenu: activeMenu === defaultLabel ? undefined : defaultLabel,
-          })
-        }
+        onPointerUp={toggleMenu}
+        onKeyDown={handleKeyDown}
       />
       <div
         className={classnames(

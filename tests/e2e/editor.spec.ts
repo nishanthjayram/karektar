@@ -55,6 +55,18 @@ test('uses the rectangle shape tool for a drag interaction', async ({page}) => {
   await expectCanvasCellFilled(page, [3, 3])
 })
 
+test('supports keyboard activation for toolbar controls', async ({page}) => {
+  await page.getByTestId('menu-shapes').focus()
+  await page.keyboard.press('Enter')
+  await page.getByTestId('tool-rectangle').focus()
+  await page.keyboard.press('Enter')
+
+  await dragCells(page, [1, 1], [3, 3])
+
+  await expectCanvasCellFilled(page, [1, 1])
+  await expectCanvasCellFilled(page, [3, 3])
+})
+
 test('confirms reset and clears drawn work', async ({page}) => {
   const initialPixel = await readCanvasPixel(page, [2, 2])
 
@@ -80,7 +92,8 @@ test('opens the export confirmation and reaches the font name prompt', async ({
     }
   })
 
-  await page.getByTestId('export-button').dispatchEvent('pointerup')
+  await drawCell(page, [2, 2])
+  await page.getByTestId('export-button').click()
   await expect(page.getByTestId('confirm-message')).toBeVisible()
   await page.getByTestId('confirm-button').click()
 
